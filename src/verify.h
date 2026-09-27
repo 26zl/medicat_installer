@@ -72,5 +72,7 @@ VerifyResult VerifyMedicatFiles(const VerifyOptions& options);
 using FileHashProgressFn = std::function<void(uint64_t bytesRead, uint64_t totalBytes)>;
 bool ComputeFileMd5(const std::wstring& path, std::string& outHex, std::wstring& error, uint64_t* outBytesRead = nullptr,
                     const FileHashProgressFn& onProgress = {});
+bool ComputeFileSha256(const std::wstring& path, std::string& outHex, std::wstring& error,
+                       uint64_t* outBytesRead = nullptr, const FileHashProgressFn& onProgress = {});
 
 }  // namespace medicat

@@ -3,6 +3,7 @@
 #include "cancel.h"
 #include "download.h"
 #include "offline.h"
+#include "spec_generated.h"
 #include "util.h"
 
 #include <shlwapi.h>
@@ -30,10 +31,6 @@ namespace {
 constexpr size_t kMaxStoredFailures = 10000;
 constexpr size_t kProgressReportInterval = 50;
 
-constexpr wchar_t kMd5DownloadUrlHasher[] =
-    L"https://raw.githubusercontent.com/mon5termatt/medicat_installer/main/hasher/MedicatFiles.md5";
-constexpr wchar_t kMd5DownloadUrlPrimary[] =
-    L"https://raw.githubusercontent.com/mon5termatt/medicat_installer/main/MedicatFiles.md5";
 
 struct Md5Entry {
     std::wstring relativePath;
@@ -744,8 +741,12 @@ bool TryParentDirectory(std::wstring& directory) {
 
 }  // namespace
 
-bool ComputeFileMd5(const std::wstring& path, std::string& outHex, std::wstring& error, uint64_t* outBytesRead,
-                    const FileHashProgressFn& onProgress) {
+namespace {
+
+// Stream a file through CryptoAPI and return the lowercase hex digest.
+bool ComputeFileHashHex(const std::wstring& path, const DWORD providerType, const ALG_ID algorithm,
+                        const size_t digestBytes, std::string& outHex, std::wstring& error,
+                        uint64_t* outBytesRead, const FileHashProgressFn& onProgress) {
     outHex.clear();
     if (outBytesRead) {
         *outBytesRead = 0;
@@ -770,11 +771,11 @@ bool ComputeFileMd5(const std::wstring& path, std::string& outHex, std::wstring&
         }
     };
 
-    if (!CryptAcquireContextW(&provider, nullptr, nullptr, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
+    if (!CryptAcquireContextW(&provider, nullptr, nullptr, providerType, CRYPT_VERIFYCONTEXT)) {
         error = L"CryptAcquireContext failed";
         return false;
     }
-    if (!CryptCreateHash(provider, CALG_MD5, 0, 0, &hash)) {
+    if (!CryptCreateHash(provider, algorithm, 0, 0, &hash)) {
         error = L"CryptCreateHash failed";
         cleanup();
         return false;
@@ -835,16 +836,16 @@ bool ComputeFileMd5(const std::wstring& path, std::string& outHex, std::wstring&
         return false;
     }
 
-    BYTE digest[16]{};
-    DWORD digestLen = sizeof(digest);
-    if (!CryptGetHashParam(hash, HP_HASHVAL, digest, &digestLen, 0)) {
+    std::vector<BYTE> digest(digestBytes);
+    DWORD digestLen = static_cast<DWORD>(digest.size());
+    if (!CryptGetHashParam(hash, HP_HASHVAL, digest.data(), &digestLen, 0) || digestLen != digest.size()) {
         error = L"CryptGetHashParam failed";
         cleanup();
         return false;
     }
 
     static constexpr char kHex[] = "0123456789abcdef";
-    outHex.resize(32);
+    outHex.resize(digest.size() * 2);
     for (DWORD i = 0; i < digestLen; ++i) {
         outHex[i * 2] = kHex[(digest[i] >> 4) & 0x0f];
         outHex[i * 2 + 1] = kHex[digest[i] & 0x0f];
@@ -856,6 +857,18 @@ bool ComputeFileMd5(const std::wstring& path, std::string& outHex, std::wstring&
 
     cleanup();
     return true;
+}
+
+}  // namespace
+
+bool ComputeFileMd5(const std::wstring& path, std::string& outHex, std::wstring& error, uint64_t* outBytesRead,
+                    const FileHashProgressFn& onProgress) {
+    return ComputeFileHashHex(path, PROV_RSA_FULL, CALG_MD5, 16, outHex, error, outBytesRead, onProgress);
+}
+
+bool ComputeFileSha256(const std::wstring& path, std::string& outHex, std::wstring& error, uint64_t* outBytesRead,
+                       const FileHashProgressFn& onProgress) {
+    return ComputeFileHashHex(path, PROV_RSA_AES, CALG_SHA_256, 32, outHex, error, outBytesRead, onProgress);
 }
 
 bool EnsureMedicatMd5Manifest(const std::wstring& installerRoot, const std::wstring& tempDir,
@@ -889,16 +902,17 @@ bool EnsureMedicatMd5Manifest(const std::wstring& installerRoot, const std::wstr
         }
     }
 
-    const std::wstring downloadTargets[] = {
-        JoinPath(tempDir, L"MedicatFiles.hasher.md5"),
-        JoinPath(tempDir, L"MedicatFiles.md5"),
-    };
-    const std::wstring downloadUrls[] = {kMd5DownloadUrlHasher, kMd5DownloadUrlPrimary};
+    // Manifest sources come from spec/medicat.json (fork first, upstream as fallback).
+    std::vector<std::wstring> downloadTargets;
+    for (size_t i = 0; i < kMd5ManifestUrlCount; ++i) {
+        downloadTargets.push_back(
+            JoinPath(tempDir, i == 0 ? std::wstring(L"MedicatFiles.md5") : L"MedicatFiles." + std::to_wstring(i) + L".md5"));
+    }
 
-    for (size_t i = 0; i < std::size(downloadUrls); ++i) {
+    for (size_t i = 0; i < kMd5ManifestUrlCount; ++i) {
         std::wstring downloadError;
         DeleteFileW(downloadTargets[i].c_str());
-        if (!HttpDownloadFile(downloadUrls[i], downloadTargets[i], downloadError)) {
+        if (!HttpDownloadFile(kMd5ManifestUrls[i], downloadTargets[i], downloadError)) {
             if (error.empty()) {
                 error = downloadError;
             }

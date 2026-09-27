@@ -57,6 +57,11 @@ def validate(spec: dict, extras: dict) -> None:
             fail(f"mirror {mirror['name']} must use https")
     if not medicat["manifest"]["urls"]:
         fail("manifest.urls is empty")
+    updates = spec["updates"]
+    if not re.match(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$", updates["github_repository"]):
+        fail("updates.github_repository must be owner/name")
+    if not updates["checksums_asset"] or "/" in updates["checksums_asset"]:
+        fail("updates.checksums_asset must be a plain file name")
     if extras["dest_root"] in ("", ".", "..") or "/" in extras["dest_root"]:
         fail("extras.dest_root must be a single folder name")
     seen: set[str] = set()
@@ -191,6 +196,9 @@ def render_header(spec: dict, extras: dict) -> str:
     out(f"constexpr wchar_t kVentoyPinnedVersion[] = {cpp_wide(pinned)};  // empty = latest")
     out(f"constexpr bool kVentoyDefaultSecureBoot = {'true' if ventoy['secure_boot'] else 'false'};")
     out(f"constexpr bool kVentoyDefaultGpt = {'true' if ventoy['default_partition_style'] == 'gpt' else 'false'};")
+    updates = spec["updates"]
+    out(f"constexpr wchar_t kUpdateRepository[] = {cpp_wide(updates['github_repository'])};  // owner/name on GitHub")
+    out(f"constexpr wchar_t kUpdateChecksumsAssetName[] = {cpp_wide(updates['checksums_asset'])};")
     out("")
     out("struct MediCatExtra {")
     out("    const wchar_t* id;")
@@ -252,8 +260,9 @@ def render_bash_block(spec: dict, extras: dict) -> str:
     ventoy = spec["ventoy"]
     links = spec["links"]
     entries = extras["entries"]
-    lines = [BEGIN_MARK]
-    out = lines.append
+    updates = spec["updates"]
+    body: list[str] = []
+    out = body.append
     out(f"SpecVersion={spec['spec_version']}")
     out(f"MedicatVersion={bash_quote(medicat['version'])}")
     out(f"Medicat7zFile={bash_quote(archive['file_name'])}")
@@ -291,6 +300,8 @@ def render_bash_block(spec: dict, extras: dict) -> str:
     out(f"LinkManualInstallDoc={bash_quote(links['manual_install_doc'])}")
     out(f"LinkIssues={bash_quote(links['issues'])}")
     out(f"LinkDiscord={bash_quote(links['discord'])}")
+    out(f"UpdateRepository={bash_quote(updates['github_repository'])}")
+    out(f"UpdateChecksumsAsset={bash_quote(updates['checksums_asset'])}")
     out(f"ExtrasCatalogVersion={bash_quote(extras['catalog_version'])}")
     out(f"ExtrasDestRoot={bash_quote(extras['dest_root'])}")
     out(bash_array("ExtrasIds", [e["id"] for e in entries]))
@@ -309,7 +320,14 @@ def render_bash_block(spec: dict, extras: dict) -> str:
     out(bash_array("ExtrasHomepages", [e["homepage"] for e in entries]))
     out(bash_array("ExtrasLicenses", [e["license"] for e in entries]))
     out(bash_array("ExtrasDescriptions", [e["description"] for e in entries]))
-    out(END_MARK)
+    lines = [
+        BEGIN_MARK,
+        "# shellcheck disable=SC2034  # every spec value is defined here; the script uses only some of them",
+        "function loadSpec() {",
+    ]
+    lines.extend("\t" + line for line in body)
+    lines.append("}")
+    lines.append(END_MARK)
     return "\n".join(lines) + "\n"
 
 

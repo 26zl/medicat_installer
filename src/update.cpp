@@ -1,7 +1,9 @@
 #include "update.h"
 
 #include "download.h"
+#include "spec_generated.h"
 #include "util.h"
+#include "verify.h"
 
 #include <windows.h>
 
@@ -20,8 +22,9 @@ namespace {
 
 // Newest first. Prefer stable full releases that ship the C++ installer assets;
 // fall back to prereleases with those assets.
-constexpr wchar_t kGitHubReleasesApiUrl[] =
-    L"https://api.github.com/repos/mon5termatt/medicat_installer/releases?per_page=20";
+std::wstring ReleasesApiUrl() {
+    return std::wstring(L"https://api.github.com/repos/") + kUpdateRepository + L"/releases?per_page=20";
+}
 
 #if defined(_WIN64)
 constexpr wchar_t kInstallerAssetName[] = L"MedicatInstaller.exe";
@@ -247,6 +250,7 @@ struct ParsedRelease {
     std::wstring tag;
     std::wstring htmlUrl;
     std::wstring downloadUrl;
+    std::wstring checksumsUrl;
     std::wstring name;
 };
 
@@ -264,6 +268,7 @@ bool ParseReleaseBlock(const std::wstring& block, ParsedRelease& out) {
     out.htmlUrl = ParseJsonStringField(block, L"html_url");
     out.name = ParseJsonStringField(block, L"name");
     out.downloadUrl = FindAssetDownloadUrl(block, kInstallerAssetName);
+    out.checksumsUrl = FindAssetDownloadUrl(block, kUpdateChecksumsAssetName);
     return !out.tag.empty() && !out.downloadUrl.empty();
 }
 
@@ -556,8 +561,53 @@ bool DownloadAndRelaunchInstallerUpdate(
         return false;
     }
 
+    if (info.checksumsUrl.empty()) {
+        DeleteFileW(downloadedPath.c_str());
+        error = std::wstring(L"Release publishes no ") + kUpdateChecksumsAssetName + L"; refusing an unverified update";
+        if (onLog) {
+            onLog(L"[Update] " + error);
+        }
+        return false;
+    }
+    std::wstring checksums;
+    if (!HttpGet(info.checksumsUrl, checksums, error)) {
+        DeleteFileW(downloadedPath.c_str());
+        if (onLog) {
+            onLog(L"[Update] Could not download the checksum list — " + error);
+        }
+        return false;
+    }
+    const std::string expectedSha256 = FindSha256ForAsset(checksums, GetInstallerAssetFileName());
+    if (expectedSha256.size() != 64) {
+        DeleteFileW(downloadedPath.c_str());
+        error = std::wstring(kUpdateChecksumsAssetName) + L" has no entry for " + GetInstallerAssetFileName();
+        if (onLog) {
+            onLog(L"[Update] " + error);
+        }
+        return false;
+    }
+    std::string actualSha256;
+    std::wstring hashError;
+    if (!ComputeFileSha256(downloadedPath, actualSha256, hashError)) {
+        DeleteFileW(downloadedPath.c_str());
+        error = L"Could not hash the downloaded installer: " + hashError;
+        if (onLog) {
+            onLog(L"[Update] " + error);
+        }
+        return false;
+    }
+    if (actualSha256 != expectedSha256) {
+        DeleteFileW(downloadedPath.c_str());
+        error = L"SHA-256 mismatch for the downloaded installer; refusing to apply the update";
+        if (onLog) {
+            onLog(L"[Update] " + error + L" (expected " + Utf8ToWideLocal(expectedSha256) + L", got " +
+                  Utf8ToWideLocal(actualSha256) + L")");
+        }
+        return false;
+    }
+
     if (onLog) {
-        onLog(L"[Update] Download complete (" + FormatBytes(downloadedSize) + L") — applying update");
+        onLog(L"[Update] Download complete (" + FormatBytes(downloadedSize) + L"), SHA-256 verified — applying update");
     }
 
     const DWORD parentPid = GetCurrentProcessId();
@@ -576,7 +626,7 @@ UpdateCheckResult CheckForInstallerUpdate() {
     UpdateCheckResult result;
     std::wstring body;
     std::wstring error;
-    if (!HttpGet(kGitHubReleasesApiUrl, body, error)) {
+    if (!HttpGet(ReleasesApiUrl(), body, error)) {
         result.error = error.empty() ? L"Could not query GitHub releases" : error;
         return result;
     }
@@ -601,12 +651,74 @@ UpdateCheckResult CheckForInstallerUpdate() {
     }
     result.info.releaseUrl = release.htmlUrl;
     if (result.info.releaseUrl.empty()) {
-        result.info.releaseUrl = L"https://github.com/mon5termatt/medicat_installer/releases/tag/" + release.tag;
+        result.info.releaseUrl = std::wstring(L"https://github.com/") + kUpdateRepository + L"/releases/tag/" + release.tag;
     }
     result.info.downloadUrl = release.downloadUrl;
+    result.info.checksumsUrl = release.checksumsUrl;
     result.info.updateAvailable = IsRemoteUpdateNewer(result.info);
     result.success = true;
     return result;
+}
+
+int CompareInstallerVersionTags(const std::wstring& a, const std::wstring& b) {
+    const SemVer left = ParseSemVer(a);
+    const SemVer right = ParseSemVer(b);
+    if (!left.ok && !right.ok) {
+        return 0;
+    }
+    if (!left.ok) {
+        return -1;
+    }
+    if (!right.ok) {
+        return 1;
+    }
+    const int cmp = CompareSemVer(left, right);
+    return cmp < 0 ? -1 : (cmp > 0 ? 1 : 0);
+}
+
+std::string FindSha256ForAsset(const std::wstring& checksumsBody, const std::wstring& assetName) {
+    size_t pos = 0;
+    while (pos <= checksumsBody.size()) {
+        size_t end = checksumsBody.find(L'\n', pos);
+        if (end == std::wstring::npos) {
+            end = checksumsBody.size();
+        }
+        std::wstring line = checksumsBody.substr(pos, end - pos);
+        pos = end + 1;
+        while (!line.empty() && (line.back() == L'\r' || line.back() == L' ' || line.back() == L'\t')) {
+            line.pop_back();
+        }
+        const size_t space = line.find_first_of(L" \t");
+        if (space == std::wstring::npos) {
+            continue;
+        }
+        std::wstring name = line.substr(space);
+        size_t nameStart = name.find_first_not_of(L" \t*");
+        if (nameStart == std::wstring::npos) {
+            continue;
+        }
+        name = name.substr(nameStart);
+        if (name != assetName) {
+            continue;
+        }
+        std::string hex;
+        for (const wchar_t ch : line.substr(0, space)) {
+            if (ch >= L'0' && ch <= L'9') {
+                hex.push_back(static_cast<char>(ch));
+            } else if (ch >= L'a' && ch <= L'f') {
+                hex.push_back(static_cast<char>(ch));
+            } else if (ch >= L'A' && ch <= L'F') {
+                hex.push_back(static_cast<char>(ch - L'A' + L'a'));
+            } else {
+                hex.clear();
+                break;
+            }
+        }
+        if (hex.size() == 64) {
+            return hex;
+        }
+    }
+    return {};
 }
 
 }  // namespace medicat

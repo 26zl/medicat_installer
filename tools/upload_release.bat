@@ -77,7 +77,18 @@ copy /Y "%LINUX_SRC%" "%LINUX_SH%" >nul
 if errorlevel 1 goto linux_fetch_failed
 for %%I in ("%LINUX_SH%") do if %%~zI==0 goto linux_fetch_failed
 echo   %LINUX_SH% ready (from %LINUX_SRC%)
+
+REM The installer refuses to self-update from a release without this file (see docs/UPDATER.md).
+set "SUMS=build\Release\SHA256SUMS.txt"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$lines = foreach ($f in @('%X64_EXE%','%X86_EXE%','%LINUX_SH%')) { $h = Get-FileHash -Algorithm SHA256 -LiteralPath $f; '{0}  {1}' -f $h.Hash.ToLower(), (Split-Path -Leaf $f) }; Set-Content -LiteralPath '%SUMS%' -Value $lines -Encoding ascii"
+if errorlevel 1 goto sums_failed
+if not exist "%SUMS%" goto sums_failed
+echo   %SUMS% ready
 goto do_upload
+
+:sums_failed
+echo Failed to write %SUMS%.
+exit /b 1
 
 :linux_fetch_failed
 echo Missing or empty %LINUX_SRC% in the checkout.
@@ -114,7 +125,7 @@ exit /b 1
 
 :upload_assets
 echo Uploading assets to GitHub release %TAG%...
-gh release upload "%TAG%" "%X64_EXE%" "%X86_EXE%" "%LINUX_SH%" --clobber --repo "%REPO%"
+gh release upload "%TAG%" "%X64_EXE%" "%X86_EXE%" "%LINUX_SH%" "%SUMS%" --clobber --repo "%REPO%"
 if errorlevel 1 goto upload_failed
 
 echo.
@@ -122,6 +133,7 @@ echo Uploaded:
 echo   %X64_EXE%
 echo   %X86_EXE%
 echo   %LINUX_SH%  ^(from linux\^)
+echo   %SUMS%
 echo Release: https://github.com/%REPO%/releases/tag/%TAG%
 echo Installer self-update discovers Windows assets via the GitHub Releases API.
 exit /b 0

@@ -13,6 +13,7 @@ struct InstallerUpdateInfo {
     std::wstring releaseTag;
     std::wstring releaseUrl;
     std::wstring downloadUrl;
+    std::wstring checksumsUrl;  // SHA256SUMS.txt asset of the same release
 };
 
 struct UpdateCheckResult {
@@ -22,6 +23,11 @@ struct UpdateCheckResult {
 };
 
 UpdateCheckResult CheckForInstallerUpdate();
+
+// -1, 0 or 1 like strcmp; tags that are not M.m.p semver never count as newer.
+int CompareInstallerVersionTags(const std::wstring& a, const std::wstring& b);
+// Pick the expected lowercase SHA-256 for assetName out of a SHA256SUMS.txt body ("hex  name" lines).
+std::string FindSha256ForAsset(const std::wstring& checksumsBody, const std::wstring& assetName);
 
 std::wstring GetInstallerAssetFileName();
 bool DownloadAndRelaunchInstallerUpdate(const InstallerUpdateInfo& info,

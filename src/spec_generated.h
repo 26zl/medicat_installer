@@ -58,7 +58,7 @@ constexpr wchar_t kDownloadGoogleDriveUrl[] = L"https://drive.google.com/drive/f
 constexpr wchar_t kDownloadMegaUrl[] = L"https://mega.nz/folder/jg1DWbaK#Qo6XsYzjx-HyIpxj8xQTiQ";
 constexpr wchar_t kDownloadAllUrl[] = L"http://medicatusb.com/#downloads";
 constexpr wchar_t kManualInstallDocUrl[] = L"https://medicatusb.com/docs/medicat/installation/manual-install/";
-constexpr wchar_t kBetaFeedbackUrl[] = L"https://github.com/mon5termatt/medicat_installer/issues";
+constexpr wchar_t kBetaFeedbackUrl[] = L"https://github.com/26zl/medicat_installer/issues";
 constexpr wchar_t kDiscordSupportUrl[] = L"https://url.medicatusb.com/discord";
 constexpr wchar_t kSevenZipProjectUrl[] = L"https://www.7-zip.org/";
 constexpr wchar_t kAria2ProjectUrl[] = L"https://aria2.github.io/";
@@ -66,7 +66,7 @@ constexpr wchar_t kVentoyProjectUrl[] = L"https://www.ventoy.net/en/index.html";
 
 constexpr wchar_t kMd5ManifestFileName[] = L"MedicatFiles.md5";
 constexpr const wchar_t* kMd5ManifestUrls[] = {
-    L"https://raw.githubusercontent.com/mon5termatt/medicat_installer/main/hasher/MedicatFiles.md5",
+    L"https://raw.githubusercontent.com/26zl/medicat_installer/main/MedicatFiles.md5",
     L"https://raw.githubusercontent.com/mon5termatt/medicat_installer/main/MedicatFiles.md5",
 };
 constexpr size_t kMd5ManifestUrlCount = sizeof(kMd5ManifestUrls) / sizeof(kMd5ManifestUrls[0]);
@@ -80,6 +80,8 @@ constexpr wchar_t kVentoyKnownGoodVersion[] = L"1.1.17";
 constexpr wchar_t kVentoyPinnedVersion[] = L"";  // empty = latest
 constexpr bool kVentoyDefaultSecureBoot = true;
 constexpr bool kVentoyDefaultGpt = false;
+constexpr wchar_t kUpdateRepository[] = L"26zl/medicat_installer";  // owner/name on GitHub
+constexpr wchar_t kUpdateChecksumsAssetName[] = L"SHA256SUMS.txt";
 
 struct MediCatExtra {
     const wchar_t* id;

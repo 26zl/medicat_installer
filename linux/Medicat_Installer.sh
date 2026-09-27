@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034  # spec values, package maps and colour codes are defined for completeness
 
 ScriptVersion="0026"
 
@@ -15,62 +14,68 @@ ScriptVersion="0026"
 # Everything between the markers comes from spec/medicat.json and spec/extras.json
 # (the Windows installer reads the same data via src/spec_generated.h).
 # BEGIN GENERATED SPEC - edit spec/*.json and run tools/gen_spec.py
-SpecVersion=1
-MedicatVersion='v21.12'
-Medicat7zFile='MediCat.USB.v21.12.7z'
-Medicat7zBytes=22994783619
-Medicat7zMinBytes=21845044438
-Medicat7zMd5='db50f96a5c7b5ec6dc9ed77ea29fffb0'
-Medicat256Hash='a306331453897d2b20644ca9334bb0015b126b8647cecec8d9b2d300a0027ea4'
-Medicat7zTorrentSubdir='MediCat USB v21.12'
-MedicatSplitBase='MediCat.USB.v21.12.zip'
-MedicatSplitFiles=('MediCat.USB.v21.12.zip.001' 'MediCat.USB.v21.12.zip.002' 'MediCat.USB.v21.12.zip.003' 'MediCat.USB.v21.12.zip.004' 'MediCat.USB.v21.12.zip.005' 'MediCat.USB.v21.12.zip.006')
-MedicatSplitSizes=('4290772992' '4290772992' '4290772992' '4290772992' '4290772992' '2917026620')
-MedicatSplitMd5s=('277793dcf0e31736f0790162a89d07c9' 'a4700261f32d4df5092c5dd5ea6aaa2d' '6b523273c5c7ed1ddc5920dec95b8509' '35fac6ff4902d62e6e5fd2dab1050a3f' '7f416a7d9ff0051ae75bbf44a411b8e4' '32d84a280af91ae408f55a7722ee6818')
-MedicatMirrorNames=('files.medicatusb.com' 'files.dog')
-MedicatMirrorUrls=('https://files.medicatusb.com/files/v21.12/MediCat.USB.v21.12.7z' 'https://files.dog/OD%20Rips/MediCat/v21.12/MediCat.USB.v21.12.7z')
-MedicatMirrorInsecure=('false' 'false')
-MedicatTorrentUrl='https://github.com/mon5termatt/medicat_installer/raw/main/download/MediCat_USB_v21.12.torrent'
-MedicatMagnetUrl='magnet:?xt=urn:btih:1D714BDF37890669E98933B724B55D47E7F2D01B'
-MedicatManifestFile='MedicatFiles.md5'
-MedicatManifestUrls=('https://raw.githubusercontent.com/mon5termatt/medicat_installer/main/hasher/MedicatFiles.md5' 'https://raw.githubusercontent.com/mon5termatt/medicat_installer/main/MedicatFiles.md5')
-MedicatManifestFileCount=29652
-MedicatExtractedBytes=28311000111
-MedicatUsbMinBytes=30064771072
-MedicatUsbRecommendedBytes=64000000000
-MedicatDataLabel='Medicat'
-MedicatDataFs='ntfs'
-MedicatDownloadMinFreeBytes=23622320128
-MedicatWorkMinFreeBytes=1073741824
-MedicatUsbMinFreeBytes=27917287424
-VentoyKnownGoodVersion='1.1.17'
-VentoyPinnedVersion=''
-VentoyDefaultPartitionStyle='mbr'
-VentoyDefaultSecureBoot='true'
-VentoyReleaseApi='https://api.github.com/repos/ventoy/Ventoy/releases'
-VentoyLinuxTarUrlTemplate='https://github.com/ventoy/Ventoy/releases/download/v{version}/ventoy-{version}-linux.tar.gz'
-LinkManualInstallDoc='https://medicatusb.com/docs/medicat/installation/manual-install/'
-LinkIssues='https://github.com/mon5termatt/medicat_installer/issues'
-LinkDiscord='https://url.medicatusb.com/discord'
-ExtrasCatalogVersion='2026-09-27'
-ExtrasDestRoot='Extras'
-ExtrasIds=('systemrescue' 'gparted-live' 'clonezilla-live' 'rescuezilla' 'memtest86plus' 'hirens-bootcd-pe' 'ubuntu-desktop-lts' 'windows-11-iso')
-ExtrasNames=('SystemRescue' 'GParted Live' 'Clonezilla Live' 'Rescuezilla' 'Memtest86+' 'Hiren'\''s BootCD PE' 'Ubuntu Desktop LTS' 'Windows 11 installation media')
-ExtrasVersions=('13.02' '1.8.1-6' '3.1.2-9' '2.6.2' '8.10' '1.0.8' '24.04.5.1' 'current')
-ExtrasCategories=('Rescue' 'Partition_and_Imaging' 'Partition_and_Imaging' 'Partition_and_Imaging' 'Diagnostics' 'Windows_Rescue' 'Live_Linux' 'Windows_Install')
-ExtrasTargets=('linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'windows' 'linux' 'windows')
-ExtrasTypes=('iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'manual')
-ExtrasUrls=('https://fastly-cdn.system-rescue.org/releases/13.02/systemrescue-13.02-amd64.iso' 'https://downloads.sourceforge.net/gparted/gparted-live-1.8.1-6-amd64.iso' 'https://downloads.sourceforge.net/project/clonezilla/clonezilla_live_stable/3.1.2-9/clonezilla-live-3.1.2-9-amd64.iso' 'https://github.com/rescuezilla/rescuezilla/releases/download/2.6.2/rescuezilla-2.6.2-64bit.noble.iso' 'https://www.memtest.org/download/v8.10/mt86plus_8.10_x86_64.iso.zip' 'https://www.hirensbootcd.org/files/HBCD_PE_x64.iso' 'https://releases.ubuntu.com/24.04/ubuntu-24.04.5.1-desktop-amd64.iso' 'https://www.microsoft.com/software-download/windows11')
-ExtrasFileNames=('systemrescue-13.02-amd64.iso' 'gparted-live-1.8.1-6-amd64.iso' 'clonezilla-live-3.1.2-9-amd64.iso' 'rescuezilla-2.6.2-64bit.noble.iso' 'mt86plus_8.10_x86_64.iso' 'HBCD_PE_x64.iso' 'ubuntu-24.04.5.1-desktop-amd64.iso' 'Win11.iso')
-ExtrasBytes=('1381629952' '720371712' '437256192' '1594339328' '233712' '3291686912' '6250332160' '0')
-ExtrasSha256=('ad4d670b72859d887c7960142a9a9d36a3e50446694a035e254442f65d6e7572' 'd789c38779f0d6f7026c12f44c2c52a04f66e28a1aea7d51f3045ad1bbf28411' '' '285db0af83213e2297490ca1cfd74ecd607c3b0a2f1d14e11a8412c0b71eea50' '93530005d6ac6a85aa2a49c68604a43c25794ecccf796c4f8849a73a8001be9a' '8c4c670c9c84d6c4b5a9c32e0aa5a55d8c23de851d259207d54679ea774c2498' '4da4a0c9035da8e68a59a838674f403f0a54472c78a83b4fb7f78d03588f85a7' '')
-ExtrasMd5=('' '' '99353cf50559fe8e5450643a764f0f57' '' '' '' '' '')
-ExtrasUnpackFormat=('' '' '' '' 'zip' '' '' '')
-ExtrasUnpackMember=('' '' '' '' 'memtest.iso' '' '' '')
-ExtrasHomepages=('https://www.system-rescue.org/' 'https://gparted.org/' 'https://clonezilla.org/' 'https://rescuezilla.com/' 'https://www.memtest.org/' 'https://www.hirensbootcd.org/' 'https://ubuntu.com/download/desktop' 'https://www.microsoft.com/software-download/windows11')
-ExtrasLicenses=('GPL-2.0-or-later (Arch-based live system, mixed licenses)' 'GPL-2.0-or-later' 'GPL-2.0' 'GPL-3.0' 'GPL-2.0' 'Freeware; bundled tools keep their own licenses' 'Mixed open source' 'Proprietary (Microsoft); download from Microsoft only')
-ExtrasDescriptions=('Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines.' 'Resize, move, copy and check partitions (NTFS, ext4, exFAT, FAT, btrfs and more).' 'Disk and partition imaging and cloning, sector-level or filesystem-aware.' 'Point-and-click backup and restore, compatible with Clonezilla images.' 'Stand-alone RAM tester for BIOS and UEFI machines.' 'Windows 11 PE based repair environment with password, driver, backup and diagnostics tools.' 'Live desktop and installer; handy for rescuing files from a Linux or Windows disk with a full GUI.' 'Microsoft issues time-limited download links, so fetch the ISO from the Microsoft page and copy it into Extras/Windows_Install/ on the stick.')
+# shellcheck disable=SC2034  # every spec value is defined here; the script uses only some of them
+function loadSpec() {
+	SpecVersion=1
+	MedicatVersion='v21.12'
+	Medicat7zFile='MediCat.USB.v21.12.7z'
+	Medicat7zBytes=22994783619
+	Medicat7zMinBytes=21845044438
+	Medicat7zMd5='db50f96a5c7b5ec6dc9ed77ea29fffb0'
+	Medicat256Hash='a306331453897d2b20644ca9334bb0015b126b8647cecec8d9b2d300a0027ea4'
+	Medicat7zTorrentSubdir='MediCat USB v21.12'
+	MedicatSplitBase='MediCat.USB.v21.12.zip'
+	MedicatSplitFiles=('MediCat.USB.v21.12.zip.001' 'MediCat.USB.v21.12.zip.002' 'MediCat.USB.v21.12.zip.003' 'MediCat.USB.v21.12.zip.004' 'MediCat.USB.v21.12.zip.005' 'MediCat.USB.v21.12.zip.006')
+	MedicatSplitSizes=('4290772992' '4290772992' '4290772992' '4290772992' '4290772992' '2917026620')
+	MedicatSplitMd5s=('277793dcf0e31736f0790162a89d07c9' 'a4700261f32d4df5092c5dd5ea6aaa2d' '6b523273c5c7ed1ddc5920dec95b8509' '35fac6ff4902d62e6e5fd2dab1050a3f' '7f416a7d9ff0051ae75bbf44a411b8e4' '32d84a280af91ae408f55a7722ee6818')
+	MedicatMirrorNames=('files.medicatusb.com' 'files.dog')
+	MedicatMirrorUrls=('https://files.medicatusb.com/files/v21.12/MediCat.USB.v21.12.7z' 'https://files.dog/OD%20Rips/MediCat/v21.12/MediCat.USB.v21.12.7z')
+	MedicatMirrorInsecure=('false' 'false')
+	MedicatTorrentUrl='https://github.com/mon5termatt/medicat_installer/raw/main/download/MediCat_USB_v21.12.torrent'
+	MedicatMagnetUrl='magnet:?xt=urn:btih:1D714BDF37890669E98933B724B55D47E7F2D01B'
+	MedicatManifestFile='MedicatFiles.md5'
+	MedicatManifestUrls=('https://raw.githubusercontent.com/26zl/medicat_installer/main/MedicatFiles.md5' 'https://raw.githubusercontent.com/mon5termatt/medicat_installer/main/MedicatFiles.md5')
+	MedicatManifestFileCount=29652
+	MedicatExtractedBytes=28311000111
+	MedicatUsbMinBytes=30064771072
+	MedicatUsbRecommendedBytes=64000000000
+	MedicatDataLabel='Medicat'
+	MedicatDataFs='ntfs'
+	MedicatDownloadMinFreeBytes=23622320128
+	MedicatWorkMinFreeBytes=1073741824
+	MedicatUsbMinFreeBytes=27917287424
+	VentoyKnownGoodVersion='1.1.17'
+	VentoyPinnedVersion=''
+	VentoyDefaultPartitionStyle='mbr'
+	VentoyDefaultSecureBoot='true'
+	VentoyReleaseApi='https://api.github.com/repos/ventoy/Ventoy/releases'
+	VentoyLinuxTarUrlTemplate='https://github.com/ventoy/Ventoy/releases/download/v{version}/ventoy-{version}-linux.tar.gz'
+	LinkManualInstallDoc='https://medicatusb.com/docs/medicat/installation/manual-install/'
+	LinkIssues='https://github.com/26zl/medicat_installer/issues'
+	LinkDiscord='https://url.medicatusb.com/discord'
+	UpdateRepository='26zl/medicat_installer'
+	UpdateChecksumsAsset='SHA256SUMS.txt'
+	ExtrasCatalogVersion='2026-09-27'
+	ExtrasDestRoot='Extras'
+	ExtrasIds=('systemrescue' 'gparted-live' 'clonezilla-live' 'rescuezilla' 'memtest86plus' 'hirens-bootcd-pe' 'ubuntu-desktop-lts' 'windows-11-iso')
+	ExtrasNames=('SystemRescue' 'GParted Live' 'Clonezilla Live' 'Rescuezilla' 'Memtest86+' 'Hiren'\''s BootCD PE' 'Ubuntu Desktop LTS' 'Windows 11 installation media')
+	ExtrasVersions=('13.02' '1.8.1-6' '3.1.2-9' '2.6.2' '8.10' '1.0.8' '24.04.5.1' 'current')
+	ExtrasCategories=('Rescue' 'Partition_and_Imaging' 'Partition_and_Imaging' 'Partition_and_Imaging' 'Diagnostics' 'Windows_Rescue' 'Live_Linux' 'Windows_Install')
+	ExtrasTargets=('linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'windows' 'linux' 'windows')
+	ExtrasTypes=('iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'manual')
+	ExtrasUrls=('https://fastly-cdn.system-rescue.org/releases/13.02/systemrescue-13.02-amd64.iso' 'https://downloads.sourceforge.net/gparted/gparted-live-1.8.1-6-amd64.iso' 'https://downloads.sourceforge.net/project/clonezilla/clonezilla_live_stable/3.1.2-9/clonezilla-live-3.1.2-9-amd64.iso' 'https://github.com/rescuezilla/rescuezilla/releases/download/2.6.2/rescuezilla-2.6.2-64bit.noble.iso' 'https://www.memtest.org/download/v8.10/mt86plus_8.10_x86_64.iso.zip' 'https://www.hirensbootcd.org/files/HBCD_PE_x64.iso' 'https://releases.ubuntu.com/24.04/ubuntu-24.04.5.1-desktop-amd64.iso' 'https://www.microsoft.com/software-download/windows11')
+	ExtrasFileNames=('systemrescue-13.02-amd64.iso' 'gparted-live-1.8.1-6-amd64.iso' 'clonezilla-live-3.1.2-9-amd64.iso' 'rescuezilla-2.6.2-64bit.noble.iso' 'mt86plus_8.10_x86_64.iso' 'HBCD_PE_x64.iso' 'ubuntu-24.04.5.1-desktop-amd64.iso' 'Win11.iso')
+	ExtrasBytes=('1381629952' '720371712' '437256192' '1594339328' '233712' '3291686912' '6250332160' '0')
+	ExtrasSha256=('ad4d670b72859d887c7960142a9a9d36a3e50446694a035e254442f65d6e7572' 'd789c38779f0d6f7026c12f44c2c52a04f66e28a1aea7d51f3045ad1bbf28411' '' '285db0af83213e2297490ca1cfd74ecd607c3b0a2f1d14e11a8412c0b71eea50' '93530005d6ac6a85aa2a49c68604a43c25794ecccf796c4f8849a73a8001be9a' '8c4c670c9c84d6c4b5a9c32e0aa5a55d8c23de851d259207d54679ea774c2498' '4da4a0c9035da8e68a59a838674f403f0a54472c78a83b4fb7f78d03588f85a7' '')
+	ExtrasMd5=('' '' '99353cf50559fe8e5450643a764f0f57' '' '' '' '' '')
+	ExtrasUnpackFormat=('' '' '' '' 'zip' '' '' '')
+	ExtrasUnpackMember=('' '' '' '' 'memtest.iso' '' '' '')
+	ExtrasHomepages=('https://www.system-rescue.org/' 'https://gparted.org/' 'https://clonezilla.org/' 'https://rescuezilla.com/' 'https://www.memtest.org/' 'https://www.hirensbootcd.org/' 'https://ubuntu.com/download/desktop' 'https://www.microsoft.com/software-download/windows11')
+	ExtrasLicenses=('GPL-2.0-or-later (Arch-based live system, mixed licenses)' 'GPL-2.0-or-later' 'GPL-2.0' 'GPL-3.0' 'GPL-2.0' 'Freeware; bundled tools keep their own licenses' 'Mixed open source' 'Proprietary (Microsoft); download from Microsoft only')
+	ExtrasDescriptions=('Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines.' 'Resize, move, copy and check partitions (NTFS, ext4, exFAT, FAT, btrfs and more).' 'Disk and partition imaging and cloning, sector-level or filesystem-aware.' 'Point-and-click backup and restore, compatible with Clonezilla images.' 'Stand-alone RAM tester for BIOS and UEFI machines.' 'Windows 11 PE based repair environment with password, driver, backup and diagnostics tools.' 'Live desktop and installer; handy for rescuing files from a Linux or Windows disk with a full GUI.' 'Microsoft issues time-limited download links, so fetch the ISO from the Microsoft page and copy it into Extras/Windows_Install/ on the stick.')
+}
 # END GENERATED SPEC
+loadSpec
 
 # Variables
 
@@ -114,58 +119,21 @@ FailedListFile=""
 MedicatMount=""
 MountedByUs=false
 
-# Dependencies
-declare -A depCommands
-depCommands["wget"]="wget"
-depCommands["7z"]="zip"
-depCommands["mkfs.vfat"]="mkfs"
-depCommands["mkntfs"]="ntfs"
-depCommands["mkfs.exfat"]="exfat"
-depCommands["parted"]="parted"
-declare -A wget
-wget["nixos"]="nixos.wget"
-wget["default"]="wget"
-declare -A zip
-zip["arch"]="p7zip"
-zip["cachyos"]="p7zip"
-zip["nixos"]="nixos.p7zip"
-zip["fedora"]="p7zip p7zip-plugins"
-zip["nobara"]="p7zip-full p7zip-plugins"
-zip["centos"]="p7zip p7zip-plugins"
-zip["alpine"]="7zip"
-zip["void"]="7zip"
-zip["default"]="p7zip-full"
-declare -A mkfs
-mkfs["nixos"]="nixos.dosfstools"
-mkfs["default"]="dosfstools"
-declare -A ntfs
-# mkntfs lives in ntfsprogs on RHEL-family and Arch (split from ntfs-3g in 2026).
-# Debian/Ubuntu/Alpine/Void still ship mkntfs inside ntfs-3g.
-ntfs["centos"]="ntfsprogs"
-ntfs["fedora"]="ntfsprogs"
-ntfs["arch"]="ntfsprogs"
-ntfs["cachyos"]="ntfsprogs"
-ntfs["nixos"]="nixos.ntfs3g"
-ntfs["default"]="ntfs-3g"
-declare -A aria
-aria["nixos"]="nixos.aria"
-aria["default"]="aria2"
-declare -A ventoy
-ventoy["nixos"]="nixos.ventoy-full"
-ventoy["default"]="ventoy"
-declare -A parted
-parted["default"]="parted"
-declare -A exfat
-# Bookworm+/Ubuntu: exfat-utils removed; exfatprogs provides mkfs.exfat
-exfat["ubuntu"]="exfatprogs"
-exfat["debian"]="exfatprogs"
-exfat["fedora"]="exfatprogs"
-exfat["centos"]="exfatprogs"
-exfat["arch"]="exfatprogs"
-exfat["cachyos"]="exfatprogs"
-exfat["alpine"]="exfatprogs"
-exfat["void"]="exfatprogs"
-exfat["default"]="exfatprogs"
+# Dependencies: package names per distro for each required command.
+declare -A depCommands=(
+	[wget]="wget" [7z]="zip" [mkfs.vfat]="mkfs" [mkntfs]="ntfs" [mkfs.exfat]="exfat" [parted]="parted"
+)
+# mkntfs lives in ntfsprogs on RHEL-family and Arch (split from ntfs-3g in 2026); Debian, Ubuntu,
+# Alpine and Void still ship it inside ntfs-3g. Bookworm+ and Ubuntu get mkfs.exfat from exfatprogs.
+# shellcheck disable=SC2034  # looked up by name through declare -n in dependenciesHandler
+declare -A wget=([nixos]="nixos.wget" [default]="wget") \
+	zip=([arch]="p7zip" [cachyos]="p7zip" [nixos]="nixos.p7zip" [fedora]="p7zip p7zip-plugins" [nobara]="p7zip-full p7zip-plugins" [centos]="p7zip p7zip-plugins" [alpine]="7zip" [void]="7zip" [default]="p7zip-full") \
+	mkfs=([nixos]="nixos.dosfstools" [default]="dosfstools") \
+	ntfs=([centos]="ntfsprogs" [fedora]="ntfsprogs" [arch]="ntfsprogs" [cachyos]="ntfsprogs" [nixos]="nixos.ntfs3g" [default]="ntfs-3g") \
+	aria=([nixos]="nixos.aria" [default]="aria2") \
+	ventoy=([nixos]="nixos.ventoy-full" [default]="ventoy") \
+	parted=([default]="parted") \
+	exfat=([ubuntu]="exfatprogs" [debian]="exfatprogs" [fedora]="exfatprogs" [centos]="exfatprogs" [arch]="exfatprogs" [cachyos]="exfatprogs" [alpine]="exfatprogs" [void]="exfatprogs" [default]="exfatprogs")
 
 # Other Variables
 sudo="sudo" # By default use sudo with package manager
@@ -174,26 +142,17 @@ ventoyLauncher="sh ./Ventoy2Disk.sh" # By default use the ventoy script
 
 # Colour / terminal (never name the reset var "clear" — masks /usr/bin/clear)
 ansiReset=""
-blackN=""; blackB=""
-redN=""; redB=""
-greenN=""; greenB=""
-yellowN=""; yellowB=""
-blueN=""; blueB=""
-magentaN=""; magentaB=""
-cyanN=""; cyanB=""
-whiteN=""; whiteB=""
+redB=""; greenB=""; yellowB=""; blueB=""; cyanB=""; whiteB=""
 
 NumColours=$(tput colors 2>/dev/null || echo 0)
 if [[ -n "$NumColours" && "$NumColours" -ge 8 ]]; then
 	ansiReset="$(tput sgr0 2>/dev/null || true)"
-	blackN="$(tput setaf 0 2>/dev/null || true)";  blackB="$(tput bold 2>/dev/null; tput setaf 0 2>/dev/null || true)"
-	redN="$(tput setaf 1 2>/dev/null || true)";     redB="$(tput bold 2>/dev/null; tput setaf 1 2>/dev/null || true)"
-	greenN="$(tput setaf 2 2>/dev/null || true)";   greenB="$(tput bold 2>/dev/null; tput setaf 2 2>/dev/null || true)"
-	yellowN="$(tput setaf 3 2>/dev/null || true)";  yellowB="$(tput bold 2>/dev/null; tput setaf 3 2>/dev/null || true)"
-	blueN="$(tput setaf 4 2>/dev/null || true)";    blueB="$(tput bold 2>/dev/null; tput setaf 4 2>/dev/null || true)"
-	magentaN="$(tput setaf 5 2>/dev/null || true)"; magentaB="$(tput bold 2>/dev/null; tput setaf 5 2>/dev/null || true)"
-	cyanN="$(tput setaf 6 2>/dev/null || true)";    cyanB="$(tput bold 2>/dev/null; tput setaf 6 2>/dev/null || true)"
-	whiteN="$(tput setaf 7 2>/dev/null || true)";   whiteB="$(tput bold 2>/dev/null; tput setaf 7 2>/dev/null || true)"
+	redB="$(tput bold 2>/dev/null; tput setaf 1 2>/dev/null || true)"
+	greenB="$(tput bold 2>/dev/null; tput setaf 2 2>/dev/null || true)"
+	yellowB="$(tput bold 2>/dev/null; tput setaf 3 2>/dev/null || true)"
+	blueB="$(tput bold 2>/dev/null; tput setaf 4 2>/dev/null || true)"
+	cyanB="$(tput bold 2>/dev/null; tput setaf 6 2>/dev/null || true)"
+	whiteB="$(tput bold 2>/dev/null; tput setaf 7 2>/dev/null || true)"
 fi
 
 # Debian/Ubuntu omit /sbin from a normal user's PATH (#175).
@@ -441,7 +400,7 @@ function dumpSpec() {
 		MedicatManifestFileCount MedicatExtractedBytes MedicatUsbMinBytes MedicatUsbRecommendedBytes MedicatDataLabel \
 		MedicatDataFs MedicatDownloadMinFreeBytes MedicatWorkMinFreeBytes MedicatUsbMinFreeBytes VentoyKnownGoodVersion \
 		VentoyPinnedVersion VentoyDefaultPartitionStyle VentoyDefaultSecureBoot VentoyReleaseApi \
-		VentoyLinuxTarUrlTemplate ExtrasCatalogVersion ExtrasDestRoot ExtrasIds; do
+		VentoyLinuxTarUrlTemplate UpdateRepository UpdateChecksumsAsset ExtrasCatalogVersion ExtrasDestRoot ExtrasIds; do
 		declare -p "$name" 2>/dev/null | sed 's/^declare -[-aA] //'
 	done
 }
