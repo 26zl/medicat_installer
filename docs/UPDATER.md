@@ -15,7 +15,7 @@ The C++ installer discovers updates via the **GitHub Releases API**.
 
 ### Publish from a tag (CI)
 
-Push a tag that matches the installer version (no `v` prefix). [`.github/workflows/release-build.yml`](.github/workflows/release-build.yml) pins that tag, configures unified CMake, builds x64 + Win32 on `windows-2022`, and does **not** bump from GitHub. Then it runs `tools/upload_release.bat`.
+Push a tag that matches the installer version (no `v` prefix). [`.github/workflows/release-build.yml`](../.github/workflows/release-build.yml) pins that tag, configures unified CMake, builds x64 + Win32 on `windows-2022`, and does **not** bump from GitHub. Then it runs `tools/upload_release.bat`.
 
 ```bat
 git tag 1.0.50
@@ -36,15 +36,17 @@ rebuild.bat as 1.0.50 release
 
 ### Release webhook
 
-[`.github/workflows/release-webhook.yml`](.github/workflows/release-webhook.yml) POSTs a Discord-compatible embed to the repo secret **`RELEASE_WEBHOOK_URL`**. Optional **`RELEASE_WEBHOOK_CONTENT`** adds a message body (e.g. a role ping).
+[`.github/workflows/release-webhook.yml`](../.github/workflows/release-webhook.yml) POSTs a Discord-compatible embed to the repo secret **`RELEASE_WEBHOOK_URL`**. Optional **`RELEASE_WEBHOOK_CONTENT`** adds a message body (e.g. a role ping).
 
 GitHub does not start `release: published` workflows when the release is created with `GITHUB_TOKEN` (CI `upload_release.bat`). Tag builds therefore call the webhook workflow after assets upload (`workflow_call`). Human publishes from the UI still use `release: published`. To announce an existing tag, run **Release webhook** with `workflow_dispatch` and the tag name. Do not create CI releases with a PAT if this job stays in `release-build.yml`, or Discord would get two posts.
 
 ## Source
 
 ```
-GET https://api.github.com/repos/mon5termatt/medicat_installer/releases?per_page=20
+GET https://api.github.com/repos/<updates.github_repository>/releases?per_page=20
 ```
+
+The repository is `updates.github_repository` in `spec/medicat.json` (`26zl/medicat_installer` for this fork).
 
 Selection (newest first, must include platform asset):
 
@@ -67,20 +69,8 @@ Legacy tags like `3520` / `3521-BETA` are never treated as updates over a `1.0.N
 ## Apply flow
 
 1. Download asset to `<exe>.new`
-2. Launch hidden `apply_update.cmd` helper
-3. Helper waits, replaces the exe, relaunches
+2. Download the release's `SHA256SUMS.txt` (written by `tools/upload_release.bat`) and compare the SHA-256 of `<exe>.new` with the entry for the asset. A release without the file, without an entry, or with a mismatch is refused and the download deleted.
+3. Launch hidden `apply_update.cmd` helper
+4. Helper waits, replaces the exe, relaunches
 
-## Legacy batch migration
-
-Old `Medicat_Installer.bat` clients (`localver=3520`) call `/releases/latest` and only take the **last 4 characters** of `tag_name`.  
-With Latest = `1.0.42`, remver = `0.42`, so the **version gate does not update** (string compare vs `3520`).
-
-They still migrate when they reach the first menu:
-
-| Piece | Role |
-|-------|------|
-| `main/translate/licence.ps1` | Force-update: downloads `update.bat` and runs it (no hash on licence.ps1) |
-| `main/update.bat` | Downloads C++ `MedicatInstaller.exe` / `-x86` from Releases |
-| Semantic tags `1.0.N` | Real C++ builds + self-update |
-
-There is **no** numeric bridge release (`3521`). Do not recreate one unless product policy requires the startup gate again.
+The repository the installer polls comes from `spec/medicat.json` (`updates.github_repository`, generated into `kUpdateRepository`), so a fork updates from its own releases.
