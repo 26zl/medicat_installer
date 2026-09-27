@@ -80,6 +80,7 @@ struct ProgressPayload {
 struct DonePayload {
     bool success = false;
     bool refreshArchivePanel = false;
+    bool offerLogUpload = false;  // ask before uploading diagnostic logs for this failure
     std::wstring message;
     std::wstring title;
 };
@@ -120,6 +121,7 @@ public:
     void SetVerifyHandler(InstallHandler handler);
     void SetLogHandler(std::function<void(const std::wstring&)> handler);
     void SetUpdateCheckHandler(std::function<void()> handler);
+    void SetFailureLogUploadHandler(std::function<void()> handler);
     void SetApplyInstallerUpdateHandler(std::function<void(const InstallerUpdateInfo&)> handler);
     void ScheduleUpdateCheck();
     void SetBusy(bool busy, BusyProgressMode progressMode = BusyProgressMode::FileLog);
@@ -149,7 +151,7 @@ public:
                            MessageDialogKind kind = MessageDialogKind::Warning);
     bool ShowHelpGateDialog(int failureCount);
     void ShowDone(bool success, const std::wstring& message, const std::wstring& title = L"",
-                  bool refreshArchivePanel = false);
+                  bool refreshArchivePanel = false, bool offerLogUpload = false);
     void UpdateArchivePanel();
     void SetInitialLanguage(const std::wstring& languageCode);
     std::wstring SelectedDrive() const;
@@ -355,6 +357,7 @@ private:
     InstallHandler onVerify_;
     std::function<void(const std::wstring&)> onLog_;
     std::function<void()> onUpdateCheck_;
+    std::function<void()> onFailureLogUpload_;
     std::function<void(const InstallerUpdateInfo&)> onApplyInstallerUpdate_;
     std::wstring lastUpdatePromptReleaseTag_;
     bool hasLastVentoyLog_ = false;

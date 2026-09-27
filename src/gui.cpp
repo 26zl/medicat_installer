@@ -1246,6 +1246,8 @@ void Gui::SetLogHandler(std::function<void(const std::wstring&)> handler) { onLo
 
 void Gui::SetUpdateCheckHandler(std::function<void()> handler) { onUpdateCheck_ = std::move(handler); }
 
+void Gui::SetFailureLogUploadHandler(std::function<void()> handler) { onFailureLogUpload_ = std::move(handler); }
+
 void Gui::SetApplyInstallerUpdateHandler(std::function<void(const InstallerUpdateInfo&)> handler) {
     onApplyInstallerUpdate_ = std::move(handler);
 }
@@ -3613,7 +3615,7 @@ LRESULT CALLBACK Gui::MessageDialogWndProc(const HWND hwnd, const UINT msg, cons
 }
 
 void Gui::ShowDone(const bool success, const std::wstring& message, const std::wstring& title,
-                   const bool refreshArchivePanel) {
+                   const bool refreshArchivePanel, const bool offerLogUpload) {
     downloadingArchive_ = false;
     SetBusy(false);
     if (success && message.empty()) {
@@ -3638,6 +3640,12 @@ void Gui::ShowDone(const bool success, const std::wstring& message, const std::w
     if (!success) {
         if (refreshArchivePanel) {
             UpdateArchivePanel();
+        }
+        // Logs contain paths and drive details, so they leave the machine only after an explicit yes.
+        if (offerLogUpload && onFailureLogUpload_ &&
+            ShowConfirmDialog(i18n::Tr(L"messages.upload_logs_prompt"), i18n::Tr(L"titles.upload_logs_prompt"),
+                              MessageDialogKind::Warning)) {
+            onFailureLogUpload_();
         }
         OpenFailureDialog(message, dialogTitle);
         return;
@@ -4207,7 +4215,8 @@ LRESULT CALLBACK Gui::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         case WM_MEDICAT_DONE: {
             auto* payload = reinterpret_cast<DonePayload*>(lp);
             if (payload) {
-                self->ShowDone(payload->success, payload->message, payload->title, payload->refreshArchivePanel);
+                self->ShowDone(payload->success, payload->message, payload->title, payload->refreshArchivePanel,
+                               payload->offerLogUpload);
                 delete payload;
             }
             return 0;

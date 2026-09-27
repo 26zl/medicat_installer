@@ -271,6 +271,8 @@ Common options:
   /offline                                 Use offline Ventoy/archive cache only
   /allow-fixed                             Include fixed HDD/SSD drives (>= 30 GiB)
   /reextract /noreextract                  Control selective re-extract on verify failure
+  /telemetry /no-telemetry                 Send or skip the anonymous session report (headless default: skip)
+  /upload-logs                             Allow uploading diagnostic logs when a headless run fails
 
 Diagnostics:
   /list-drives                             List eligible removable/VHD drives
@@ -543,6 +545,22 @@ CliParseResult ParseCommandLine(int argc, wchar_t** argv) {
         }
         if (name == L"allow-fixed") {
             result.options.allowFixed = true;
+            continue;
+        }
+        if (name == L"telemetry") {
+            if (!SetTriState(result.options.telemetry, true, result, L"/telemetry", L"/no-telemetry")) {
+                return result;
+            }
+            continue;
+        }
+        if (name == L"no-telemetry" || name == L"notelemetry") {
+            if (!SetTriState(result.options.telemetry, false, result, L"/telemetry", L"/no-telemetry")) {
+                return result;
+            }
+            continue;
+        }
+        if (name == L"upload-logs") {
+            result.options.uploadLogs = true;
             continue;
         }
 

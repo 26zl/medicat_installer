@@ -502,18 +502,6 @@ void WriteSystemSection(const DiagnosticContext& context, const std::function<vo
     }
     field(L"Processor architecture: ", GetProcessorArchitecture());
 
-    wchar_t computerName[MAX_COMPUTERNAME_LENGTH + 1]{};
-    DWORD computerLen = MAX_COMPUTERNAME_LENGTH + 1;
-    if (GetComputerNameW(computerName, &computerLen)) {
-        field(L"Computer name: ", std::wstring(computerName, computerLen));
-    }
-
-    wchar_t userName[256]{};
-    DWORD userLen = static_cast<DWORD>(std::size(userName));
-    if (GetUserNameW(userName, &userLen)) {
-        field(L"User name: ", std::wstring(userName, userLen));
-    }
-
     wchar_t localeName[LOCALE_NAME_MAX_LENGTH]{};
     if (GetUserDefaultLocaleName(localeName, LOCALE_NAME_MAX_LENGTH) > 0) {
         field(L"User locale: ", localeName);

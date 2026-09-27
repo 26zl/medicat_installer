@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <functional>
+#include <optional>
 #include <string>
 
 namespace medicat {
@@ -28,6 +29,12 @@ std::string SanitizeTelemetryTextEnglish(const std::wstring& text, size_t maxLen
 std::string GenerateSessionId();
 std::string DeriveSessionOutcome(bool success, const std::wstring& message, const std::wstring& title,
                                  const std::wstring& operation);
+// Saved choice from %AppData%\MedicatInstaller\preferences.json; nullopt until the user decided.
+std::optional<bool> ReadSessionReportsPreference();
+bool WriteTelemetryPreferences(bool sessionReportsEnabled, bool failureLogUploadsEnabled);
+// /telemetry and /no-telemetry win over the saved preference for this process.
+void SetSessionReportsOverride(std::optional<bool> enabled);
+// True only with an explicit yes (CLI override or saved consent); never assumed.
 bool SessionReportsEnabled();
 using SessionReportLogger = std::function<void(const std::wstring& message, bool isError)>;
 void SendSessionReport(const SessionReportRequest& request, bool waitForCompletion,

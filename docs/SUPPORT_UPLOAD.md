@@ -5,8 +5,8 @@ Two-tier reporting from the C++ installer:
 1. **Session report (automatic)** — small JSON at end of every install/verify: success/failure, installer version, OS summary. **No prompt.** No log files.
 2. **Failure bundle (on error only)** — zip of `.log` / `.txt` beside the exe when something fails; user consent before files leave the machine; returns a **support keyword** for Discord.
 
-**Status:** Tier A session reports and Tier B failure-log auto-upload are both implemented in `src/support.cpp`. Both default to on; `%AppData%\MedicatInstaller\preferences.json` with `"session_reports_enabled": false` / `"failure_log_auto_upload_enabled": false` turns them off. Tier B currently shows a notice, not a consent prompt (see the privacy section below).  
-**Related:** [`TODO.md`](../TODO.md) · [`SUPPORT_SERVER.md`](SUPPORT_SERVER.md) · [`debug.cpp`](../src/debug.cpp)
+**Status:** Both tiers are implemented in `src/support.cpp`, and both need consent. Tier A is asked once on first GUI start (`messages.telemetry_consent`) and stored in `%AppData%\MedicatInstaller\preferences.json` (`session_reports_enabled`); headless runs send it only with `/telemetry` or a saved yes. Tier B is a Yes/No prompt after each failure in the GUI (`messages.upload_logs_prompt`) and needs `/upload-logs` headless; `"failure_log_auto_upload_enabled": false` disables the offer entirely. The debug log no longer records the computer or user name. Builds without an ingest token send nothing.  
+**Related:** [`TODO.md`](TODO.md) · [`SUPPORT_SERVER.md`](SUPPORT_SERVER.md) · [`debug.cpp`](../src/debug.cpp)
 
 ---
 
@@ -384,5 +384,5 @@ Tier B: consent required (except optional `auto_on_failure` Advanced); logs may 
 ## References
 
 - Diagnostics already logged locally: [`src/debug.cpp`](../src/debug.cpp)
-- Task checklist: [`TODO.md`](../TODO.md)
+- Task checklist: [`TODO.md`](TODO.md)
 - WinHTTP: [`src/download.cpp`](../src/download.cpp)

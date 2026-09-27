@@ -40,6 +40,8 @@ struct CliOptions {
     bool yes = false;
     bool quiet = false;
     bool offlineOnly = false;
+    std::optional<bool> telemetry;  // /telemetry or /no-telemetry overrides the saved preference
+    bool uploadLogs = false;        // /upload-logs: allow the failure-log upload in headless runs
     CliReextractPolicy reextract = CliReextractPolicy::Default;
 };
 

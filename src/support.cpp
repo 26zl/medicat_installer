@@ -13,6 +13,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <sstream>
 #include <thread>
 #include <vector>
@@ -113,23 +114,25 @@ std::wstring GetPreferencesPath() {
     return JoinPath(path, L"preferences.json");
 }
 
-bool ReadPreferencesSessionReportsEnabled() {
+std::optional<bool> ReadPreferencesSessionReports() {
     const std::wstring path = GetPreferencesPath();
     if (path.empty() || !FileExists(path)) {
-        return true;
+        return std::nullopt;
     }
 
-    std::ifstream in(WideToUtf8(path), std::ios::binary);
+    std::ifstream in(path.c_str(), std::ios::binary);
     if (!in) {
-        return true;
+        return std::nullopt;
     }
     const std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
     if (content.find("\"session_reports_enabled\"") == std::string::npos) {
-        return true;
+        return std::nullopt;
     }
     return content.find("\"session_reports_enabled\": false") == std::string::npos &&
            content.find("\"session_reports_enabled\":false") == std::string::npos;
 }
+
+std::optional<bool> g_sessionReportsOverride;
 
 bool ReadPreferencesFailureLogAutoUploadEnabled() {
     const std::wstring path = GetPreferencesPath();
@@ -835,8 +838,37 @@ std::string DeriveSessionOutcome(const bool success, const std::wstring& message
     return "install_failed";
 }
 
+std::optional<bool> ReadSessionReportsPreference() {
+    return ReadPreferencesSessionReports();
+}
+
+bool WriteTelemetryPreferences(const bool sessionReportsEnabled, const bool failureLogUploadsEnabled) {
+    const std::wstring path = GetPreferencesPath();
+    if (path.empty()) {
+        return false;
+    }
+    const size_t slash = path.find_last_of(L'\\');
+    if (slash != std::wstring::npos) {
+        CreateDirectoryW(path.substr(0, slash).c_str(), nullptr);
+    }
+    std::ofstream out(path.c_str(), std::ios::binary | std::ios::trunc);
+    if (!out) {
+        return false;
+    }
+    out << "{\n  \"session_reports_enabled\": " << (sessionReportsEnabled ? "true" : "false")
+        << ",\n  \"failure_log_auto_upload_enabled\": " << (failureLogUploadsEnabled ? "true" : "false") << "\n}\n";
+    return static_cast<bool>(out);
+}
+
+void SetSessionReportsOverride(const std::optional<bool> enabled) {
+    g_sessionReportsOverride = enabled;
+}
+
 bool SessionReportsEnabled() {
-    return ReadPreferencesSessionReportsEnabled();
+    if (g_sessionReportsOverride.has_value()) {
+        return *g_sessionReportsOverride;
+    }
+    return ReadPreferencesSessionReports().value_or(false);
 }
 
 void SendSessionReport(const SessionReportRequest& request, const bool waitForCompletion,

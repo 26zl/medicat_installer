@@ -16,6 +16,7 @@
 #include "extract.h"
 #include "failure_tracker.h"
 #include "i18n.h"
+#include "ingest_token.h"
 #include "offline.h"
 #include "sim_fail.h"
 #include "support.h"
@@ -276,6 +277,12 @@ int App::RunParsed(const CliParseResult& parsed, int argc, wchar_t** argv) {
         headless_ = true;
     }
 
+    SetSessionReportsOverride(parsed.options.telemetry);
+    uploadLogsRequested_ = parsed.options.uploadLogs;
+    if (!cliMode && !parsed.options.telemetry.has_value()) {
+        EnsureTelemetryConsent();
+    }
+
     BeginAppSession();
     SubmitLaunchSessionReport();
 
@@ -315,6 +322,11 @@ int App::RunGui() {
     gui_.SetInstallHandler([this] { OnInstall(); });
     gui_.SetVerifyHandler([this] { OnVerify(); });
     gui_.SetUpdateCheckHandler([this] { StartUpdateCheck(); });
+    gui_.SetFailureLogUploadHandler([this] {
+        if (!pendingFailure_.sessionId.empty()) {
+            QueueFailureLogUpload(pendingFailure_.sessionId, pendingFailure_.message, pendingFailure_.title);
+        }
+    });
     gui_.SetApplyInstallerUpdateHandler([this](const InstallerUpdateInfo& info) { ApplyInstallerUpdate(info); });
     gui_.ScheduleUpdateCheck();
     LogInstallerDiagnostics(BuildDiagnosticContext(),
@@ -761,27 +773,40 @@ void App::PostDone(const bool success, const std::wstring& message, const std::w
         headlessResult_.exitCode = exitCode;
     }
     const std::string failureSessionId = sessionId_;
-    if (!success && !message.empty()) {
+    const bool failed = !success && !message.empty();
+    if (failed && headless_ && uploadLogsRequested_) {
         QueueFailureLogUpload(failureSessionId, message, title);
+    }
+    if (failed && !headless_) {
+        pendingFailure_ = PendingFailure{failureSessionId, message, title};
     }
     SubmitSessionReport(success, message, title, exitCode);
     if (headless_) {
         return;
     }
 
-    if (!success && !message.empty()) {
+    if (failed) {
         gui_.ResetFailureDiagCode();
     }
 
-    std::wstring userMessage = message;
-    if (!success && !message.empty()) {
-        userMessage += L"\n\n" + i18n::Tr(L"messages.beta_failure_logs_notice");
-    }
     auto* payload = new DonePayload{};
     payload->success = success;
-    payload->message = userMessage;
+    payload->message = message;
     payload->title = title;
+    payload->offerLogUpload = failed && HasIngestToken() && FailureLogAutoUploadEnabled();
     PostToGui(gui_.Hwnd(), WM_MEDICAT_DONE, reinterpret_cast<LPARAM>(payload));
+}
+
+void App::EnsureTelemetryConsent() {
+    if (!HasIngestToken() || ReadSessionReportsPreference().has_value()) {
+        return;
+    }
+    const int answer = MessageBoxW(nullptr, i18n::Tr(L"messages.telemetry_consent").c_str(),
+                                   i18n::Tr(L"titles.telemetry_consent").c_str(),
+                                   MB_YESNO | MB_ICONQUESTION | MB_SETFOREGROUND);
+    if (!WriteTelemetryPreferences(answer == IDYES, true)) {
+        log_->Error(L"Could not save the telemetry preference; session reports stay off for this run");
+    }
 }
 
 App::VerificationOutcome App::VerifyDriveFiles(const std::wstring& drive, const bool showFileProgress) {

@@ -140,7 +140,6 @@
       "re_extract_complete": "Re-extraction completed. You may want to run file verification again to confirm.",
       "re_extract_failed": "Re-extraction completed with errors.\n\nExtracted: {0}/{1}\nFailed: {2}\n\nCheck the log for details.",
       "verify_still_failed_after_reextract": "Verification still found {0} file(s) that do not match after re-extraction.\n\nCheck your antivirus, firewall, or other security software. They can block, quarantine, or delete files while extracting to a USB drive.\n\nLogs are saved beside this installer (medicat_installer.log, check.log, reextract.log). If you need help on Discord, share the Diag code from this error dialog once it appears.",
-      "beta_failure_logs_notice": "Diagnostic log files may be uploaded automatically to help fix this issue (beta debugging).",
       "failure_diag_hint": "If you need help on Discord, copy the Diag code below once it appears.",
       "help_gate": "Install or verify has failed {0} times on this PC.\n\nYou're not alone — many issues are quicker to fix with help from the MediCat community on Discord. Share your Diag code from the last error dialog if you ask for support.",
       "diag_uploading": "Uploading diagnostic logs…",
@@ -163,7 +162,9 @@
       "drive_removed_during_operation": "The selected drive {0} was removed during the operation. Connect the drive and try again.",
       "drive_io_error_during_operation": "A read/write error occurred on drive {0} during the operation. Check the USB connection and try again.",
       "archive_download_failed": "Archive download failed: {0}",
-      "archive_browse_invalid": "That file does not look like a complete MediCat archive (.7z or Google Drive .zip.001-.006)."
+      "archive_browse_invalid": "That file does not look like a complete MediCat archive (.7z or Google Drive .zip.001-.006).",
+      "telemetry_consent": "MediCat Installer can send an anonymous usage report at the end of each install or verify: outcome, installer version, Windows build and edition, hardware class, UI language and a hash of the machine GUID. No file names, drive contents or user names are sent.\n\nSend these reports? You can change this later in %AppData%\\MedicatInstaller\\preferences.json.",
+      "upload_logs_prompt": "Upload the diagnostic log files next to the installer to the MediCat support server? They contain file paths and drive details. You will get a Diag code to paste in Discord."
     },
     "ventoy_warning": {
       "title": "Ventoy Installation Warning",
@@ -217,7 +218,9 @@
       "no_drive_for_check": "No Drive Selected",
       "file_dialog_title": "Select MediCat Archive (MediCat.USB.v{0}.7z or .zip.001-.006)",
       "help_gate": "Repeated failures — get help",
-      "archive_browse_invalid": "Invalid Archive"
+      "archive_browse_invalid": "Invalid Archive",
+      "telemetry_consent": "Anonymous usage reports",
+      "upload_logs_prompt": "Upload diagnostic logs?"
     },
     "log": {
       "installer_started": "MediCat Installer v{0} Started",
@@ -423,7 +426,6 @@
       "re_extract_complete": "Re-extracción completada. Puede querer ejecutar la verificación de archivos nuevamente para confirmar.",
       "re_extract_failed": "Re-extracción completada con errores.\n\nExtraídos: {0}/{1}\nFallaron: {2}\n\nRevise el registro para más detalles.",
       "verify_still_failed_after_reextract": "La verificación aún encontró {0} archivo(s) que no coinciden después de la re-extracción.\n\nRevise su antivirus, firewall u otro software de seguridad. Pueden bloquear, poner en cuarentena o eliminar archivos al extraer a una unidad USB.\n\nLos registros se guardan junto a este instalador (medicat_installer.log, check.log, reextract.log). Si necesita ayuda en Discord, comparta el código Diag de este cuadro de error cuando aparezca.",
-      "beta_failure_logs_notice": "Los archivos de registro de diagnóstico pueden subirse automáticamente para ayudar a corregir este problema (depuración beta).",
       "failure_diag_hint": "Si necesita ayuda en Discord, copie el código Diag cuando aparezca.",
       "help_gate": "Instalar o verificar ha fallado {0} veces en este PC.\n\nNo está solo: muchos problemas se resuelven más rápido con ayuda de la comunidad MediCat en Discord. Comparta su código Diag del último error si pide soporte.",
       "diag_uploading": "Subiendo registros de diagnóstico…",
@@ -444,7 +446,9 @@
       "drive_io_error_during_operation": "Ocurrió un error de lectura/escritura en la unidad {0} durante la operación. Verifique la conexión USB e intente nuevamente.",
       "archive_download_failed": "Error al descargar el archivo: {0}",
       "drive_under_minimum": "La unidad {0} es demasiado pequeña. MediCat requiere al menos 30 GB de capacidad total.",
-      "archive_browse_invalid": "Ese archivo no parece un archivo MediCat completo (.7z o Google Drive .zip.001-.006)."
+      "archive_browse_invalid": "Ese archivo no parece un archivo MediCat completo (.7z o Google Drive .zip.001-.006).",
+      "telemetry_consent": "MediCat Installer puede enviar un informe de uso anónimo al final de cada instalación o verificación: resultado, versión del instalador, compilación y edición de Windows, clase de hardware, idioma de la interfaz y un hash del GUID del equipo. No se envían nombres de archivo, contenido de unidades ni nombres de usuario.\n\n¿Enviar estos informes? Puede cambiarlo más tarde en %AppData%\\MedicatInstaller\\preferences.json.",
+      "upload_logs_prompt": "¿Subir los archivos de registro de diagnóstico junto al instalador al servidor de soporte de MediCat? Contienen rutas de archivos y detalles de unidades. Recibirá un código Diag para pegar en Discord."
     },
     "ventoy_warning": {
       "title": "Advertencia de Instalación Ventoy",
@@ -498,7 +502,9 @@
       "no_drive_for_check": "No se Seleccionó Unidad",
       "file_dialog_title": "Seleccionar archivo MediCat (MediCat.USB.v{0}.7z o .zip.001-.006)",
       "help_gate": "Fallos repetidos — obtener ayuda",
-      "archive_browse_invalid": "Archivo no válido"
+      "archive_browse_invalid": "Archivo no válido",
+      "telemetry_consent": "Informes de uso anónimos",
+      "upload_logs_prompt": "¿Subir registros de diagnóstico?"
     },
     "log": {
       "installer_started": "Instalador MediCat v{0} Iniciado",
@@ -705,7 +711,6 @@
       "re_extract_complete": "Ré-extraction terminée. Vous pouvez vouloir exécuter la vérification des fichiers à nouveau pour confirmer.",
       "re_extract_failed": "Ré-extraction terminée avec des erreurs.\n\nExtraits: {0}/{1}\nÉchoués: {2}\n\nConsultez le journal pour plus de détails.",
       "verify_still_failed_after_reextract": "La vérification a encore trouvé {0} fichier(s) qui ne correspondent pas après la ré-extraction.\n\nVérifiez votre antivirus, pare-feu ou autre logiciel de sécurité. Ils peuvent bloquer, mettre en quarantaine ou supprimer des fichiers lors de l'extraction sur une clé USB.\n\nLes journaux sont enregistrés à côté de cet installateur (medicat_installer.log, check.log, reextract.log). Si vous avez besoin d'aide sur Discord, partagez le code Diag de cette boîte de dialogue une fois qu'il apparaît.",
-      "beta_failure_logs_notice": "Les fichiers journaux de diagnostic peuvent être envoyés automatiquement pour aider à corriger ce problème (débogage bêta).",
       "failure_diag_hint": "Si vous avez besoin d'aide sur Discord, copiez le code Diag lorsqu'il apparaît.",
       "help_gate": "L'installation ou la vérification a échoué {0} fois sur ce PC.\n\nVous n'êtes pas seul — de nombreux problèmes se règlent plus vite avec l'aide de la communauté MediCat sur Discord. Partagez votre code Diag de la dernière erreur si vous demandez de l'aide.",
       "diag_uploading": "Envoi des journaux de diagnostic…",
@@ -726,7 +731,9 @@
       "drive_io_error_during_operation": "Une erreur de lecture/écriture s'est produite sur le lecteur {0} pendant l'opération. Vérifiez la connexion USB et réessayez.",
       "archive_download_failed": "Échec du téléchargement de l'archive : {0}",
       "drive_under_minimum": "Le lecteur {0} est trop petit. MediCat nécessite au moins 30 Go de capacité totale.",
-      "archive_browse_invalid": "Ce fichier ne semble pas être une archive MediCat complète (.7z ou Google Drive .zip.001-.006)."
+      "archive_browse_invalid": "Ce fichier ne semble pas être une archive MediCat complète (.7z ou Google Drive .zip.001-.006).",
+      "telemetry_consent": "MediCat Installer peut envoyer un rapport d'utilisation anonyme à la fin de chaque installation ou vérification : résultat, version de l'installateur, build et édition de Windows, classe de matériel, langue de l'interface et un hachage du GUID de la machine. Aucun nom de fichier, contenu de disque ni nom d'utilisateur n'est envoyé.\n\nEnvoyer ces rapports ? Vous pourrez changer d'avis dans %AppData%\\MedicatInstaller\\preferences.json.",
+      "upload_logs_prompt": "Envoyer les fichiers journaux de diagnostic situés à côté de l'installateur au serveur de support MediCat ? Ils contiennent des chemins de fichiers et des détails sur les disques. Vous recevrez un code Diag à coller sur Discord."
     },
     "ventoy_warning": {
       "title": "Avertissement d'Installation Ventoy",
@@ -780,7 +787,9 @@
       "no_drive_for_check": "Aucun Lecteur Sélectionné",
       "file_dialog_title": "Sélectionner l’archive MediCat (MediCat.USB.v{0}.7z ou .zip.001-.006)",
       "help_gate": "Échecs répétés — obtenir de l'aide",
-      "archive_browse_invalid": "Archive invalide"
+      "archive_browse_invalid": "Archive invalide",
+      "telemetry_consent": "Rapports d'utilisation anonymes",
+      "upload_logs_prompt": "Envoyer les journaux de diagnostic ?"
     },
     "log": {
       "installer_started": "Installateur MediCat v{0} Démarré",
@@ -987,7 +996,6 @@
       "re_extract_complete": "Ponowne wyodrębnianie zakończone. Możesz ponownie uruchomić weryfikację plików, aby to potwierdzić.",
       "re_extract_failed": "Ponowne wyodrębnianie zakończone z błędami.\n\nWyodrębniono: {0}/{1}\nNiepowodzenie: {2}\n\nSzczegółowe informacje znajdziesz w dzienniku.",
       "verify_still_failed_after_reextract": "Weryfikacja nadal wykryła {0} plików, które nie pasują po ponownym rozpakowaniu.\n\nSprawdź program antywirusowy, zaporę sieciową lub inne oprogramowanie zabezpieczające. Mogą blokować, kwarantannować lub usuwać pliki podczas rozpakowywania na dysk USB.\n\nDzienniki są zapisywane obok tego instalatora (medicat_installer.log, check.log, reextract.log). Jeśli potrzebujesz pomocy na Discordzie, podaj kod Diag z tego okna błędu, gdy się pojawi.",
-      "beta_failure_logs_notice": "Pliki dziennika diagnostycznego mogą być przesłane automatycznie, aby pomóc naprawić ten problem (debugowanie beta).",
       "failure_diag_hint": "Jeśli potrzebujesz pomocy na Discordzie, skopiuj kod Diag po jego pojawieniu się.",
       "help_gate": "Instalacja lub weryfikacja nie powiodła się {0} razy na tym komputerze.\n\nNie jesteś sam — wiele problemów łatwiej rozwiązać z pomocą społeczności MediCat na Discordzie. Podaj kod Diag z ostatniego błędu, jeśli prosisz o wsparcie.",
       "diag_uploading": "Wysyłanie dzienników diagnostycznych…",
@@ -1008,7 +1016,9 @@
       "drive_io_error_during_operation": "Wystąpił błąd odczytu/zapisu na dysku {0} podczas operacji. Sprawdź połączenie USB i spróbuj ponownie.",
       "archive_download_failed": "Pobieranie archiwum nie powiodło się: {0}",
       "drive_under_minimum": "Dysk {0} jest za mały. MediCat wymaga co najmniej 30 GB całkowitej pojemności.",
-      "archive_browse_invalid": "Ten plik nie wygląda na kompletne archiwum MediCat (.7z lub Google Drive .zip.001-.006)."
+      "archive_browse_invalid": "Ten plik nie wygląda na kompletne archiwum MediCat (.7z lub Google Drive .zip.001-.006).",
+      "telemetry_consent": "MediCat Installer może wysyłać anonimowy raport użycia po każdej instalacji lub weryfikacji: wynik, wersję instalatora, kompilację i edycję Windows, klasę sprzętu, język interfejsu oraz skrót GUID komputera. Nie są wysyłane nazwy plików, zawartość dysków ani nazwy użytkowników.\n\nWysyłać te raporty? Możesz to później zmienić w %AppData%\\MedicatInstaller\\preferences.json.",
+      "upload_logs_prompt": "Przesłać pliki dziennika diagnostycznego znajdujące się obok instalatora na serwer wsparcia MediCat? Zawierają ścieżki plików i szczegóły dysków. Otrzymasz kod Diag do wklejenia na Discordzie."
     },
     "ventoy_warning": {
       "title": "Ostrzeżenie dotyczące instalacji Ventoy",
@@ -1062,7 +1072,9 @@
       "no_drive_for_check": "Nie wybrano dysku",
       "file_dialog_title": "Wybierz archiwum MediCat (MediCat.USB.v{0}.7z lub .zip.001-.006)",
       "help_gate": "Powtarzające się błędy — uzyskaj pomoc",
-      "archive_browse_invalid": "Nieprawidłowe archiwum"
+      "archive_browse_invalid": "Nieprawidłowe archiwum",
+      "telemetry_consent": "Anonimowe raporty użycia",
+      "upload_logs_prompt": "Przesłać dzienniki diagnostyczne?"
     },
     "log": {
       "installer_started": "Uruchomiono instalator MediCat v{0}",
@@ -1269,7 +1281,6 @@
       "re_extract_complete": "Yeniden çıkarma tamamlandı. Onaylamak için dosya doğrulamasını tekrar çalıştırmak isteyebilirsiniz.",
       "re_extract_failed": "Yeniden çıkarma işlemi hatalarla tamamlandı.\n\nÇıkarılan: {0}/{1}\nBaşarısız: {2}\n\nDetaylar için günlüğü kontrol edin.",
       "verify_still_failed_after_reextract": "Yeniden çıkarma işleminden sonra bile doğrulama {0} dosyanın eşleşmediğini tespit etti.\n\nAntivirüs, güvenlik duvarı veya diğer güvenlik yazılımlarınızı kontrol edin. Bir USB sürücüye çıkarma yaparken dosyaları engelleyebilir, karantinaya alabilir veya silebilirler.\n\nGünlükler bu kurulumcunun yanına kaydedilir (medicat_installer.log, check.log, reextract.log). Discord'da yardıma ihtiyacınız varsa, bu hata penceresindeki Diag kodu göründüğünde paylaşın.",
-      "beta_failure_logs_notice": "Tanı günlük dosyaları bu sorunu düzeltmeye yardımcı olmak için otomatik olarak yüklenebilir (beta hata ayıklama).",
       "failure_diag_hint": "Discord'da yardıma ihtiyacınız varsa, Diag kodu göründüğünde kopyalayın.",
       "help_gate": "Bu bilgisayarda kurulum veya doğrulama {0} kez başarısız oldu.\n\nYalnız değilsiniz — birçok sorun MediCat Discord topluluğundan yardım alınca daha hızlı çözülür. Destek isterseniz son hata penceresindeki Diag kodunu paylaşın.",
       "diag_uploading": "Tanı günlükleri yükleniyor…",
@@ -1292,7 +1303,9 @@
       "drive_removed_during_operation": "Seçili sürücü {0} işlem sırasında kaldırıldı. Sürücüyü bağlayıp tekrar deneyin.",
       "drive_io_error_during_operation": "İşlem sırasında {0} sürücüsünde okuma/yazma hatası oluştu. USB bağlantısını kontrol edip tekrar deneyin.",
       "archive_download_failed": "Arşiv indirilemedi: {0}",
-      "archive_browse_invalid": "Bu dosya eksiksiz bir MediCat arşivi gibi görünmüyor (.7z veya Google Drive .zip.001-.006)."
+      "archive_browse_invalid": "Bu dosya eksiksiz bir MediCat arşivi gibi görünmüyor (.7z veya Google Drive .zip.001-.006).",
+      "telemetry_consent": "MediCat Installer her kurulum veya doğrulamanın sonunda anonim bir kullanım raporu gönderebilir: sonuç, yükleyici sürümü, Windows derlemesi ve sürümü, donanım sınıfı, arayüz dili ve makine GUID'sinin karması. Dosya adları, sürücü içerikleri veya kullanıcı adları gönderilmez.\n\nBu raporlar gönderilsin mi? Bunu daha sonra %AppData%\\MedicatInstaller\\preferences.json dosyasından değiştirebilirsiniz.",
+      "upload_logs_prompt": "Yükleyicinin yanındaki tanı günlük dosyaları MediCat destek sunucusuna yüklensin mi? Dosya yolları ve sürücü ayrıntıları içerirler. Discord'a yapıştırmak için bir Diag kodu alacaksınız."
     },
     "ventoy_warning": {
       "title": "Ventoy Kurulum Uyarısı",
@@ -1346,7 +1359,9 @@
       "no_drive_for_check": "Sürücü Seçilmedi",
       "file_dialog_title": "MediCat arşivini seçin (MediCat.USB.v{0}.7z veya .zip.001-.006)",
       "help_gate": "Tekrarlayan hatalar — yardım alın",
-      "archive_browse_invalid": "Geçersiz arşiv"
+      "archive_browse_invalid": "Geçersiz arşiv",
+      "telemetry_consent": "Anonim kullanım raporları",
+      "upload_logs_prompt": "Tanı günlükleri yüklensin mi?"
     },
     "log": {
       "installer_started": "MediCat Kurulumcu v{0} Başlatıldı",

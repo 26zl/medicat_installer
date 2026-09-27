@@ -55,6 +55,7 @@ private:
     void SubmitLaunchSessionReport();
     void SubmitSessionReport(bool success, const std::wstring& message, const std::wstring& title, int exitCode);
     void QueueFailureLogUpload(const std::string& sessionId, const std::wstring& message, const std::wstring& title);
+    void EnsureTelemetryConsent();
     void StartUpdateCheck();
     void ApplyInstallerUpdate(const InstallerUpdateInfo& info);
     void LogOperationFailure(const std::wstring& message, const std::wstring& title);
@@ -106,6 +107,13 @@ private:
     std::string sessionId_;
     std::chrono::steady_clock::time_point sessionStart_{};
     std::atomic<bool> updateCheckInProgress_{false};
+    bool uploadLogsRequested_ = false;  // /upload-logs
+    struct PendingFailure {
+        std::string sessionId;
+        std::wstring message;
+        std::wstring title;
+    };
+    PendingFailure pendingFailure_;  // last GUI failure, uploaded only after the user agrees
 };
 
 }  // namespace medicat
