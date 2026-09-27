@@ -1,6 +1,17 @@
 # Changelog
 
-All notable changes to `Medicat_Installer.sh` (linux branch).
+All notable changes to `Medicat_Installer.sh` (now `linux/` on `main`).
+
+## 0026
+
+- Move the script into `linux/` on `main` next to the Windows installer. Archive name, hashes, mirrors, manifest URLs, size limits and Ventoy defaults now come from the shared `spec/medicat.json` (generated block at the top of the script, `tools/gen_spec.py`).
+- Add command-line flags mirroring the Windows CLI: `--install`, `--verify`, `--extras`, `--drive`, `--path`, `--archive`, `--download`, `--fs ntfs|exfat`, `--label`, `--gpt`/`--mbr`, `--secure-boot`/`--no-secure-boot`, `--ventoy-version`, `--ventoy-tar`, `--offline`, `--manifest`, `--no-reextract`, `--skip-archive-hash`, `--allow-fixed`, `--work-dir`, `--log`, `--yes`. Same exit codes as Windows (0/1/2/4/5). No flags = interactive, as before.
+- Verify after extract: MD5-check the stick against `MedicatFiles.md5` (`md5sum -c`), write `failed_files.txt`, and re-extract only the failed files with `7z @list`, then re-check them. `--verify` does the same on an existing stick or on a mounted folder (`--path`).
+- Extras catalog (`spec/extras.json`): download checksummed boot images (SystemRescue, GParted Live, Clonezilla, Rescuezilla, Memtest86+, Hiren's BootCD PE, Ubuntu) into `Extras/<category>/` on the stick, interactively after install or with `--extras`. `--list-extras` shows the catalog.
+- Ventoy: pin a release, use a local tarball, reuse an already extracted `./ventoy`, and fall back to a known-good version when the GitHub API is unreachable. `--no-secure-boot` passes `-S`.
+- Optional exFAT data partition (`--fs exfat`) keeps Ventoy's own filesystem instead of `mkntfs`; NTFS stays the default.
+- Try every mirror from the spec in order before offering BitTorrent. Session log in the work dir (`--log`).
+- Refuse to wipe a non-USB disk unattended unless `--allow-fixed`; refuse to continue on low free space in unattended mode.
 
 ## 0025
 
