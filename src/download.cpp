@@ -81,16 +81,17 @@ bool ParseContentRange(const wchar_t* value, uint64_t& start, uint64_t& end, uin
         return false;
     }
 
+    // _wcstoui64 always stores the stop position, so endPtr is never null here.
     const wchar_t* cursor = value + 6;
     wchar_t* endPtr = nullptr;
     start = _wcstoui64(cursor, &endPtr, 10);
-    if (!endPtr || *endPtr != L'-') {
+    if (endPtr == cursor || *endPtr != L'-') {
         return false;
     }
 
     cursor = endPtr + 1;
     end = _wcstoui64(cursor, &endPtr, 10);
-    if (!endPtr || *endPtr != L'/') {
+    if (endPtr == cursor || *endPtr != L'/') {
         return false;
     }
 

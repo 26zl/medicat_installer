@@ -84,11 +84,14 @@ def validate(spec: dict, extras: dict) -> None:
             fail(f"{ident}: file_name must not contain a path")
         if entry["type"] == "iso":
             has_sha = "sha256" in entry
+            has_sha1 = "sha1" in entry
             has_md5 = "md5" in entry
-            if not (has_sha or has_md5):
-                fail(f"{ident}: iso entries need sha256 (preferred) or md5")
+            if not (has_sha or has_sha1 or has_md5):
+                fail(f"{ident}: iso entries need sha256 (preferred), sha1 or md5")
             if has_sha and not HEX64.match(entry["sha256"]):
                 fail(f"{ident}: sha256 must be 64 lowercase hex characters")
+            if has_sha1 and not HEX40.match(entry["sha1"]):
+                fail(f"{ident}: sha1 must be 40 lowercase hex characters")
             if has_md5 and not HEX32.match(entry["md5"]):
                 fail(f"{ident}: md5 must be 32 lowercase hex characters")
             if entry["bytes"] <= 0:
@@ -210,7 +213,8 @@ def render_header(spec: dict, extras: dict) -> str:
     out("    const wchar_t* url;")
     out("    const wchar_t* fileName;")
     out("    uint64_t bytes;")
-    out("    const char* sha256;        // empty when only md5 is published")
+    out("    const char* sha256;        // empty when the project publishes only sha1 or md5")
+    out("    const char* sha1;")
     out("    const char* md5;")
     out("    const wchar_t* unpackFormat;  // empty | zip")
     out("    const wchar_t* unpackMember;")
@@ -229,7 +233,7 @@ def render_header(spec: dict, extras: dict) -> str:
         out(f"        {cpp_wide(entry['category'])}, {cpp_wide(','.join(entry['targets']))}, {cpp_wide(entry['type'])},")
         out(f"        {cpp_wide(entry['url'])},")
         out(f"        {cpp_wide(entry['file_name'])}, {entry['bytes']}ULL,")
-        out(f"        {cpp_narrow(entry.get('sha256', ''))}, {cpp_narrow(entry.get('md5', ''))},")
+        out(f"        {cpp_narrow(entry.get('sha256', ''))}, {cpp_narrow(entry.get('sha1', ''))}, {cpp_narrow(entry.get('md5', ''))},")
         out(f"        {cpp_wide(unpack.get('format', ''))}, {cpp_wide(unpack.get('member', ''))},")
         out(f"        {cpp_wide(entry['homepage'])}, {cpp_wide(entry['license'])},")
         out(f"        {cpp_wide(entry['description'])},")
@@ -314,6 +318,7 @@ def render_bash_block(spec: dict, extras: dict) -> str:
     out(bash_array("ExtrasFileNames", [e["file_name"] for e in entries]))
     out(bash_array("ExtrasBytes", [e["bytes"] for e in entries]))
     out(bash_array("ExtrasSha256", [e.get("sha256", "") for e in entries]))
+    out(bash_array("ExtrasSha1", [e.get("sha1", "") for e in entries]))
     out(bash_array("ExtrasMd5", [e.get("md5", "") for e in entries]))
     out(bash_array("ExtrasUnpackFormat", [(e.get("unpack") or {}).get("format", "") for e in entries]))
     out(bash_array("ExtrasUnpackMember", [(e.get("unpack") or {}).get("member", "") for e in entries]))

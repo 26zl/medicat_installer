@@ -1,5 +1,5 @@
 # Medicat Installer
-![Logo](icon.png)
+![Logo](res/icon.png)
 
 Fork of [mon5termatt/medicat_installer](https://github.com/mon5termatt/medicat_installer) with a shared spec for both installers, a Linux installer with the same command-line interface as Windows, an extras catalog of boot images, telemetry consent and checksum-verified self-updates.
 
@@ -50,7 +50,7 @@ OR:
 * Extracts **MediCat** with progress
 * **MD5 verify** + selective re-extract if something failed
 * GUI (dark theme) and a proper **CLI** (`/help`, `/install`, `/verify`, ...)
-* **Extras**: optional boot images (SystemRescue, GParted Live, Clonezilla, Rescuezilla, Memtest86+, Hiren's BootCD PE, Ubuntu) from a curated, checksummed catalog; the Linux installer downloads them into `Extras/` on the stick
+* **Extras**: optional boot images from a curated, checksummed catalog (SystemRescue, GParted Live, Clonezilla, Rescuezilla, Memtest86+, ShredOS, Hiren's BootCD PE, Ubuntu, Linux Mint, Debian Live, plus pointers for the Windows 10/11 ISOs); the Linux installer downloads them into `Extras/` on the stick
 
 More detail: [`docs/FEATURES.md`](docs/FEATURES.md) · [`docs/CLI.md`](docs/CLI.md) · [`docs/UPDATER.md`](docs/UPDATER.md) · [`spec/README.md`](spec/README.md) · [`linux/README.md`](linux/README.md)
 

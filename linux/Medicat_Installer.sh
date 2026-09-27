@@ -57,22 +57,23 @@ function loadSpec() {
 	UpdateChecksumsAsset='SHA256SUMS.txt'
 	ExtrasCatalogVersion='2026-09-27'
 	ExtrasDestRoot='Extras'
-	ExtrasIds=('systemrescue' 'gparted-live' 'clonezilla-live' 'rescuezilla' 'memtest86plus' 'hirens-bootcd-pe' 'ubuntu-desktop-lts' 'windows-11-iso')
-	ExtrasNames=('SystemRescue' 'GParted Live' 'Clonezilla Live' 'Rescuezilla' 'Memtest86+' 'Hiren'\''s BootCD PE' 'Ubuntu Desktop LTS' 'Windows 11 installation media')
-	ExtrasVersions=('13.02' '1.8.1-6' '3.1.2-9' '2.6.2' '8.10' '1.0.8' '24.04.5.1' 'current')
-	ExtrasCategories=('Rescue' 'Partition_and_Imaging' 'Partition_and_Imaging' 'Partition_and_Imaging' 'Diagnostics' 'Windows_Rescue' 'Live_Linux' 'Windows_Install')
-	ExtrasTargets=('linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'windows' 'linux' 'windows')
-	ExtrasTypes=('iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'manual')
-	ExtrasUrls=('https://fastly-cdn.system-rescue.org/releases/13.02/systemrescue-13.02-amd64.iso' 'https://downloads.sourceforge.net/gparted/gparted-live-1.8.1-6-amd64.iso' 'https://downloads.sourceforge.net/project/clonezilla/clonezilla_live_stable/3.1.2-9/clonezilla-live-3.1.2-9-amd64.iso' 'https://github.com/rescuezilla/rescuezilla/releases/download/2.6.2/rescuezilla-2.6.2-64bit.noble.iso' 'https://www.memtest.org/download/v8.10/mt86plus_8.10_x86_64.iso.zip' 'https://www.hirensbootcd.org/files/HBCD_PE_x64.iso' 'https://releases.ubuntu.com/24.04/ubuntu-24.04.5.1-desktop-amd64.iso' 'https://www.microsoft.com/software-download/windows11')
-	ExtrasFileNames=('systemrescue-13.02-amd64.iso' 'gparted-live-1.8.1-6-amd64.iso' 'clonezilla-live-3.1.2-9-amd64.iso' 'rescuezilla-2.6.2-64bit.noble.iso' 'mt86plus_8.10_x86_64.iso' 'HBCD_PE_x64.iso' 'ubuntu-24.04.5.1-desktop-amd64.iso' 'Win11.iso')
-	ExtrasBytes=('1381629952' '720371712' '437256192' '1594339328' '233712' '3291686912' '6250332160' '0')
-	ExtrasSha256=('ad4d670b72859d887c7960142a9a9d36a3e50446694a035e254442f65d6e7572' 'd789c38779f0d6f7026c12f44c2c52a04f66e28a1aea7d51f3045ad1bbf28411' '' '285db0af83213e2297490ca1cfd74ecd607c3b0a2f1d14e11a8412c0b71eea50' '93530005d6ac6a85aa2a49c68604a43c25794ecccf796c4f8849a73a8001be9a' '8c4c670c9c84d6c4b5a9c32e0aa5a55d8c23de851d259207d54679ea774c2498' '4da4a0c9035da8e68a59a838674f403f0a54472c78a83b4fb7f78d03588f85a7' '')
-	ExtrasMd5=('' '' '99353cf50559fe8e5450643a764f0f57' '' '' '' '' '')
-	ExtrasUnpackFormat=('' '' '' '' 'zip' '' '' '')
-	ExtrasUnpackMember=('' '' '' '' 'memtest.iso' '' '' '')
-	ExtrasHomepages=('https://www.system-rescue.org/' 'https://gparted.org/' 'https://clonezilla.org/' 'https://rescuezilla.com/' 'https://www.memtest.org/' 'https://www.hirensbootcd.org/' 'https://ubuntu.com/download/desktop' 'https://www.microsoft.com/software-download/windows11')
-	ExtrasLicenses=('GPL-2.0-or-later (Arch-based live system, mixed licenses)' 'GPL-2.0-or-later' 'GPL-2.0' 'GPL-3.0' 'GPL-2.0' 'Freeware; bundled tools keep their own licenses' 'Mixed open source' 'Proprietary (Microsoft); download from Microsoft only')
-	ExtrasDescriptions=('Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines.' 'Resize, move, copy and check partitions (NTFS, ext4, exFAT, FAT, btrfs and more).' 'Disk and partition imaging and cloning, sector-level or filesystem-aware.' 'Point-and-click backup and restore, compatible with Clonezilla images.' 'Stand-alone RAM tester for BIOS and UEFI machines.' 'Windows 11 PE based repair environment with password, driver, backup and diagnostics tools.' 'Live desktop and installer; handy for rescuing files from a Linux or Windows disk with a full GUI.' 'Microsoft issues time-limited download links, so fetch the ISO from the Microsoft page and copy it into Extras/Windows_Install/ on the stick.')
+	ExtrasIds=('systemrescue' 'gparted-live' 'clonezilla-live' 'rescuezilla' 'memtest86plus' 'hirens-bootcd-pe' 'ubuntu-desktop-lts' 'windows-11-iso' 'linux-mint-cinnamon' 'debian-live-kde' 'shredos' 'windows-10-iso')
+	ExtrasNames=('SystemRescue' 'GParted Live' 'Clonezilla Live' 'Rescuezilla' 'Memtest86+' 'Hiren'\''s BootCD PE' 'Ubuntu Desktop LTS' 'Windows 11 installation media' 'Linux Mint Cinnamon' 'Debian Live KDE' 'ShredOS (nwipe)' 'Windows 10 installation media')
+	ExtrasVersions=('13.02' '1.8.1-6' '3.1.2-9' '2.6.2' '8.10' '1.0.8' '24.04.5.1' 'current' '22.3' '13.7.0' '2025.11 / nwipe 0.42' '22H2')
+	ExtrasCategories=('Rescue' 'Partition_and_Imaging' 'Partition_and_Imaging' 'Partition_and_Imaging' 'Diagnostics' 'Windows_Rescue' 'Live_Linux' 'Windows_Install' 'Live_Linux' 'Live_Linux' 'Disk_Wipe' 'Windows_Install')
+	ExtrasTargets=('linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'windows' 'linux' 'windows' 'linux' 'linux' 'linux,windows' 'windows')
+	ExtrasTypes=('iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'manual' 'iso' 'iso' 'iso' 'manual')
+	ExtrasUrls=('https://fastly-cdn.system-rescue.org/releases/13.02/systemrescue-13.02-amd64.iso' 'https://downloads.sourceforge.net/gparted/gparted-live-1.8.1-6-amd64.iso' 'https://downloads.sourceforge.net/project/clonezilla/clonezilla_live_stable/3.1.2-9/clonezilla-live-3.1.2-9-amd64.iso' 'https://github.com/rescuezilla/rescuezilla/releases/download/2.6.2/rescuezilla-2.6.2-64bit.noble.iso' 'https://www.memtest.org/download/v8.10/mt86plus_8.10_x86_64.iso.zip' 'https://www.hirensbootcd.org/files/HBCD_PE_x64.iso' 'https://releases.ubuntu.com/24.04/ubuntu-24.04.5.1-desktop-amd64.iso' 'https://www.microsoft.com/software-download/windows11' 'https://mirrors.edge.kernel.org/linuxmint/stable/22.3/linuxmint-22.3-cinnamon-64bit.iso' 'https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-13.7.0-amd64-kde.iso' 'https://github.com/PartialVolume/shredos.x86_64/releases/download/v2025.11_31_x86-64_0.42/shredos-2025.11_31_x86-64_v0.42_20260716.iso' 'https://www.microsoft.com/software-download/windows10ISO')
+	ExtrasFileNames=('systemrescue-13.02-amd64.iso' 'gparted-live-1.8.1-6-amd64.iso' 'clonezilla-live-3.1.2-9-amd64.iso' 'rescuezilla-2.6.2-64bit.noble.iso' 'mt86plus_8.10_x86_64.iso' 'HBCD_PE_x64.iso' 'ubuntu-24.04.5.1-desktop-amd64.iso' 'Win11.iso' 'linuxmint-22.3-cinnamon-64bit.iso' 'debian-live-13.7.0-amd64-kde.iso' 'shredos-2025.11_31_x86-64_v0.42_20260716.iso' 'Win10_22H2.iso')
+	ExtrasBytes=('1381629952' '720371712' '437256192' '1594339328' '233712' '3291686912' '6250332160' '0' '3091660800' '4186112000' '360710144' '0')
+	ExtrasSha256=('ad4d670b72859d887c7960142a9a9d36a3e50446694a035e254442f65d6e7572' 'd789c38779f0d6f7026c12f44c2c52a04f66e28a1aea7d51f3045ad1bbf28411' '' '285db0af83213e2297490ca1cfd74ecd607c3b0a2f1d14e11a8412c0b71eea50' '93530005d6ac6a85aa2a49c68604a43c25794ecccf796c4f8849a73a8001be9a' '8c4c670c9c84d6c4b5a9c32e0aa5a55d8c23de851d259207d54679ea774c2498' '4da4a0c9035da8e68a59a838674f403f0a54472c78a83b4fb7f78d03588f85a7' '' 'a081ab202cfda17f6924128dbd2de8b63518ac0531bcfe3f1a1b88097c459bd4' '37dedc921f50325665c75829597126b3eeb70ff5cd8c511a7230ace09ae939be' '' '')
+	ExtrasSha1=('' '' '' '' '' '' '' '' '' '' 'ef4b41f95f96b2bc80ee3fbe2e9ca9ea51750569' '')
+	ExtrasMd5=('' '' '99353cf50559fe8e5450643a764f0f57' '' '' '' '' '' '' '' '' '')
+	ExtrasUnpackFormat=('' '' '' '' 'zip' '' '' '' '' '' '' '')
+	ExtrasUnpackMember=('' '' '' '' 'memtest.iso' '' '' '' '' '' '' '')
+	ExtrasHomepages=('https://www.system-rescue.org/' 'https://gparted.org/' 'https://clonezilla.org/' 'https://rescuezilla.com/' 'https://www.memtest.org/' 'https://www.hirensbootcd.org/' 'https://ubuntu.com/download/desktop' 'https://www.microsoft.com/software-download/windows11' 'https://linuxmint.com/' 'https://www.debian.org/CD/live/' 'https://github.com/PartialVolume/shredos.x86_64' 'https://www.microsoft.com/software-download/windows10ISO')
+	ExtrasLicenses=('GPL-2.0-or-later (Arch-based live system, mixed licenses)' 'GPL-2.0-or-later' 'GPL-2.0' 'GPL-3.0' 'GPL-2.0' 'Freeware; bundled tools keep their own licenses' 'Mixed open source' 'Proprietary (Microsoft); download from Microsoft only' 'Mixed open source' 'Mixed open source (DFSG)' 'GPL-2.0' 'Proprietary (Microsoft); download from Microsoft only')
+	ExtrasDescriptions=('Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines.' 'Resize, move, copy and check partitions (NTFS, ext4, exFAT, FAT, btrfs and more).' 'Disk and partition imaging and cloning, sector-level or filesystem-aware.' 'Point-and-click backup and restore, compatible with Clonezilla images.' 'Stand-alone RAM tester for BIOS and UEFI machines.' 'Windows 11 PE based repair environment with password, driver, backup and diagnostics tools.' 'Live desktop and installer; handy for rescuing files from a Linux or Windows disk with a full GUI.' 'Microsoft issues time-limited download links, so fetch the ISO from the Microsoft page and copy it into Extras/Windows_Install/ on the stick.' 'Beginner-friendly live desktop and installer; the usual choice when a Windows PC is being moved to Linux.' 'Debian stable live desktop with the Calamares installer. The current-live URL moves at each point release, so bump the version when it 404s.' 'Boots straight into nwipe to securely erase disks (DoD, PRNG, verify) before a machine is sold or recycled. The project publishes SHA-1 only.' 'Still needed for machines that cannot run Windows 11. Microsoft issues time-limited links, so fetch the ISO from the Microsoft page and copy it into Extras/Windows_Install/ on the stick.')
 }
 # END GENERATED SPEC
 loadSpec
@@ -762,15 +763,19 @@ function fetchFile() {
 	fi
 }
 
-# Compare a file against sha256 ($2) or md5 ($3); either may be empty.
+# Compare a file against sha256 ($2), sha1 ($3) or md5 ($4), whichever is given first.
 function checksumOk() {
 	local file="$1"
 	local sha="$2"
-	local md5="$3"
+	local sha1="${3-}"
+	local md5="${4-}"
 	local got
 	if [[ -n "$sha" ]]; then
 		got=$(sha256sum "$file" | awk '{print tolower($1)}')
 		[[ "$got" == "$sha" ]]
+	elif [[ -n "$sha1" ]]; then
+		got=$(sha1sum "$file" | awk '{print tolower($1)}')
+		[[ "$got" == "$sha1" ]]
 	elif [[ -n "$md5" ]]; then
 		got=$(md5sum "$file" | awk '{print tolower($1)}')
 		[[ "$got" == "$md5" ]]
@@ -1774,7 +1779,7 @@ function installExtras() {
 				colEcho $cyanB "\n$name already present:$whiteB $target"
 				continue
 			fi
-			if checksumOk "$target" "${ExtrasSha256[$i]}" "${ExtrasMd5[$i]}"; then
+			if checksumOk "$target" "${ExtrasSha256[$i]}" "${ExtrasSha1[$i]}" "${ExtrasMd5[$i]}"; then
 				colEcho $cyanB "\n$name already present and verified:$whiteB $target"
 				continue
 			fi
@@ -1794,7 +1799,7 @@ function installExtras() {
 			continue
 		fi
 		colEcho $cyanB "Checking checksum of $downloadName..."
-		if ! checksumOk "$dest/$downloadName" "${ExtrasSha256[$i]}" "${ExtrasMd5[$i]}"; then
+		if ! checksumOk "$dest/$downloadName" "${ExtrasSha256[$i]}" "${ExtrasSha1[$i]}" "${ExtrasMd5[$i]}"; then
 			colEcho $redB "Checksum mismatch for $name; removing the download."
 			rm -f "$dest/$downloadName"
 			failures=$((failures + 1))
@@ -1811,7 +1816,7 @@ function installExtras() {
 			rm -f "$dest/$downloadName"
 		fi
 		printf '%s\t%s\t%s/%s\t%s\t%s\n' "$id" "${ExtrasVersions[$i]}" "${ExtrasCategories[$i]}" "${ExtrasFileNames[$i]}" \
-			"${ExtrasSha256[$i]:-md5:${ExtrasMd5[$i]}}" "$(date '+%Y-%m-%d')" >> "$manifestFile"
+			"${ExtrasSha256[$i]:-${ExtrasSha1[$i]:+sha1:${ExtrasSha1[$i]}}${ExtrasSha1[$i]:-md5:${ExtrasMd5[$i]}}}" "$(date '+%Y-%m-%d')" >> "$manifestFile"
 		colEcho $greenB "Added $name ->$whiteB $target"
 	done
 	sync

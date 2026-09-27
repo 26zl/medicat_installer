@@ -34,12 +34,6 @@ rebuild.bat as 1.0.50 release
 
 `tools/upload_release.bat` creates the GitHub release if the tag is missing (as **Latest**), using the annotated tag message or the tagged commit message as release notes (`gh --notes-from-tag`). It uploads both Windows exes and attaches **`Medicat_Installer.sh`** from `linux/` in the tagged tree. The release goes to the repository of the checkout (`GITHUB_REPOSITORY` in Actions, `gh repo view` locally), so forks release to themselves.
 
-### Release webhook
-
-[`.github/workflows/release-webhook.yml`](../.github/workflows/release-webhook.yml) POSTs a Discord-compatible embed to the repo secret **`RELEASE_WEBHOOK_URL`**. Optional **`RELEASE_WEBHOOK_CONTENT`** adds a message body (e.g. a role ping).
-
-GitHub does not start `release: published` workflows when the release is created with `GITHUB_TOKEN` (CI `upload_release.bat`). Tag builds therefore call the webhook workflow after assets upload (`workflow_call`). Human publishes from the UI still use `release: published`. To announce an existing tag, run **Release webhook** with `workflow_dispatch` and the tag name. Do not create CI releases with a PAT if this job stays in `release-build.yml`, or Discord would get two posts.
-
 ## Source
 
 ```

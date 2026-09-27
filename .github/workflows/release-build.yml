@@ -12,14 +12,7 @@
 #   MEDICAT_INGEST_TOKEN  - baked into the exe for telemetry / support ingest.
 #                           Empty is allowed (support upload will be disabled).
 #
-# Discord notify: release-webhook.yml is called after upload. A GITHUB_TOKEN
-# release create does not emit release: published, so the webhook job must
-# be invoked from this workflow (workflow_call). Manual publishes still use
-# release: published. Do not also create the release with a PAT, or Discord
-# would get both the event and this job.
-#
-# concurrency below also cancels duplicate tag-push deliveries so Discord is
-# only notified once per tag.
+# concurrency below also cancels duplicate tag-push deliveries.
 
 name: Release build
 
@@ -58,10 +51,10 @@ jobs:
       MEDICAT_INGEST_TOKEN: ${{ secrets.MEDICAT_INGEST_TOKEN }}
     steps:
       - name: Checkout
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: "3.12"
 
@@ -105,12 +98,3 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: tools\upload_release.bat %VERSION%
-
-  notify:
-    name: Discord webhook
-    needs: build
-    if: github.ref_type == 'tag' || github.event.inputs.publish == 'true'
-    uses: ./.github/workflows/release-webhook.yml
-    with:
-      tag: ${{ github.ref_type == 'tag' && github.ref_name || github.event.inputs.version }}
-    secrets: inherit
