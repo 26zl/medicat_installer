@@ -14,6 +14,7 @@
 #include "download.h"
 #include "drives.h"
 #include "extract.h"
+#include "extras.h"
 #include "failure_tracker.h"
 #include "i18n.h"
 #include "ingest_token.h"
@@ -243,8 +244,8 @@ bool App::ResolveHeadlessInstallOptions(const CliOptions& cli, bool& format, boo
 int App::RunParsed(const CliParseResult& parsed, int argc, wchar_t** argv) {
     MedicatTempDirGuard tempCleanup;
 
-    const bool cliMode =
-        parsed.options.action == CliAction::Install || parsed.options.action == CliAction::Verify;
+    const bool cliMode = parsed.options.action == CliAction::Install ||
+                         parsed.options.action == CliAction::Verify || parsed.options.action == CliAction::Extras;
     if (cliMode) {
         EnableConsoleCancelHandling();
         log_->SetConsoleMirror(true, parsed.options.quiet);
@@ -272,8 +273,12 @@ int App::RunParsed(const CliParseResult& parsed, int argc, wchar_t** argv) {
         PrintCliConfig(root_, sevenZa_, aria2c_, md5Manifest_, ResolveArchivePath(parsed.options.archivePath));
         return 0;
     }
+    if (parsed.options.action == CliAction::ListExtras) {
+        PrintCliExtras();
+        return 0;
+    }
 
-    if (parsed.options.action == CliAction::Install || parsed.options.action == CliAction::Verify) {
+    if (cliMode) {
         headless_ = true;
     }
 
@@ -289,7 +294,7 @@ int App::RunParsed(const CliParseResult& parsed, int argc, wchar_t** argv) {
     if (sevenZa_.empty()) {
         currentOperation_ = L"startup";
         LogOperationFailure(i18n::Tr(L"messages.7zip_not_found"), i18n::Tr(L"titles.7zip_not_found"));
-        if (parsed.options.action == CliAction::Install || parsed.options.action == CliAction::Verify) {
+        if (cliMode) {
             return 1;
         }
         MessageBoxW(nullptr, i18n::Tr(L"messages.7zip_not_found").c_str(),
@@ -297,7 +302,7 @@ int App::RunParsed(const CliParseResult& parsed, int argc, wchar_t** argv) {
         return 1;
     }
 
-    if (parsed.options.action == CliAction::Install || parsed.options.action == CliAction::Verify) {
+    if (cliMode) {
         cliOptions_ = parsed.options;
         return RunHeadless(parsed.options);
     }
@@ -344,10 +349,59 @@ int App::RunHeadless(const CliOptions& cli) {
         return 2;
     }
 
+    if (cli.action == CliAction::Extras) {
+        return RunHeadlessExtras(cli);
+    }
     if (cli.action == CliAction::Verify) {
         return RunHeadlessVerify(cli);
     }
     return RunHeadlessInstall(cli);
+}
+
+int App::RunHeadlessExtras(const CliOptions& cli) {
+    currentOperation_ = L"extras";
+    log_->Info(L"Headless extras started on " + cli.drive);
+    return RunExtrasForDrive(cli);
+}
+
+// Shared tail of /install, /verify and /extras: 0 when every requested image is on the drive.
+int App::RunExtrasForDrive(const CliOptions& cli) {
+    std::vector<const MediCatExtra*> entries;
+    std::wstring error;
+    if (!ResolveExtrasSelection(cli.extras, entries, error)) {
+        log_->Error(error);
+        return 2;
+    }
+    if (entries.empty()) {
+        return 0;
+    }
+    std::wstring root = NormalizeDriveLetter(cli.drive);
+    if (root.empty()) {
+        log_->Error(L"Invalid drive for extras: " + cli.drive);
+        return 2;
+    }
+    root += L'\\';
+    log_->Info(L"Adding " + std::to_wstring(entries.size()) + L" extra image(s) under " + root + kExtrasDestRoot);
+    const bool showProgress = !IsQuiet();
+    const ExtrasInstallResult result = InstallExtras(
+        root, entries, sevenZa_, [this](const std::wstring& message) { log_->Info(message); },
+        [showProgress](const MediCatExtra& entry, const uint64_t downloaded, const uint64_t total) {
+            if (!showProgress || total == 0) {
+                return;
+            }
+            const int percent = static_cast<int>((downloaded * 100) / total);
+            WriteCliProgress(FormatCliFileProgress(percent, entry.fileName));
+            if (downloaded >= total) {
+                WriteCliProgressFinish();
+            }
+        });
+    log_->Info(L"Extras: " + std::to_wstring(result.installed) + L" added, " + std::to_wstring(result.present) +
+               L" already present, " + std::to_wstring(result.manual) + L" manual, " +
+               std::to_wstring(result.failed) + L" failed");
+    for (const std::wstring& failure : result.failures) {
+        log_->Error(L"Extras: " + failure);
+    }
+    return result.failed == 0 ? 0 : 1;
 }
 
 int App::RunHeadlessVerify(const CliOptions& cli) {
@@ -356,7 +410,14 @@ int App::RunHeadlessVerify(const CliOptions& cli) {
     MarkOperationStart();
     log_->Info(L"Headless verify started on " + cli.drive);
     RunVerifyThread(cli.drive);
-    return headlessResult_.completed ? headlessResult_.exitCode : 1;
+    int exitCode = headlessResult_.completed ? headlessResult_.exitCode : 1;
+    if (!cli.extras.empty() && (exitCode == 0 || exitCode == 5)) {
+        const int extrasExit = RunExtrasForDrive(cli);
+        if (exitCode == 0) {
+            exitCode = extrasExit;
+        }
+    }
+    return exitCode;
 }
 
 int App::RunHeadlessInstall(const CliOptions& cli) {
@@ -389,7 +450,14 @@ int App::RunHeadlessInstall(const CliOptions& cli) {
     currentOperation_ = L"install";
     log_->Info(L"Headless install started on " + cli.drive);
     RunPreInstallThread(cli.drive, format, runVentoy, std::move(pinVersion), ventoyInstall, std::move(archive));
-    return headlessResult_.completed ? headlessResult_.exitCode : 1;
+    int exitCode = headlessResult_.completed ? headlessResult_.exitCode : 1;
+    if (!cli.extras.empty() && (exitCode == 0 || exitCode == 5)) {
+        const int extrasExit = RunExtrasForDrive(cli);
+        if (exitCode == 0) {
+            exitCode = extrasExit;
+        }
+    }
+    return exitCode;
 }
 
 DiagnosticContext App::BuildDiagnosticContext() const {

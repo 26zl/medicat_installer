@@ -1,6 +1,7 @@
 // Console test runner for installer logic that needs no GUI, USB stick or network.
 // Built as MedicatTests when CMake is configured with -DMEDICAT_BUILD_TESTS=ON.
 #include "cli.h"
+#include "extras.h"
 #include "spec_generated.h"
 #include "update.h"
 #include "verify.h"
@@ -75,6 +76,32 @@ void TestCliParsing() {
     Check(medicat::NormalizeDriveLetter(L"e") == medicat::NormalizeDriveLetter(L"E:\\"),
           "drive letters normalize to one form");
     Check(medicat::IsSupportedLanguage(L"en") && !medicat::IsSupportedLanguage(L"xx"), "language codes are validated");
+
+    Check(Parse({L"/list-extras"}).options.action == CliAction::ListExtras, "/list-extras selects the catalog action");
+    const auto extrasOnly = Parse({L"/extras:memtest86plus,caine", L"/drive:E"});
+    Check(extrasOnly.ok && extrasOnly.options.action == CliAction::Extras, "/extras with a drive is its own action");
+    Check(Parse({L"/extras:all"}).errorCode == 2, "/extras without /drive fails with exit code 2");
+    Check(Parse({L"/extras:nope", L"/drive:E"}).errorCode == 2, "unknown catalog id fails with exit code 2");
+    const auto installExtras = Parse({L"/install", L"/drive:E", L"/yes", L"/extras:all"});
+    Check(installExtras.ok && installExtras.options.action == CliAction::Install &&
+              installExtras.options.extras == L"all",
+          "/extras rides along with /install");
+}
+
+void TestExtrasCatalog() {
+    std::vector<const medicat::MediCatExtra*> entries;
+    std::wstring error;
+    Check(medicat::ResolveExtrasSelection(L"all", entries, error) && entries.size() == medicat::kMediCatExtraCount,
+          "\"all\" selects the whole catalog");
+    Check(medicat::ResolveExtrasSelection(L"none", entries, error) && entries.empty(), "\"none\" selects nothing");
+    Check(medicat::ResolveExtrasSelection(L" memtest86plus , caine ,memtest86plus", entries, error) &&
+              entries.size() == 2,
+          "ids are trimmed and de-duplicated");
+    Check(!medicat::ResolveExtrasSelection(L"nope", entries, error) && !error.empty() && entries.empty(),
+          "unknown ids are rejected with a message");
+    const std::wstring catalog = medicat::FormatExtrasCatalog();
+    Check(catalog.find(L"systemrescue") != std::wstring::npos && catalog.find(L"manual") != std::wstring::npos,
+          "the catalog listing names entries and manual downloads");
 }
 
 void TestVersionCompare() {
@@ -135,6 +162,7 @@ static_assert(sizeof(medicat::kUpdateRepository) > sizeof(wchar_t), "spec: updat
 
 int main() {
     TestCliParsing();
+    TestExtrasCatalog();
     TestVersionCompare();
     TestChecksumParsing();
     TestFileHashing();

@@ -1,6 +1,6 @@
 # C++ Installer — Feature Checklist
 
-Track parity with the PowerShell installer (`pwsh` branch) and C++-specific enhancements.  
+Feature checklist for the C++ Windows installer (the upstream project's PowerShell version lived on its `pwsh` branch and is not part of this fork).  
 Legend: ✅ done · 🟡 partial · ⬜ not started
 
 ---
@@ -96,6 +96,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Bundle `7z.exe` in exe | ✅ | For Ventoy zip |
 | SevenZipSharp / `lib/` | ⬜ | **Not needed** — 7za subprocess only |
 | Self-update / version check | ✅ | GitHub Releases of `spec.updates.github_repository`; download verified against `SHA256SUMS.txt` |
+| Extras catalog (`spec/extras.json`) | 🟡 | CLI only: `/extras:LIST` alone or with `/install` / `/verify`, `/list-extras`; downloads via bundled aria2c, checksum-verified, zip images unpacked with 7za; no GUI picker yet |
 
 ---
 
@@ -109,6 +110,6 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 
 ## Reference
 
-PowerShell implementation: `pwsh` branch  
+PowerShell implementation: upstream's `pwsh` branch (historical)  
 - `MedicatInstaller.ps1` — main GUI  
 - `Extract-Archive.ps1` — extraction (replaced by `src/extract.cpp`)

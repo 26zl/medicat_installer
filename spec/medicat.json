@@ -64,7 +64,7 @@
       }
     ],
     "torrent": {
-      "url": "https://github.com/mon5termatt/medicat_installer/raw/main/download/MediCat_USB_v21.12.torrent",
+      "url": "https://raw.githubusercontent.com/26zl/medicat_installer/main/spec/MediCat_USB_v21.12.torrent",
       "magnet": "magnet:?xt=urn:btih:1D714BDF37890669E98933B724B55D47E7F2D01B"
     },
     "alternative_downloads": {

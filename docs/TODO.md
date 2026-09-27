@@ -1,80 +1,9 @@
-# MediCat Installer — TODO
+# Open work
 
-Tracked future work and planned features not yet implemented.
+What is still missing or worth doing next. Everything else in this file's history is done.
 
----
-
-## Support log upload (Discord keyword)
-
-**Design doc:** [`SUPPORT_UPLOAD.md`](SUPPORT_UPLOAD.md) · Server: [`SUPPORT_SERVER.md`](SUPPORT_SERVER.md)
-
-**Tier A (session reports):** implemented — launch + install/verify JSON to `telemetry.medicatusb.com`, opt-out via `preferences.json`.
-
-**Tier B (failure log bundle):** **partial** — on install/verify failure, logs zip and upload automatically in the background (beta; no consent dialog, no keyword popup yet). Keyword is logged to `medicat_installer.log` only.
-
-### Remaining — client (installer)
-
-- [ ] **Failure upload success popup:** after upload succeeds, show dialog with keyword: *Please provide MEDICAT-XXXXXX to Discord staff if you ask for support.* (read-only field + Copy; i18n all five languages.)
-- [ ] **Manual Upload logs** button on main window (idle only) with consent dialog listing files.
-- [ ] **Upload logs** button on re-extract failure window.
-- [ ] User **consent dialog** before Tier B upload (replace or gate beta auto-upload).
-- [ ] i18n keys for upload button, in-progress status, success with keyword, upload failed.
-- [ ] GUI setting: **Send anonymous usage reports** toggle (`session_reports_enabled` in preferences — file support exists).
-- [ ] GUI setting: failure log upload opt-out (`failure_log_auto_upload_enabled` in preferences — file support exists).
-
-### Remaining — server / ops
-
-- [ ] Retention policy automation on VPS (cron / `flask cleanup-expired`).
-
-### Done (reference)
-
-- [x] Tier A session reports (`support.cpp`, `POST /v1/sessions`).
-- [x] Tier B auto-upload on `PostDone(false)` — collect allowed `*.log` / `*.txt`, zip via `7za`, `POST /v1/support/uploads`, parse keyword.
-- [x] `support_manifest.json` generated at upload time.
-- [x] Server: upload endpoint, keyword lookup, inline log viewing on admin upload detail.
-- [x] Server: public keyword lookup — form on dashboard, results at `/support/MEDICAT-…`.
-- [x] Server + client: allowlisted log/text files only; HTTPS endpoints.
-- [x] Failure-log upload asks for consent after each failure (`messages.upload_logs_prompt`); the old auto-upload notice is gone.
-
----
-
-## Drive monitoring (USB plug/unplug)
-
-Implemented (`WM_DEVICECHANGE`, debounced refresh, status-bar alerts, i18n). Remaining:
-
-- [ ] Manual test: USB stick, VHD attach/detach, Ventoy remount under new letter.
-
----
-
-## Known-bad / cheap USB warnings
-
-Warn (or strongly suggest swapping) when the selected stick matches brands/controllers that fail Ventoy/format/extract often, or that manufacturers do not treat as boot media. Use logged `vendor`/`product`/`friendly`/`vid`/`pid` from Target USB enrichment.
-
-- [ ] Build a small deny/warn list (VID/PID and/or name patterns) and surface a status-bar or confirm dialog before wipe/Ventoy.
-- [ ] Seed list (expand as we confirm from tickets + local tests):
-
-### Often fail / no-name cheap
-
-  - **Micro Center** no-name sticks (sample: `USB DISK`, `VID_090C` / `PID_2000`, Silicon Motion-class)
-  - _(add other known-bad sticks here as Matt identifies them)_
-
-### Consumer lines not marketed / guaranteed as bootable (warn, many still work)
-
-| Brand / product line | Notes |
-|---|---|
-| SanDisk Ultra Fit | Historically not tested/supported as bootable |
-| PNY Attaché / Attaché X | Consumer storage; not marketed as boot media |
-| Kingston DataTraveler (consumer) | Storage products; many work, not guaranteed |
-| Verbatim Store 'n' Go | Consumer storage; bootability not generally guaranteed |
-| Samsung BAR / FIT | Storage-focused; boot not necessarily guaranteed |
-| Lexar JumpDrive (consumer) | Consumer storage; boot support varies |
-| SanDisk Cruzer / older consumer lines | Same class of consumer-only sticks |
-
-- [ ] Optional: include match reason in Tier A session options / failure logs so support sees "warned cheap/unsupported USB".
-- [ ] i18n for the warning copy (all languages).
-
----
-
-## Other
-
-_Add new items below._
+- **Extras catalog in the Windows GUI.** The catalog (`spec/extras.json`) is available on Windows through the CLI (`/extras:`, `/list-extras`) and in the Linux installer interactively; a picker in the GUI is the remaining piece.
+- **Telemetry settings in the GUI.** Consent is asked on first start and stored in `preferences.json`; an Advanced checkbox to change it later would avoid editing the file by hand.
+- **Refresh drives** button and a **Cancel** button during install (see `FEATURES.md`).
+- **Kali Linux in the catalog.** `cdimage.kali.org` answers 404 to direct ISO downloads; adding it needs a torrent-based entry.
+- **Signed releases.** `SHA256SUMS.txt` protects the self-update; Authenticode signing of the exe would add SmartScreen trust.

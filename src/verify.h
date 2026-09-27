@@ -74,5 +74,9 @@ bool ComputeFileMd5(const std::wstring& path, std::string& outHex, std::wstring&
                     const FileHashProgressFn& onProgress = {});
 bool ComputeFileSha256(const std::wstring& path, std::string& outHex, std::wstring& error,
                        uint64_t* outBytesRead = nullptr, const FileHashProgressFn& onProgress = {});
+bool ComputeFileSha1(const std::wstring& path, std::string& outHex, std::wstring& error,
+                     uint64_t* outBytesRead = nullptr, const FileHashProgressFn& onProgress = {});
+bool ComputeFileSha512(const std::wstring& path, std::string& outHex, std::wstring& error,
+                       uint64_t* outBytesRead = nullptr, const FileHashProgressFn& onProgress = {});
 
 }  // namespace medicat

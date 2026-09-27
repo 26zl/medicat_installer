@@ -12,8 +12,10 @@ enum class CliAction {
     Version,
     ListDrives,
     DumpConfig,
+    ListExtras,
     Install,
     Verify,
+    Extras,  // /extras:LIST /drive:E without /install or /verify
 };
 
 enum class CliReextractPolicy {
@@ -35,6 +37,7 @@ struct CliOptions {
     std::optional<bool> gpt;
     std::optional<bool> secureBoot;
     std::wstring ventoyVersion;
+    std::wstring extras;  // /extras: all | none | id,id (catalog in spec/extras.json)
 
     bool allowFixed = false;
     bool yes = false;
@@ -65,6 +68,7 @@ std::wstring FormatCliFileProgress(int percent, const std::wstring& file);
 void PrintCliHelp();
 void PrintCliVersion();
 void PrintCliDrives(bool allowFixed);
+void PrintCliExtras();
 void PrintCliConfig(const std::wstring& root, const std::wstring& sevenZa, const std::wstring& aria2c,
                     const std::wstring& md5Manifest, const std::wstring& archivePath);
 

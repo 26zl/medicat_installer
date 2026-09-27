@@ -871,6 +871,16 @@ bool ComputeFileSha256(const std::wstring& path, std::string& outHex, std::wstri
     return ComputeFileHashHex(path, PROV_RSA_AES, CALG_SHA_256, 32, outHex, error, outBytesRead, onProgress);
 }
 
+bool ComputeFileSha1(const std::wstring& path, std::string& outHex, std::wstring& error, uint64_t* outBytesRead,
+                     const FileHashProgressFn& onProgress) {
+    return ComputeFileHashHex(path, PROV_RSA_FULL, CALG_SHA1, 20, outHex, error, outBytesRead, onProgress);
+}
+
+bool ComputeFileSha512(const std::wstring& path, std::string& outHex, std::wstring& error, uint64_t* outBytesRead,
+                       const FileHashProgressFn& onProgress) {
+    return ComputeFileHashHex(path, PROV_RSA_AES, CALG_SHA_512, 64, outHex, error, outBytesRead, onProgress);
+}
+
 bool EnsureMedicatMd5Manifest(const std::wstring& installerRoot, const std::wstring& tempDir,
                               std::wstring& manifestPath, std::wstring& error) {
     std::vector<std::wstring> candidates;

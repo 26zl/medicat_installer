@@ -79,6 +79,8 @@ private:
     int RunHeadless(const CliOptions& cli);
     int RunHeadlessInstall(const CliOptions& cli);
     int RunHeadlessVerify(const CliOptions& cli);
+    int RunHeadlessExtras(const CliOptions& cli);
+    int RunExtrasForDrive(const CliOptions& cli);
     bool ValidateHeadlessDrive(const CliOptions& cli, std::wstring& errorMessage) const;
     bool ResolveHeadlessInstallOptions(const CliOptions& cli, bool& format, bool& runVentoy,
                                        VentoyInstallOptions& ventoyInstall, std::wstring& pinVersion,

@@ -4,6 +4,7 @@
 #include "cli.h"
 
 #include "drives.h"
+#include "extras.h"
 #include "i18n.h"
 #include "i18n_generated.h"
 #include "util.h"
@@ -258,6 +259,8 @@ void PrintCliHelp() {
 Actions:
   /install /drive:E                        Install MediCat to drive E:
   /verify /drive:E                         Verify MD5 hashes on drive E:
+  /extras:LIST /drive:E                    Download catalog boot images into E:\Extras (LIST = all or ids)
+  /list-extras                             Print the extras catalog (spec/extras.json)
 
 Common options:
   /format /noformat                        NTFS format before extract
@@ -271,6 +274,7 @@ Common options:
   /offline                                 Use offline Ventoy/archive cache only
   /allow-fixed                             Include fixed HDD/SSD drives (>= 30 GiB)
   /reextract /noreextract                  Control selective re-extract on verify failure
+  /extras:LIST                             With /install or /verify: add catalog images afterwards
   /telemetry /no-telemetry                 Send or skip the anonymous session report (headless default: skip)
   /upload-logs                             Allow uploading diagnostic logs when a headless run fails
 
@@ -294,6 +298,11 @@ void PrintCliVersion() {
     out << "Release tag: (not embedded)\n";
     out << "MediCat USB: v" << MEDICAT_USB_VERSION;
     WriteCliUtf8(out.str());
+}
+
+void PrintCliExtras() {
+    AttachCliConsole();
+    WriteCliUtf8(WideToUtf8(FormatExtrasCatalog()));
 }
 
 void PrintCliDrives(const bool allowFixed) {
@@ -389,6 +398,21 @@ CliParseResult ParseCommandLine(int argc, wchar_t** argv) {
         }
         if (name == L"list-drives") {
             result.options.action = CliAction::ListDrives;
+            continue;
+        }
+        if (name == L"list-extras") {
+            result.options.action = CliAction::ListExtras;
+            continue;
+        }
+        if (name == L"extras") {
+            if (!hasValue) {
+                if (i + 1 >= argc || IsFlagToken(argv[i + 1])) {
+                    FailParse(result, 2, L"/extras requires all, none or a list of catalog ids");
+                    return result;
+                }
+                value = argv[++i];
+            }
+            result.options.extras = StripQuotes(value);
             continue;
         }
         if (name == L"dump-config") {
@@ -603,6 +627,25 @@ CliParseResult ParseCommandLine(int argc, wchar_t** argv) {
         return result;
     }
     if (result.options.action == CliAction::DumpConfig) {
+        return result;
+    }
+
+    if (!result.options.extras.empty()) {
+        if (result.options.action == CliAction::None) {
+            result.options.action = CliAction::Extras;
+        } else if (result.options.action != CliAction::Install && result.options.action != CliAction::Verify) {
+            FailParse(result, 2, L"/extras only combines with /install, /verify or a bare /drive");
+            return result;
+        }
+        std::vector<const MediCatExtra*> entries;
+        std::wstring error;
+        if (!ResolveExtrasSelection(result.options.extras, entries, error)) {
+            FailParse(result, 2, error);
+            return result;
+        }
+    }
+    if (result.options.action == CliAction::Extras && result.options.drive.empty()) {
+        FailParse(result, 2, L"/drive is required for /extras");
         return result;
     }
 

@@ -52,7 +52,7 @@ constexpr size_t kMediCatMirrorCount = sizeof(kMediCatMirrors) / sizeof(kMediCat
 constexpr wchar_t kDownloadMirror1Url[] = L"https://files.medicatusb.com/files/v21.12/MediCat.USB.v21.12.7z";
 constexpr wchar_t kDownloadMirror2Url[] = L"https://files.dog/OD%20Rips/MediCat/v21.12/MediCat.USB.v21.12.7z";
 
-constexpr wchar_t kDownloadTorrentUrl[] = L"https://github.com/mon5termatt/medicat_installer/raw/main/download/MediCat_USB_v21.12.torrent";
+constexpr wchar_t kDownloadTorrentUrl[] = L"https://raw.githubusercontent.com/26zl/medicat_installer/main/spec/MediCat_USB_v21.12.torrent";
 constexpr wchar_t kDownloadMagnetUrl[] = L"magnet:?xt=urn:btih:1D714BDF37890669E98933B724B55D47E7F2D01B";
 constexpr wchar_t kDownloadGoogleDriveUrl[] = L"https://drive.google.com/drive/folders/0B80MkZEQZejCSDZsY2NKbVJNWjg?resourcekey=0-wMGHCpg8SwR13oOYDfjPuA";
 constexpr wchar_t kDownloadMegaUrl[] = L"https://mega.nz/folder/jg1DWbaK#Qo6XsYzjx-HyIpxj8xQTiQ";

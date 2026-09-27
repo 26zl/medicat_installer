@@ -65,6 +65,8 @@ More detail: [`docs/FEATURES.md`](docs/FEATURES.md) · [`docs/CLI.md`](docs/CLI.
 MedicatInstaller.exe /help
 MedicatInstaller.exe /install /drive:E /yes
 MedicatInstaller.exe /verify /drive:E /yes
+MedicatInstaller.exe /extras:systemrescue,gparted-live /drive:E
+MedicatInstaller.exe /list-extras
 ```
 
 Logs land beside the exe as `medicat_installer.log`. If something blows up and you upload logs, the dialog gives you a **Diag code** for Discord.

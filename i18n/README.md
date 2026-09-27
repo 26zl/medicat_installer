@@ -2,7 +2,7 @@
 
 ## Method
 
-**Source of truth:** `i18n/translations.json` (same format as the `pwsh` branch)
+**Source of truth:** `i18n/translations.json`
 
 **Build time:** `tools/i18n_codegen.py` generates `cpp/src/i18n_generated.h`
 
@@ -42,7 +42,7 @@ Detected from `GetUserDefaultUILanguage()` → `en`, `es`, `fr`, `de` (falls bac
 2. Translate values (keep keys identical)
 3. Rebuild
 
-Optional: use `generate_translation.py` on the `pwsh` branch as an interactive helper, then copy the new block into `i18n/translations.json`.
+Add the new keys to every language block in `i18n/translations.json`; missing keys fall back to English at runtime.
 
 ## Key conventions
 

@@ -108,6 +108,8 @@ Without `/drive:` in GUI mode, user picks from the combo as today.
 |------|-------|-------------|
 | `/install` | `--install` | Full install pipeline: optional Ventoy → optional format → extract → verify |
 | `/verify` | `--verify` | MD5 verify only (**Check USB Files**); no Ventoy, format, or extract |
+| `/extras:LIST` | `--extras=` | Download catalog boot images (`spec/extras.json`) into `E:\Extras\<category>\`. `LIST` is `all`, `none` or comma-separated ids. Alone it needs `/drive:`; with `/install` or `/verify` it runs after a successful verify |
+| `/list-extras` | `--list-extras` | Print the extras catalog and exit |
 
 If both are present → exit **2**. If neither is present → normal GUI.
 
