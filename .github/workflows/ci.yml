@@ -28,10 +28,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
         with:
           python-version: "3.12"
 
@@ -66,15 +66,15 @@ jobs:
       MEDICAT_BUILD_NUMBER_BUMPED: "1"
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
         with:
           python-version: "3.12"
 
       - name: Install Python build deps
-        run: python -m pip install --upgrade pip pillow
+        run: python -m pip install --upgrade pip "pillow==12.3.0"
 
       - name: Generate i18n and spec
         run: |
@@ -90,8 +90,17 @@ jobs:
       - name: Build Release (x64 + Win32)
         run: cmake --build build --config Release --target MedicatInstallerAll
 
+      - name: Configure tests
+        run: cmake -S . -B build-tests -G "Visual Studio 17 2022" -A x64 -DMEDICAT_BUILD_TESTS=ON
+
+      - name: Build tests
+        run: cmake --build build-tests --config Release --target MedicatTests
+
+      - name: Run tests
+        run: build-tests\Release\MedicatTests.exe
+
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: MedicatInstaller-ci-${{ github.sha }}
           path: |

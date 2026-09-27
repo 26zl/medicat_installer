@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 
+option(MEDICAT_BUILD_TESTS "Build the MedicatTests console runner (tests/windows)" OFF)
+
 # Bundle 7za matching the installer target CPU (x64 or Win32).
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(BUNDLE_7ZA "${REPO_ROOT}/bin/7z/x64/7za.exe")
@@ -230,7 +232,7 @@ elseif(EXISTS "${REPO_ROOT}/release_tag.txt")
     string(STRIP "${INSTALLER_RELEASE_TAG}" INSTALLER_RELEASE_TAG)
 endif()
 
-target_compile_definitions(MedicatInstaller PRIVATE
+set(MEDICAT_COMPILE_DEFINITIONS
     UNICODE
     _UNICODE
     WIN32_LEAN_AND_MEAN
@@ -241,8 +243,9 @@ target_compile_definitions(MedicatInstaller PRIVATE
     INSTALLER_RELEASE_TAG="${INSTALLER_RELEASE_TAG}"
     MEDICAT_RELEASE_TAG="${INSTALLER_RELEASE_TAG}"
 )
+target_compile_definitions(MedicatInstaller PRIVATE ${MEDICAT_COMPILE_DEFINITIONS})
 
-target_link_libraries(MedicatInstaller PRIVATE
+set(MEDICAT_LINK_LIBRARIES
     comctl32
     comdlg32
     shell32
@@ -261,10 +264,32 @@ target_link_libraries(MedicatInstaller PRIVATE
     setupapi
     cfgmgr32
 )
+target_link_libraries(MedicatInstaller PRIVATE ${MEDICAT_LINK_LIBRARIES})
 
 if(MSVC)
     target_compile_options(MedicatInstaller PRIVATE /W4 /permissive- /utf-8)
     target_link_options(MedicatInstaller PRIVATE
         "/MANIFESTUAC:level='requireAdministrator' uiAccess='false'"
     )
+endif()
+
+if(MEDICAT_BUILD_TESTS)
+    set(TEST_SOURCE_FILES ${SOURCE_FILES})
+    list(FILTER TEST_SOURCE_FILES EXCLUDE REGEX "[/\\\\]main\\.cpp$")
+    add_executable(MedicatTests
+        ${TEST_SOURCE_FILES}
+        "${REPO_ROOT}/tests/windows/test_main.cpp"
+        "${BUILD_VERSION_CPP}"
+        "${INGEST_TOKEN_CPP}"
+        "${I18N_GEN}"
+        "${SPEC_GEN}"
+    )
+    target_include_directories(MedicatTests PRIVATE src "${CMAKE_CURRENT_SOURCE_DIR}/res")
+    target_compile_definitions(MedicatTests PRIVATE ${MEDICAT_COMPILE_DEFINITIONS})
+    target_link_libraries(MedicatTests PRIVATE ${MEDICAT_LINK_LIBRARIES})
+    if(MSVC)
+        set_property(TARGET MedicatTests PROPERTY
+            MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        target_compile_options(MedicatTests PRIVATE /W4 /permissive- /utf-8)
+    endif()
 endif()
