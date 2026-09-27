@@ -88,4 +88,4 @@ MediCat expects a large NTFS data area. Ventoy defaults to exFAT on `/I` without
 
 - Ventoy Windows CLI: https://www.ventoy.net/en/doc_windows_cli.html
 - Installer architecture flow: [`ARCHITECTURE.md`](ARCHITECTURE.md)
-- CLI flags: [`CLI.md`](../CLI.md)
+- CLI flags: [`CLI.md`](CLI.md)

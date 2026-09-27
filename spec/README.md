@@ -6,8 +6,9 @@ these JSON files at runtime; `tools/gen_spec.py` bakes them in.
 
 | File | Contents |
 |------|----------|
-| `medicat.json` | MediCat version, archive name/size/MD5/SHA-256, Google Drive split parts, download mirrors, torrent/magnet, MD5 manifest URLs, USB size limits, free-space gates, Ventoy defaults, support links |
+| `medicat.json` | MediCat version, archive name/size/MD5/SHA-256, Google Drive split parts, download mirrors, torrent/magnet, MD5 manifest URLs, USB size limits, free-space gates, Ventoy defaults, the GitHub repository the Windows installer updates from (`updates.github_repository`) and the checksum asset it requires (`SHA256SUMS.txt`), support links |
 | `extras.json` | Optional boot images (SystemRescue, GParted, Clonezilla, Rescuezilla, Memtest86+, Hiren's BootCD PE, Ubuntu, Windows 11) with upstream checksums |
+| `MediCat_USB_v21.12.torrent` | The official torrent for the archive, kept here so the fork stays self-sufficient; the installers fetch it from `medicat.torrent.url` |
 
 ## Generated outputs
 

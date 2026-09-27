@@ -164,6 +164,8 @@ Defaults match a **fresh USB without Ventoy** (forced install path). When Ventoy
 |------|-------|-------------|
 | `/yes` | `/y`, `--yes` | Auto-accept wipe confirmation and Ventoy warning ( **destructive** ) |
 | `/quiet` | `/q`, `--quiet` | No message boxes; errors to log + stderr; exit code only |
+| `/telemetry` / `/no-telemetry` | `--telemetry`, `--no-telemetry` | Send or skip the anonymous session report for this run. Headless runs send nothing unless `/telemetry` is given or the GUI consent was saved earlier |
+| `/upload-logs` | `--upload-logs` | Allow the diagnostic-log upload when a headless run fails (logs contain paths and drive details) |
 | `/noprogress` | — | Do not show progress window (future: console `%` lines when console attached) |
 
 `/quiet` without `/yes` on `/install` → exit **4** at first confirmation (fail closed).

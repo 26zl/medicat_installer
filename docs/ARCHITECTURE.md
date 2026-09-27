@@ -1,7 +1,7 @@
 # MediCat Installer — Architecture & Project Outline
 
 Native Windows (Win32) installer for MediCat USB bootable media. Active branch: **`cpp`**.  
-User-facing overview: [`README.md`](../README.md) · Feature parity: [`FEATURES.md`](../FEATURES.md) · Roadmap: [`TODO.md`](../TODO.md)
+User-facing overview: [`README.md`](../README.md) · Feature parity: [`FEATURES.md`](FEATURES.md) · Roadmap: [`TODO.md`](TODO.md)
 
 ---
 
@@ -176,7 +176,7 @@ Detection: `{drive}\ventoy` folder **or** physical-disk layout matching Ventoy2D
 | `check.log` | `verify.cpp` | MD5 pass/fail lines |
 | `failed_files.txt` | `verify.cpp` | Verification failures |
 
-Future support upload: **`.log` / `.txt` only** — see [`TODO.md`](../TODO.md).
+Future support upload: **`.log` / `.txt` only** — see [`TODO.md`](TODO.md).
 
 ---
 
@@ -237,6 +237,5 @@ Future support upload: **`.log` / `.txt` only** — see [`TODO.md`](../TODO.md).
 
 | Branch | Role |
 |--------|------|
-| `cpp` | Active C++ installer |
-| `pwsh` | Legacy PowerShell GUI (parity reference) |
-| `main` | Legacy batch scripts |
+| `main` | C++ Windows installer, Linux script (`linux/`) and the shared `spec/` |
+| `crossplatform` | Working branch of this fork for the shared spec, Linux CLI parity and the extras catalog |

@@ -22,11 +22,6 @@ TestOutput_*/
 _pkg/
 lib/
 old/
-# Legacy batch still curls main/translate/* every run (no hash check).
-# Keep force-upgrade scripts; ignore anything else.
-translate/*
-!translate/licence.ps1
-!translate/motd.ps1
 
 # C++ build output
 build/

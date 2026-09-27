@@ -6,7 +6,7 @@ Tracked future work and planned features not yet implemented.
 
 ## Support log upload (Discord keyword)
 
-**Design doc:** [`docs/SUPPORT_UPLOAD.md`](docs/SUPPORT_UPLOAD.md) · Server: [`docs/SUPPORT_SERVER.md`](docs/SUPPORT_SERVER.md)
+**Design doc:** [`SUPPORT_UPLOAD.md`](SUPPORT_UPLOAD.md) · Server: [`SUPPORT_SERVER.md`](SUPPORT_SERVER.md)
 
 **Tier A (session reports):** implemented — launch + install/verify JSON to `telemetry.medicatusb.com`, opt-out via `preferences.json`.
 
@@ -34,7 +34,7 @@ Tracked future work and planned features not yet implemented.
 - [x] Server: upload endpoint, keyword lookup, inline log viewing on admin upload detail.
 - [x] Server: public keyword lookup — form on dashboard, results at `/support/MEDICAT-…`.
 - [x] Server + client: allowlisted log/text files only; HTTPS endpoints.
-- [x] Beta failure notice appended to error dialogs (`messages.beta_failure_logs_notice`).
+- [x] Failure-log upload asks for consent after each failure (`messages.upload_logs_prompt`); the old auto-upload notice is gone.
 
 ---
 

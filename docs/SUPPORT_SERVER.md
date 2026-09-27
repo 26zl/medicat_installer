@@ -162,5 +162,5 @@ Lifetime upload count per IP is logged as a warning after **20** total uploads (
 ## References
 
 - Client design & consent: [`SUPPORT_UPLOAD.md`](SUPPORT_UPLOAD.md)
-- Installer tasks: [`TODO.md`](../TODO.md)
+- Installer tasks: [`TODO.md`](TODO.md)
 - Server ops (Docker, env): [medicat-support-server README](https://github.com/mon5termatt/medicat-support-server)

@@ -1,7 +1,7 @@
 # Medicat Installer
 ![Logo](icon.png)
 
-> Old readmes (batch era): [![French](https://img.shields.io/badge/French-blue)](https://github.com/mon5termatt/medicat_installer/blob/legacy/README.FR.md) [![Spanish](https://img.shields.io/badge/Spanish-blue)](https://github.com/mon5termatt/medicat_installer/blob/legacy/README.ES.md) [![Turkish](https://img.shields.io/badge/Turkish-blue)](https://github.com/mon5termatt/medicat_installer/blob/legacy/README.TR.md)
+Fork of [mon5termatt/medicat_installer](https://github.com/mon5termatt/medicat_installer) with a shared spec for both installers, a Linux installer with the same command-line interface as Windows, an extras catalog of boot images, telemetry consent and checksum-verified self-updates.
 
 # [Visit the Medicat website](https://medicatusb.com/)
 
@@ -34,13 +34,14 @@ OR:
 
 # Grab a build
 
-[GitHub Releases](https://github.com/mon5termatt/medicat_installer/releases)
+[GitHub Releases](https://github.com/26zl/medicat_installer/releases)
 
 | File | Platform |
 |------|----------|
 | `MedicatInstaller.exe` | Windows x64 |
 | `MedicatInstaller-x86.exe` | Windows 32-bit |
 | `Medicat_Installer.sh` | Linux |
+| `SHA256SUMS.txt` | Checksums of the three files above; the installer's self-update refuses releases without it |
 
 # What it does (short version)
 
@@ -51,7 +52,7 @@ OR:
 * GUI (dark theme) and a proper **CLI** (`/help`, `/install`, `/verify`, ...)
 * **Extras**: optional boot images (SystemRescue, GParted Live, Clonezilla, Rescuezilla, Memtest86+, Hiren's BootCD PE, Ubuntu) from a curated, checksummed catalog; the Linux installer downloads them into `Extras/` on the stick
 
-More detail: [`FEATURES.md`](FEATURES.md) · [`CLI.md`](CLI.md) · [`UPDATER.md`](UPDATER.md) · [`spec/README.md`](spec/README.md) · [`linux/README.md`](linux/README.md)
+More detail: [`docs/FEATURES.md`](docs/FEATURES.md) · [`docs/CLI.md`](docs/CLI.md) · [`docs/UPDATER.md`](docs/UPDATER.md) · [`spec/README.md`](spec/README.md) · [`linux/README.md`](linux/README.md)
 
 # Quick start
 
@@ -79,24 +80,22 @@ On Linux the same jobs are flags of the shell script (no flags = interactive):
 
 # Telemetry (Windows installer)
 
-At the end of every install or verify, `MedicatInstaller.exe` posts a small session report (outcome, installer version, Windows build and edition, CPU/RAM class, UI language, a hash of the machine GUID) to `telemetry.medicatusb.com`. When an operation fails it can also upload a zip of the `.log`/`.txt` files beside the exe, and those logs include the computer name and user name. Both are on by default. To turn them off, create `%AppData%\MedicatInstaller\preferences.json`:
+Nothing leaves the machine without a yes. On first start `MedicatInstaller.exe` asks whether it may send an anonymous session report at the end of each install or verify (outcome, installer version, Windows build and edition, CPU/RAM class, UI language, a hash of the machine GUID). After a failure it asks whether to upload the `.log`/`.txt` files beside the exe, which contain file paths and drive details; the logs no longer include the computer or user name. Headless runs send nothing unless `/telemetry` or `/upload-logs` is passed. The saved answer lives in `%AppData%\MedicatInstaller\preferences.json`:
 
 ```json
 { "session_reports_enabled": false, "failure_log_auto_upload_enabled": false }
 ```
 
-The Linux script sends nothing. Details: [`docs/SUPPORT_UPLOAD.md`](docs/SUPPORT_UPLOAD.md).
+Builds without an ingest token (every CI build of this fork) send nothing at all. The Linux script sends nothing. Details: [`docs/SUPPORT_UPLOAD.md`](docs/SUPPORT_UPLOAD.md).
 
-# Branches (for nerds)
+# Branches
 
 | Branch | What |
 |--------|------|
-| `main` | Active C++ installer + Linux script in `linux/` (you are here) |
-| `linux` | Former home of the shell installer, kept for old links |
-| `legacy` / `legacy-archive` | Old batch scripts, frozen |
-| `archive/main-cpp-rewrite` | Backup of the short rewrite-era main |
+| `main` | C++ Windows installer, Linux script in `linux/`, shared `spec/` |
+| `crossplatform` | Working branch for the changes described above until they land on `main` |
 
-Batch history is also on tag `3520`.
+The batch-era scripts and their helper binaries were removed from this fork; they live on in the upstream repository's `legacy` branch.
 
 # Build from source
 
@@ -106,7 +105,7 @@ Visual Studio 2022+, CMake, Python 3, plus `bin/7z/.../7za.exe` and `MedicatFile
 rebuild.bat
 ```
 
-Outputs land in `build/Release/`. Tagged releases (`1.0.N`) are built on GitHub Actions; see [`UPDATER.md`](UPDATER.md). Every push also runs [`ci.yml`](.github/workflows/ci.yml): spec check, shellcheck and smoke tests for the Linux script, and a Windows build. Ask in Discord if you get stuck.
+Outputs land in `build/Release/`. Tagged releases (`1.0.N`) are built on GitHub Actions; see [`docs/UPDATER.md`](docs/UPDATER.md). Every push also runs [`ci.yml`](.github/workflows/ci.yml): spec check, shellcheck and smoke tests for the Linux script, and a Windows build. Ask in Discord if you get stuck.
 
 Mirrors, hashes and the extras catalog live in [`spec/`](spec/README.md); `python3 tools/gen_spec.py` regenerates `src/spec_generated.h` and the spec block in the Linux script (the CMake build does this automatically).
 

@@ -20,7 +20,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Post-extract MD5 verification | ✅ | `MedicatFiles.md5` manifest; missing + hash mismatch |
 | Progress bar + status bar | ✅ | Single-line status bar below progress; `SetStatusBar` / `PostStatusBar` |
 | File log popup during extract/verify | ✅ | Optional listbox window; status bar shows `status.extracting_file` |
-| Post-install files (icon, CheckFiles.bat) | ⬜ | PS: downloads from GitHub |
+| Post-install files (autorun icon) | ✅ | `autorun.ico` written from the embedded icon on install, restored on verify |
 | Install log file | ✅ | `medicat_installer.log` |
 | Raw 7za extract log | ✅ | `extract.log` (pipe tee, full stdout/stderr) |
 
@@ -56,7 +56,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Re-extract prompt window | ✅ | Dedicated window with failed-file list + **Re-extract** button |
 | Re-verify after re-extract | ✅ | Normal success message if all pass |
 | Still-failed hint (AV/firewall) | ✅ | `messages.verify_still_failed_after_reextract` |
-| Support log upload (Discord keyword) | ⬜ | See [`TODO.md`](TODO.md) — logs/text only (`.log`, `.txt`) |
+| Support log upload (Discord keyword) | ✅ | Yes/No prompt after a failure (`/upload-logs` headless); `.log`/`.txt` only; keyword shown as Diag code |
 
 ---
 
@@ -71,7 +71,6 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Cancel button | ⬜ | PS had cancel |
 | Internet check before install | ✅ | `TestInternetConnection` when Ventoy step runs |
 | Archive download mirrors | ✅ | Missing-archive panel + offline cache paths; HTTP via `aria2c`; Torrent button uses bundled aria2 BitTorrent |
-| Antivirus / MOTD splash | ⬜ | Batch legacy |
 
 ---
 
@@ -96,16 +95,15 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Bundle `aria2c.exe` in exe | ✅ | Gzipped official binary; 16 connections for file downloads |
 | Bundle `7z.exe` in exe | ✅ | For Ventoy zip |
 | SevenZipSharp / `lib/` | ⬜ | **Not needed** — 7za subprocess only |
-| Self-update / version check | ⬜ | Batch: `curver` |
+| Self-update / version check | ✅ | GitHub Releases of `spec.updates.github_repository`; download verified against `SHA256SUMS.txt` |
 
 ---
 
 ## Suggested next work
 
-1. **Support log upload** — keyword + staff lookup; `.log` / `.txt` only ([`TODO.md`](TODO.md))
-2. **Refresh drives** button — explicit UI control
-3. **Post-install downloads** (icon, CheckFiles.bat)
-4. **Internet check + MOTD**
+1. **Refresh drives** button — explicit UI control
+2. **Cancel** button during install
+3. **Extras catalog in the Windows GUI** — the Linux installer already downloads `spec/extras.json` entries; `kMediCatExtras[]` is generated for the C++ side
 
 ---
 
