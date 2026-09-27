@@ -62,7 +62,7 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 60
     env:
-      MEDICAT_PIN_BUILD: "1.0.0"
+      MEDICAT_PIN_BUILD: "1.0.1"
       MEDICAT_BUILD_NUMBER_BUMPED: "1"
     steps:
       - name: Checkout
