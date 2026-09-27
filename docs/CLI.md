@@ -50,6 +50,7 @@ Info flags (`/help`, `/version`) should attach or allocate a console (`AttachCon
 | `4` | User cancelled (confirmation or re-extract prompt in interactive CLI) |
 | `5` | Verify found failures (install completed but hash mismatches remain) |
 | `6` | Partial success — re-extract offered but skipped or still failing (unattended policy dependent) |
+| `7` | Verify aborted: the drive does not look like a MediCat stick (presence check below threshold) |
 
 Log detail always goes to `medicat_installer.log` beside the exe (or `/log:` path).
 

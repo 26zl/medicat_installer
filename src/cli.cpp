@@ -282,7 +282,8 @@ Diagnostics:
   /list-drives                             List eligible removable/VHD drives
   /dump-config                             Show resolved paths and options
 
-Exit codes: 0 ok, 1 error, 2 bad args, 3 need admin, 4 cancelled, 5 verify failed, 6 re-extract incomplete
+Exit codes: 0 ok, 1 error, 2 bad args, 3 need admin, 4 cancelled, 5 verify failed, 6 re-extract incomplete,
+            7 drive has no MediCat
 
 Administrator required for /install. Logs: logs\\ beside the exe.)");
 }
