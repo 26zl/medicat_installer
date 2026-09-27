@@ -90,12 +90,7 @@ Builds without an ingest token (every CI build of this fork) send nothing at all
 
 # Branches
 
-| Branch | What |
-|--------|------|
-| `main` | C++ Windows installer, Linux script in `linux/`, shared `spec/` |
-| `crossplatform` | Working branch for the changes described above until they land on `main` |
-
-The batch-era scripts and their helper binaries were removed from this fork; they live on in the upstream repository's `legacy` branch.
+`main` is the only branch: C++ Windows installer, Linux script in `linux/`, shared `spec/`. Work happens on short-lived topic branches that are merged into `main` and deleted. The batch-era scripts and their helper binaries were removed from this fork; they live on in the upstream repository's `legacy` branch.
 
 # Build from source
 

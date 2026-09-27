@@ -237,5 +237,4 @@ Future support upload: **`.log` / `.txt` only** — see [`TODO.md`](TODO.md).
 
 | Branch | Role |
 |--------|------|
-| `main` | C++ Windows installer, Linux script (`linux/`) and the shared `spec/` |
-| `crossplatform` | Working branch of this fork for the shared spec, Linux CLI parity and the extras catalog |
+| `main` | The only long-lived branch: C++ Windows installer, Linux script (`linux/`) and the shared `spec/` |
