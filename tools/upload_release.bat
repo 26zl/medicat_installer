@@ -2,8 +2,16 @@
 setlocal
 cd /d "%~dp0\.."
 
-set "REPO=mon5termatt/medicat_installer"
+REM Release into the repository this checkout belongs to (fork-safe): GitHub Actions sets
+REM GITHUB_REPOSITORY; locally gh resolves it from the origin remote.
+set "REPO=%GITHUB_REPOSITORY%"
+if not "%REPO%"=="" goto have_repo
+for /f "usebackq delims=" %%R in (`gh repo view --json nameWithOwner -q .nameWithOwner 2^>nul`) do set "REPO=%%R"
+if not "%REPO%"=="" goto have_repo
+echo Could not determine the GitHub repository. Set GITHUB_REPOSITORY=owner/name.
+exit /b 1
 
+:have_repo
 set "TAG=%~1"
 if not "%TAG%"=="" goto have_tag
 
@@ -61,21 +69,18 @@ echo Run rebuild.bat first.
 exit /b 1
 
 :fetch_linux
-REM Always ship the community Linux installer from the linux branch tip.
+REM Ship the Linux installer from this checkout so the release matches the tagged tree.
 set "LINUX_SH=build\Release\Medicat_Installer.sh"
-set "LINUX_URL=https://raw.githubusercontent.com/%REPO%/linux/Medicat_Installer.sh"
-echo Fetching Linux installer from branch linux...
-curl -fsSL -o "%LINUX_SH%" "%LINUX_URL%"
+set "LINUX_SRC=linux\Medicat_Installer.sh"
+if not exist "%LINUX_SRC%" goto linux_fetch_failed
+copy /Y "%LINUX_SRC%" "%LINUX_SH%" >nul
 if errorlevel 1 goto linux_fetch_failed
-if not exist "%LINUX_SH%" goto linux_fetch_failed
 for %%I in ("%LINUX_SH%") do if %%~zI==0 goto linux_fetch_failed
-echo   %LINUX_SH% ready (from linux branch)
+echo   %LINUX_SH% ready (from %LINUX_SRC%)
 goto do_upload
 
 :linux_fetch_failed
-echo Failed to download Medicat_Installer.sh from:
-echo   %LINUX_URL%
-echo Ensure branch linux is published and the file exists.
+echo Missing or empty %LINUX_SRC% in the checkout.
 exit /b 1
 
 :do_upload
@@ -116,7 +121,7 @@ echo.
 echo Uploaded:
 echo   %X64_EXE%
 echo   %X86_EXE%
-echo   %LINUX_SH%  ^(from branch linux^)
+echo   %LINUX_SH%  ^(from linux\^)
 echo Release: https://github.com/%REPO%/releases/tag/%TAG%
 echo Installer self-update discovers Windows assets via the GitHub Releases API.
 exit /b 0

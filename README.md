@@ -5,7 +5,7 @@
 
 # [Visit the Medicat website](https://medicatusb.com/)
 
-The Windows installer is now a native C++ app (`MedicatInstaller.exe`). Same job as before: Ventoy, optional format, extract MediCat, verify files. Linux still has the shell script on the `linux` branch.
+The Windows installer is now a native C++ app (`MedicatInstaller.exe`). Same job as before: Ventoy, optional format, extract MediCat, verify files. Linux has the shell script in [`linux/`](linux/). Both read the same [shared spec](spec/README.md) (archive, mirrors, hashes) and the same catalog of optional extra boot images.
 
 ### We appreciate some code improvements to the installer!
 If you want to help improve Medicat installer, you can:
@@ -30,7 +30,7 @@ OR:
 * Terminal
 * Like 75% of a brain
 * General Linux knowledge
-* Script lives on [`linux`](https://github.com/mon5termatt/medicat_installer/tree/linux) and is attached to each release
+* Script lives in [`linux/`](linux/) and is attached to each release
 
 # Grab a build
 
@@ -49,8 +49,9 @@ OR:
 * Extracts **MediCat** with progress
 * **MD5 verify** + selective re-extract if something failed
 * GUI (dark theme) and a proper **CLI** (`/help`, `/install`, `/verify`, ...)
+* **Extras**: optional boot images (SystemRescue, GParted Live, Clonezilla, Rescuezilla, Memtest86+, Hiren's BootCD PE, Ubuntu) from a curated, checksummed catalog; the Linux installer downloads them into `Extras/` on the stick
 
-More detail: [`FEATURES.md`](FEATURES.md) · [`CLI.md`](CLI.md) · [`UPDATER.md`](UPDATER.md)
+More detail: [`FEATURES.md`](FEATURES.md) · [`CLI.md`](CLI.md) · [`UPDATER.md`](UPDATER.md) · [`spec/README.md`](spec/README.md) · [`linux/README.md`](linux/README.md)
 
 # Quick start
 
@@ -67,12 +68,21 @@ MedicatInstaller.exe /verify /drive:E /yes
 
 Logs land beside the exe as `medicat_installer.log`. If something blows up and you upload logs, the dialog gives you a **Diag code** for Discord.
 
+On Linux the same jobs are flags of the shell script (no flags = interactive):
+
+```bash
+./linux/Medicat_Installer.sh --install --drive /dev/sdb --yes
+./linux/Medicat_Installer.sh --verify --drive /dev/sdb
+./linux/Medicat_Installer.sh --extras systemrescue,gparted-live --drive /dev/sdb
+./linux/Medicat_Installer.sh --list-extras
+```
+
 # Branches (for nerds)
 
 | Branch | What |
 |--------|------|
-| `main` | Active C++ installer (you are here) |
-| `linux` | Shell installer |
+| `main` | Active C++ installer + Linux script in `linux/` (you are here) |
+| `linux` | Former home of the shell installer, kept for old links |
 | `legacy` / `legacy-archive` | Old batch scripts, frozen |
 | `archive/main-cpp-rewrite` | Backup of the short rewrite-era main |
 
@@ -86,7 +96,9 @@ Visual Studio 2022+, CMake, Python 3, plus `bin/7z/.../7za.exe` and `MedicatFile
 rebuild.bat
 ```
 
-Outputs land in `build/Release/`. Tagged releases (`1.0.N`) are built on GitHub Actions; see [`UPDATER.md`](UPDATER.md). Ask in Discord if you get stuck.
+Outputs land in `build/Release/`. Tagged releases (`1.0.N`) are built on GitHub Actions; see [`UPDATER.md`](UPDATER.md). Every push also runs [`ci.yml`](.github/workflows/ci.yml): spec check, shellcheck and smoke tests for the Linux script, and a Windows build. Ask in Discord if you get stuck.
+
+Mirrors, hashes and the extras catalog live in [`spec/`](spec/README.md); `python3 tools/gen_spec.py` regenerates `src/spec_generated.h` and the spec block in the Linux script (the CMake build does this automatically).
 
 # Credits
 
