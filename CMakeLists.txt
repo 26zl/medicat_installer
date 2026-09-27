@@ -116,6 +116,20 @@ add_custom_command(
     WORKING_DIRECTORY "${REPO_ROOT}"
 )
 
+# Shared spec (archive, mirrors, manifest, extras catalog) for both installers.
+set(SPEC_JSON "${REPO_ROOT}/spec/medicat.json")
+set(EXTRAS_JSON "${REPO_ROOT}/spec/extras.json")
+set(SPEC_GEN "${CMAKE_CURRENT_SOURCE_DIR}/src/spec_generated.h")
+set(SPEC_CODEGEN "${REPO_ROOT}/tools/gen_spec.py")
+
+add_custom_command(
+    OUTPUT "${SPEC_GEN}"
+    COMMAND python "${SPEC_CODEGEN}"
+    DEPENDS "${SPEC_CODEGEN}" "${SPEC_JSON}" "${EXTRAS_JSON}"
+    COMMENT "Generating spec_generated.h"
+    WORKING_DIRECTORY "${REPO_ROOT}"
+)
+
 # This function makes it so when a new code file is added, the project
 #   is reconfigured automatically (iirc)
 set_property(
@@ -133,6 +147,7 @@ add_executable(MedicatInstaller WIN32
     "${BUNDLE_MD5_GZ}"
     "${BUNDLE_ARIA2_GZ}"
     "${I18N_GEN}"
+    "${SPEC_GEN}"
     "${DISCORD_ICO}"
 )
 

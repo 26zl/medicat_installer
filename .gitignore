@@ -74,3 +74,5 @@ cmake/ingest.token
 
 # Support server (private repo - see docs/SUPPORT_SERVER.md)
 support-server/
+# Python bytecode
+__pycache__/

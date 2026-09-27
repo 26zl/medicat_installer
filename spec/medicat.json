@@ -1,0 +1,75 @@
+{
+  "spec_version": 1,
+  "medicat": {
+    "version": "v21.12",
+    "archive": {
+      "file_name": "MediCat.USB.v21.12.7z",
+      "bytes": 22994783619,
+      "min_bytes_percent": 95,
+      "md5": "db50f96a5c7b5ec6dc9ed77ea29fffb0",
+      "sha256": "a306331453897d2b20644ca9334bb0015b126b8647cecec8d9b2d300a0027ea4",
+      "torrent_subdir": "MediCat USB v21.12"
+    },
+    "split_archive": {
+      "base_name": "MediCat.USB.v21.12.zip",
+      "parts": [
+        {"file_name": "MediCat.USB.v21.12.zip.001", "bytes": 4290772992, "md5": "277793dcf0e31736f0790162a89d07c9", "sha1": "ef13910a43c1ae9d04a86b2853f11e44cf7ae193"},
+        {"file_name": "MediCat.USB.v21.12.zip.002", "bytes": 4290772992, "md5": "a4700261f32d4df5092c5dd5ea6aaa2d", "sha1": "6106453ea19646a889864328758886c3726c96f2"},
+        {"file_name": "MediCat.USB.v21.12.zip.003", "bytes": 4290772992, "md5": "6b523273c5c7ed1ddc5920dec95b8509", "sha1": "69a5c48bdba8fe7ae33b9d251813230f2868d731"},
+        {"file_name": "MediCat.USB.v21.12.zip.004", "bytes": 4290772992, "md5": "35fac6ff4902d62e6e5fd2dab1050a3f", "sha1": "ba7d0aa2f55bc9c96bad3d47f762d1dd324fc021"},
+        {"file_name": "MediCat.USB.v21.12.zip.005", "bytes": 4290772992, "md5": "7f416a7d9ff0051ae75bbf44a411b8e4", "sha1": "543803780e5fc6a0f3de05791b1b48d371d23215"},
+        {"file_name": "MediCat.USB.v21.12.zip.006", "bytes": 2917026620, "md5": "32d84a280af91ae408f55a7722ee6818", "sha1": "de48d627bc9baaff7646357e87f4a6cd7f6bb450"}
+      ]
+    },
+    "mirrors": [
+      {"name": "files.medicatusb.com", "url": "https://files.medicatusb.com/files/v21.12/MediCat.USB.v21.12.7z", "insecure_tls": false},
+      {"name": "files.dog", "url": "https://files.dog/OD%20Rips/MediCat/v21.12/MediCat.USB.v21.12.7z", "insecure_tls": false}
+    ],
+    "torrent": {
+      "url": "https://github.com/mon5termatt/medicat_installer/raw/main/download/MediCat_USB_v21.12.torrent",
+      "magnet": "magnet:?xt=urn:btih:1D714BDF37890669E98933B724B55D47E7F2D01B"
+    },
+    "alternative_downloads": {
+      "google_drive": "https://drive.google.com/drive/folders/0B80MkZEQZejCSDZsY2NKbVJNWjg?resourcekey=0-wMGHCpg8SwR13oOYDfjPuA",
+      "mega": "https://mega.nz/folder/jg1DWbaK#Qo6XsYzjx-HyIpxj8xQTiQ",
+      "all": "http://medicatusb.com/#downloads"
+    },
+    "manifest": {
+      "file_name": "MedicatFiles.md5",
+      "urls": [
+        "https://raw.githubusercontent.com/mon5termatt/medicat_installer/main/hasher/MedicatFiles.md5",
+        "https://raw.githubusercontent.com/mon5termatt/medicat_installer/main/MedicatFiles.md5"
+      ],
+      "file_count": 29652,
+      "extracted_bytes": 28311000111
+    }
+  },
+  "usb": {
+    "min_capacity_bytes": 30064771072,
+    "recommended_capacity_bytes": 64000000000,
+    "data_partition_label": "Medicat",
+    "filesystem": "ntfs"
+  },
+  "free_space": {
+    "download_bytes": 23622320128,
+    "work_bytes": 1073741824,
+    "usb_extract_bytes": 27917287424
+  },
+  "ventoy": {
+    "known_good_version": "1.1.17",
+    "pinned_version": null,
+    "default_partition_style": "mbr",
+    "secure_boot": true,
+    "release_api": "https://api.github.com/repos/ventoy/Ventoy/releases",
+    "linux_tarball_url_template": "https://github.com/ventoy/Ventoy/releases/download/v{version}/ventoy-{version}-linux.tar.gz",
+    "windows_zip_url_template": "https://github.com/ventoy/Ventoy/releases/download/v{version}/ventoy-{version}-windows.zip"
+  },
+  "links": {
+    "manual_install_doc": "https://medicatusb.com/docs/medicat/installation/manual-install/",
+    "issues": "https://github.com/mon5termatt/medicat_installer/issues",
+    "discord": "https://url.medicatusb.com/discord",
+    "seven_zip": "https://www.7-zip.org/",
+    "aria2": "https://aria2.github.io/",
+    "ventoy": "https://www.ventoy.net/en/index.html"
+  }
+}
