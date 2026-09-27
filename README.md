@@ -50,7 +50,7 @@ OR:
 * Extracts **MediCat** with progress
 * **MD5 verify** + selective re-extract if something failed
 * GUI (dark theme) and a proper **CLI** (`/help`, `/install`, `/verify`, ...)
-* **Extras**: optional boot images from a curated, checksummed catalog (SystemRescue, GParted Live, Clonezilla, Rescuezilla, Memtest86+, ShredOS, Hiren's BootCD PE, Ubuntu, Linux Mint, Debian Live, plus pointers for the Windows 10/11 ISOs); the Linux installer downloads them into `Extras/` on the stick
+* **Extras**: optional boot images from a curated, checksummed catalog: rescue and imaging (SystemRescue, GParted Live, Clonezilla, Rescuezilla), diagnostics and wiping (Memtest86+, ShredOS), Windows rescue (Hiren's BootCD PE), live Linux (Ubuntu, Linux Mint, Debian), forensics (CAINE, Tsurugi Acquire, Tsurugi Linux, Parrot Security) and pointers for downloads that need a login (Windows 10/11 ISOs, SANS SIFT, SUMURI PALADIN); the Linux installer downloads them into `Extras/` on the stick
 
 More detail: [`docs/FEATURES.md`](docs/FEATURES.md) · [`docs/CLI.md`](docs/CLI.md) · [`docs/UPDATER.md`](docs/UPDATER.md) · [`spec/README.md`](spec/README.md) · [`linux/README.md`](linux/README.md)
 

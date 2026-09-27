@@ -33,7 +33,7 @@ The CMake build also runs the generator, so a Windows build never ships stale co
    - `category`: folder name under `Extras/` on the stick. Ventoy lists it as a submenu.
    - `targets`: `linux`, `windows` or both, meaning which kind of machine the tool repairs.
    - `type`: `iso` for a direct download, `manual` when the vendor only offers time-limited links (the installer prints instructions instead).
-   - `url`, `file_name`, `bytes`, and `sha256` (preferred), `sha1` or `md5`, whatever the project publishes. Take the checksum from the upstream project and record where in `checksum_source`.
+   - `url`, `file_name`, `bytes`, and `sha256` (preferred), `sha512`, `sha1` or `md5`, whatever the project publishes. Take the checksum from the upstream project and record where in `checksum_source`.
    - `unpack`: only when the download is a zip that contains the ISO, e.g. `{"format": "zip", "member": "memtest.iso"}`.
 2. Run `python3 tools/gen_spec.py`.
 3. Run `bash tests/linux/smoke_test.sh` (needs `7z`; set `MEDICAT_TEST_NETWORK=0` to skip the download check).

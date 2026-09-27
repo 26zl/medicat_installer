@@ -226,6 +226,118 @@
       "homepage": "https://www.microsoft.com/software-download/windows10ISO",
       "license": "Proprietary (Microsoft); download from Microsoft only",
       "description": "Still needed for machines that cannot run Windows 11. Microsoft issues time-limited links, so fetch the ISO from the Microsoft page and copy it into Extras/Windows_Install/ on the stick."
+    },
+    {
+      "id": "caine",
+      "name": "CAINE",
+      "version": "14.0",
+      "category": "Forensics",
+      "targets": [
+        "linux",
+        "windows"
+      ],
+      "type": "iso",
+      "url": "https://www.caine-live.net/Downloads/caine14.0.iso",
+      "file_name": "caine14.0.iso",
+      "bytes": 4169138176,
+      "sha256": "2702226cf9ee131ee54e9649d6d90008f3fe851ba35939f43ae8cb614a00d564",
+      "checksum_source": "https://www.caine-live.net/page5/caine14.0.iso.sha256.txt",
+      "homepage": "https://www.caine-live.net/",
+      "license": "GPL-3.0 (Ubuntu-based live system, mixed licenses)",
+      "description": "Computer Aided INvestigative Environment: boots with all disks read-only, with Autopsy, Guymager, PhotoRec and other acquisition and analysis tools. For authorized investigations and data recovery."
+    },
+    {
+      "id": "parrot-security",
+      "name": "Parrot Security",
+      "version": "7.3",
+      "category": "Forensics",
+      "targets": [
+        "linux",
+        "windows"
+      ],
+      "type": "iso",
+      "url": "https://deb.parrot.sh/parrot/iso/7.3/Parrot-security-7.3_amd64.iso",
+      "file_name": "Parrot-security-7.3_amd64.iso",
+      "bytes": 8555526144,
+      "sha256": "fe8ec64f92d8d629b1fcae85d9fab81c87e3ff30584201e82b7c453a740cefbc",
+      "checksum_source": "https://deb.parrot.sh/parrot/iso/7.3/signed-hashes.txt",
+      "homepage": "https://www.parrotsec.org/",
+      "license": "GPL-3.0 (Debian-based, mixed licenses)",
+      "description": "Security and forensics live system with a dedicated forensic boot mode (no automount, no swap) plus the usual pentest and analysis toolset. Large image."
+    },
+    {
+      "id": "sift-workstation",
+      "name": "SANS SIFT Workstation",
+      "version": "current",
+      "category": "Forensics",
+      "targets": [
+        "linux",
+        "windows"
+      ],
+      "type": "manual",
+      "url": "https://www.sans.org/tools/sift-workstation/",
+      "file_name": "SIFT-Workstation.ova",
+      "bytes": 0,
+      "checksum_source": "",
+      "homepage": "https://www.sans.org/tools/sift-workstation/",
+      "license": "Free for use; download requires a SANS account",
+      "description": "DFIR toolkit (Plaso, Volatility, Sleuth Kit and more). SANS only offers it behind a login as a VM image or an Ubuntu install script, so fetch it from the SANS page; it is not a bootable ISO."
+    },
+    {
+      "id": "paladin",
+      "name": "SUMURI PALADIN",
+      "version": "current",
+      "category": "Forensics",
+      "targets": [
+        "linux",
+        "windows"
+      ],
+      "type": "manual",
+      "url": "https://sumuri.com/paladin/",
+      "file_name": "paladin.iso",
+      "bytes": 0,
+      "checksum_source": "",
+      "homepage": "https://sumuri.com/paladin/",
+      "license": "Free edition; download requires registration",
+      "description": "Forensic boot ISO with a write-blocked imager and disk tools. SUMURI issues the download after registration, so fetch it from their page and copy the ISO into Extras/Forensics/."
+    },
+    {
+      "id": "tsurugi-acquire",
+      "name": "Tsurugi Acquire",
+      "version": "2021.1",
+      "category": "Forensics",
+      "targets": [
+        "linux",
+        "windows"
+      ],
+      "type": "iso",
+      "url": "https://ftp.nluug.nl/os/Linux/distr/tsurugi/02.Tsurugi_Acquire/tsurugi_acquire_2021.1.iso",
+      "file_name": "tsurugi_acquire_2021.1.iso",
+      "bytes": 1215299584,
+      "sha512": "bd5488e9e75bbcbc6560d166031e84c70bf19c1b9db6f872df99212fef110296c3e7735e39bdee533aaaa92a64e1096fb674b1d45dd4c88cde280442737d77fe",
+      "checksum_source": "https://tsurugi-linux.org/signed_hashes.sha512",
+      "homepage": "https://tsurugi-linux.org/",
+      "license": "Free to use (Ubuntu-based, mixed licenses)",
+      "description": "Small Tsurugi image built for evidence acquisition: boots read-only and images disks with Guymager, dc3dd and ewfacquire. The project publishes SHA-512 only."
+    },
+    {
+      "id": "tsurugi-linux",
+      "name": "Tsurugi Linux LAB",
+      "version": "26.03",
+      "category": "Forensics",
+      "targets": [
+        "linux",
+        "windows"
+      ],
+      "type": "iso",
+      "url": "https://mirrors.gandi.net/tsurugi/01.Tsurugi_Linux_%5BLAB%5D/tsurugi_linux_26.03.iso",
+      "file_name": "tsurugi_linux_26.03.iso",
+      "bytes": 11786315776,
+      "sha512": "1284c3b4145ef2201e831350fde20a1445171be66ca34ab909cbd22eb77d5f19ec28a26275955538bddf7abb77ec5ac0c05f3383502c2ac83770150be1c31d8c",
+      "checksum_source": "https://tsurugi-linux.org/signed_hashes.sha512",
+      "homepage": "https://tsurugi-linux.org/",
+      "license": "Free to use (Ubuntu-based, mixed licenses)",
+      "description": "Full DFIR lab live system (memory, disk, network and malware analysis, OSINT). Very large image; Tsurugi Acquire covers the acquisition part alone."
     }
   ]
 }
