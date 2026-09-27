@@ -64,12 +64,18 @@ bool HasIngestToken() {{
 
 
 def main() -> int:
-    if len(sys.argv) != 3:
-        print(f"Usage: {Path(sys.argv[0]).name} <token> <output.cpp>", file=sys.stderr)
+    # CMake drops an empty token argument, so accept "<output.cpp>" alone as "no token".
+    if len(sys.argv) == 2:
+        token = ""
+        output = Path(sys.argv[1])
+    elif len(sys.argv) == 3:
+        token = sys.argv[1]
+        output = Path(sys.argv[2])
+    else:
+        print(f"Usage: {Path(sys.argv[0]).name} [<token>] <output.cpp>", file=sys.stderr)
         return 2
 
-    token = sys.argv[1]
-    output = Path(sys.argv[2])
+    output.parent.mkdir(parents=True, exist_ok=True)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(render_cpp(token), encoding="utf-8", newline="\n")
     return 0
