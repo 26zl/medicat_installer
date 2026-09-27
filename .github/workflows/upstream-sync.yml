@@ -1,0 +1,129 @@
+# Weekly check for new commits in the upstream project. When upstream/main merges cleanly,
+# the merge is pushed to a sync/upstream-<date> branch and a pull request is opened in THIS
+# repository (never upstream). Conflicts produce an issue instead, to be resolved locally with
+# tools/sync_upstream.sh.
+#
+# Pull requests created by GITHUB_TOKEN do not trigger the CI workflow, so the job runs the
+# quick checks itself; the Windows build runs when the PR is merged into main.
+
+name: Upstream sync
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+env:
+  UPSTREAM_URL: https://github.com/mon5termatt/medicat_installer.git
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
+        with:
+          python-version: "3.12"
+
+      - name: Fetch upstream (fetch-only remote)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream "$UPSTREAM_URL"
+          git remote set-url --push upstream no_push
+          git fetch --prune upstream main
+
+      - name: Look for new upstream commits
+        id: check
+        run: |
+          count=$(git rev-list --count HEAD..upstream/main)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse --short upstream/main)" >> "$GITHUB_OUTPUT"
+          git log --format='- %h %s' --no-merges HEAD..upstream/main | head -60 > /tmp/upstream_commits.md
+          echo "Upstream has $count new commit(s)."
+
+      - name: Merge on a sync branch
+        if: steps.check.outputs.count != '0'
+        id: merge
+        run: |
+          branch="sync/upstream-$(date -u +%Y%m%d)"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          git checkout -b "$branch"
+          if git merge --no-ff --no-edit -m "Merge upstream/main (${{ steps.check.outputs.sha }}) into main." upstream/main; then
+            python3 tools/gen_spec.py
+            python3 tools/i18n_codegen.py
+            if [ -n "$(git status --porcelain)" ]; then
+              git commit -am "Regenerate spec and i18n after the upstream merge."
+            fi
+            echo "clean=true" >> "$GITHUB_OUTPUT"
+          else
+            git merge --abort
+            echo "clean=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Quick checks on the merged tree
+        if: steps.check.outputs.count != '0' && steps.merge.outputs.clean == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck p7zip-full aria2
+          python tools/gen_spec.py --check
+          bash -n linux/Medicat_Installer.sh
+          shellcheck -S warning linux/Medicat_Installer.sh
+          MEDICAT_TEST_NETWORK=0 bash tests/linux/smoke_test.sh
+
+      - name: Open a pull request in this repository
+        if: steps.check.outputs.count != '0' && steps.merge.outputs.clean == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.merge.outputs.branch }}
+          COUNT: ${{ steps.check.outputs.count }}
+        run: |
+          git push --force origin "$BRANCH"
+          {
+            echo "Upstream main has $COUNT new commit(s) that merged cleanly:"
+            echo
+            cat /tmp/upstream_commits.md
+            echo
+            echo "Generated outputs were refreshed and the quick checks passed. The Windows build runs after this PR is merged into main; to build it earlier, run the CI workflow on branch \`$BRANCH\` by hand."
+          } > /tmp/body.md
+          if [ "$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --state open --json number --jq 'length')" = "0" ]; then
+            gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" \
+              --title "Sync upstream: $COUNT new commit(s)" --body-file /tmp/body.md
+          else
+            echo "An open pull request for $BRANCH already exists; branch updated."
+          fi
+
+      - name: Open an issue when the merge conflicts
+        if: steps.check.outputs.count != '0' && steps.merge.outputs.clean == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COUNT: ${{ steps.check.outputs.count }}
+        run: |
+          title="Upstream sync needs a manual merge ($COUNT commit(s))"
+          {
+            echo "upstream/main has $COUNT new commit(s) that do not merge cleanly into main:"
+            echo
+            cat /tmp/upstream_commits.md
+            echo
+            echo 'Resolve locally with `tools/sync_upstream.sh`, then push main.'
+          } > /tmp/issue.md
+          if [ "$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"Upstream sync needs a manual merge\" in:title" --json number --jq 'length')" = "0" ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file /tmp/issue.md
+          else
+            echo "An open sync issue already exists."
+          fi

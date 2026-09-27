@@ -92,6 +92,14 @@ Builds without an ingest token (every CI build of this fork) send nothing at all
 
 `main` is the only branch: C++ Windows installer, Linux script in `linux/`, shared `spec/`. Work happens on short-lived topic branches that are merged into `main` and deleted. The batch-era scripts and their helper binaries were removed from this fork; they live on in the upstream repository's `legacy` branch.
 
+# Syncing with upstream
+
+Upstream is a fetch-only source; nothing here can push to it or open pull requests there.
+
+- `tools/sync_upstream.sh --dry-run` shows what upstream `main` has that we do not; without `--dry-run` it merges, regenerates `spec`/`i18n` outputs, runs the quick checks and tells you to push. `--linux` also merges upstream's `linux` branch into `linux/`, `--push` pushes `main` when everything passed.
+- [`upstream-sync.yml`](.github/workflows/upstream-sync.yml) does the same every Monday (or on demand): a clean merge becomes a pull request against **this** repository on a `sync/upstream-<date>` branch; conflicts become an issue.
+- Guardrails: the `upstream` remote's push URL is `no_push`, a global git rule rewrites any push to `github.com/mon5termatt/` to a dead URL, `gh repo set-default` points at this repository, and the release tooling targets the repository of the checkout. Leaving the fork network on GitHub (Settings, General, Danger Zone, "Leave fork network") also removes GitHub's own "Compare & pull request" suggestions toward upstream; syncing keeps working through the scripts above.
+
 # Build from source
 
 Visual Studio 2022+, CMake, Python 3, plus `bin/7z/.../7za.exe` and `MedicatFiles.md5`. The build fetches official `aria2c` (GPL-2.0) and embeds it for multi-connection downloads.

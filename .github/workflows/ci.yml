@@ -50,7 +50,7 @@ jobs:
         run: |
           bash -n linux/Medicat_Installer.sh
           shellcheck -S warning linux/Medicat_Installer.sh
-          shellcheck -S warning tests/linux/smoke_test.sh
+          shellcheck -S warning tests/linux/smoke_test.sh tools/sync_upstream.sh
 
       - name: Smoke-test Linux installer
         env:
