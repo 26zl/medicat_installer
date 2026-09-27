@@ -49,6 +49,7 @@ jobs:
       MEDICAT_PIN_BUILD: ${{ github.ref_type == 'tag' && github.ref_name || github.event.inputs.version }}
       MEDICAT_BUILD_NUMBER_BUMPED: "1"
       MEDICAT_INGEST_TOKEN: ${{ secrets.MEDICAT_INGEST_TOKEN }}
+      GH_TOKEN: ${{ github.token }}  # lets tools/fetch_ventoy_versions.py use the authenticated API rate limit
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1

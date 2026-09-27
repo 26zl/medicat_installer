@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import sys
 import urllib.error
@@ -23,7 +24,12 @@ def fetch_versions() -> list[str]:
     page = 1
     while page <= 20:
         url = f"{API}?per_page=100&page={page}"
-        req = urllib.request.Request(url, headers={"User-Agent": "medicat-installer"})
+        headers = {"User-Agent": "medicat-installer"}
+        # CI runners share the anonymous rate limit; a token (GH_TOKEN / GITHUB_TOKEN) lifts it.
+        token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        req = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(req, timeout=60) as resp:
             releases = json.load(resp)
         if not releases:
@@ -53,7 +59,9 @@ def main() -> int:
     try:
         versions = fetch_versions()
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
-        print(f"Ventoy version fetch failed: {exc}", file=sys.stderr)
+        # MSBuild fails the build on any "error <code>:" line, so keep the reason in parentheses.
+        reason = str(exc).replace("HTTP Error", "HTTP")
+        print(f"Ventoy version fetch failed ({reason})", file=sys.stderr)
         if fallback and fallback.is_file():
             shutil.copyfile(fallback, out)
             versions = [
