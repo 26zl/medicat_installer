@@ -130,8 +130,7 @@ add_custom_command(
     WORKING_DIRECTORY "${REPO_ROOT}"
 )
 
-# This function makes it so when a new code file is added, the project
-#   is reconfigured automatically (iirc)
+# Re-run configure when sources are added or removed, since GLOB_RECURSE is not tracked otherwise.
 set_property(
   DIRECTORY APPEND
   PROPERTY CMAKE_CONFIGURE_DEPENDS

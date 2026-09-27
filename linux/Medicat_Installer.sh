@@ -11,7 +11,7 @@ ScriptVersion="0026"
 #   ./Medicat_Installer.sh --extras systemrescue,gparted-live --drive /dev/sdb
 # Run with --help for the full list.
 
-#-------------------------------Shared spec-----------------------------------#
+# Shared spec
 # Everything between the markers comes from spec/medicat.json and spec/extras.json
 # (the Windows installer reads the same data via src/spec_generated.h).
 # BEGIN GENERATED SPEC - edit spec/*.json and run tools/gen_spec.py
@@ -71,9 +71,8 @@ ExtrasHomepages=('https://www.system-rescue.org/' 'https://gparted.org/' 'https:
 ExtrasLicenses=('GPL-2.0-or-later (Arch-based live system, mixed licenses)' 'GPL-2.0-or-later' 'GPL-2.0' 'GPL-3.0' 'GPL-2.0' 'Freeware; bundled tools keep their own licenses' 'Mixed open source' 'Proprietary (Microsoft); download from Microsoft only')
 ExtrasDescriptions=('Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines.' 'Resize, move, copy and check partitions (NTFS, ext4, exFAT, FAT, btrfs and more).' 'Disk and partition imaging and cloning, sector-level or filesystem-aware.' 'Point-and-click backup and restore, compatible with Clonezilla images.' 'Stand-alone RAM tester for BIOS and UEFI machines.' 'Windows 11 PE based repair environment with password, driver, backup and diagnostics tools.' 'Live desktop and installer; handy for rescuing files from a Linux or Windows disk with a full GUI.' 'Microsoft issues time-limited download links, so fetch the ISO from the Microsoft page and copy it into Extras/Windows_Install/ on the stick.')
 # END GENERATED SPEC
-#-----------------------------------------------------------------------------#
 
-#--------------------------------Variables------------------------------------#
+# Variables
 
 # Exit codes shared with the Windows CLI (see CLI.md).
 ExitOk=0
@@ -209,10 +208,8 @@ for _sbinDir in /usr/local/sbin /usr/sbin /sbin; do
 done
 unset _sbinDir
 export PATH
-#-----------------------------------------------------------------------------#
 
-
-#--------------------------------Functions------------------------------------#
+# Functions
 
 # Append one plain-text line to the session log (no-op until --log or the default log is set).
 function logLine() {
@@ -823,6 +820,29 @@ function checksumOk() {
 	fi
 }
 
+# Check a downloaded Ventoy tarball against the sha256.txt published with the same release.
+function verifyVentoyTarball() {
+	local tarUrl="$1"
+	local tarFile="$2"
+	local venver="$3"
+	local sumsUrl="${tarUrl%/*}/sha256.txt"
+	local expected
+	expected=$(fetchText "$sumsUrl" 2>/dev/null | awk -v f="$(basename -- "$tarFile")" \
+		'{ name = $2; sub(/^\*/, "", name); if (name == f) { print tolower($1); exit } }')
+	if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
+		colEcho $redB "ERROR: Could not read the SHA-256 for $tarFile from$whiteB $sumsUrl"
+		colEcho $yellowB "Refusing to install an unverified Ventoy. Retry, or pass --ventoy-tar with a package you checked yourself."
+		rm -f "$tarFile"
+		exit $ExitError
+	fi
+	if ! checksumOk "$tarFile" "$expected" ""; then
+		colEcho $redB "ERROR: SHA-256 mismatch for $tarFile (expected $expected)."
+		rm -f "$tarFile"
+		exit $ExitError
+	fi
+	colEcho $greenB "Ventoy $venver package verified against the release checksum list."
+}
+
 # Make sure ./ventoy holds an extracted Ventoy release (pinned, local tarball, cached or latest).
 function prepareVentoy() {
 	local wanted="$VentoyVersionArg"
@@ -875,17 +895,23 @@ function prepareVentoy() {
 			colEcho $redB "ERROR: Failed to download Ventoy $venver."
 			exit $ExitError
 		fi
+		verifyVentoyTarball "$tarUrl" "$tarFile" "$venver"
 	fi
 
 	colEcho $cyanB "\nExtracting Ventoy..."
 	rm -rf ./ventoy
-	extractedDir=$(tar -tzf "$tarFile" 2>/dev/null | head -n1 | cut -d/ -f1)
-	if [[ -z "$extractedDir" ]] || ! tar -xzf "$tarFile"; then
+	# Entries are stored as ./ventoy-X.Y.Z/...; take the first real top-level directory.
+	extractedDir=$(tar -tzf "$tarFile" 2>/dev/null | sed 's|^\./||' | awk -F/ 'NF && $1 != "." { print $1; exit }')
+	if ! tar -xzf "$tarFile"; then
 		colEcho $redB "ERROR: Failed to extract $tarFile"
 		exit $ExitError
 	fi
-	if [[ ! -f "$extractedDir/Ventoy2Disk.sh" ]]; then
-		colEcho $redB "ERROR: Ventoy2Disk.sh is missing inside $extractedDir"
+	if [[ -z "$extractedDir" || ! -f "$extractedDir/Ventoy2Disk.sh" ]]; then
+		extractedDir=$(find . -maxdepth 1 -type d -name 'ventoy-*' | head -n1)
+		extractedDir="${extractedDir#./}"
+	fi
+	if [[ -z "$extractedDir" || ! -f "$extractedDir/Ventoy2Disk.sh" ]]; then
+		colEcho $redB "ERROR: Ventoy2Disk.sh is missing inside the extracted package $tarFile"
 		exit $ExitError
 	fi
 	mv "$extractedDir" ventoy
@@ -1522,7 +1548,7 @@ function installVentoy() {
 	colEcho $blueB "MBR at max can do up to approximately 2.2 TB and will work with older BIOS systems and UEFI systems that support legacy operating systems. GPT can do up to 18 exabytes and will work with UEFI systems."
 
 	if $ventoyFS; then
-		cd ventoy || exit $ExitError #Thanks camellia from Medicat Discord for helping work around Ventoy's bullshit
+		cd ventoy || exit $ExitError  # Ventoy2Disk.sh must run from its own directory
 	fi
 	logLine "ventoy: $ventoyLauncher ${ventoyArgs[*]} $drive"
 	local answers=$'y\ny\n'
@@ -1874,8 +1900,7 @@ function detachTarget() {
 }
 
 function setDistroVars() {
-	# Set variables to support different distros.
-	# This needs to be fixed later, there is a better way, but I don't currently have the time - LordSkeletonMan
+	# Package manager and package names per distro family.
 	if grep -qs "ubuntu" /etc/os-release; then
 		os="ubuntu"
 		pkgmgr="apt"
@@ -1913,13 +1938,11 @@ function setDistroVars() {
 		pkgmgr="dnf"
 		install_arg="install -y"
 		update_arg="upgrade"
-		alias mkexfatfs=mkfs.exfat # Wtf Ventoy?
 	elif [[ -e /etc/nobara ]]; then
 		os="fedora"
 		pkgmgr="yum"
 		install_arg="install -y"
 		update_arg="update"
-		alias mkexfatfs=mkfs.exfat
 	elif grep -qs "cachyos" /etc/os-release; then
 		# Must run before /etc/arch-release: CachyOS is Arch-based and often has that file.
 		os="cachyos"
@@ -2095,9 +2118,8 @@ function printSummary() {
 		colEcho "  Help: $LinkDiscord (attach the log)"
 	fi
 }
-#-----------------------------------------------------------------------------#
 
-#----------------------------------Main Code----------------------------------#
+# Main
 
 parseArgs "$@"
 cd "$WorkDir" || exit $ExitError

@@ -77,6 +77,16 @@ On Linux the same jobs are flags of the shell script (no flags = interactive):
 ./linux/Medicat_Installer.sh --list-extras
 ```
 
+# Telemetry (Windows installer)
+
+At the end of every install or verify, `MedicatInstaller.exe` posts a small session report (outcome, installer version, Windows build and edition, CPU/RAM class, UI language, a hash of the machine GUID) to `telemetry.medicatusb.com`. When an operation fails it can also upload a zip of the `.log`/`.txt` files beside the exe, and those logs include the computer name and user name. Both are on by default. To turn them off, create `%AppData%\MedicatInstaller\preferences.json`:
+
+```json
+{ "session_reports_enabled": false, "failure_log_auto_upload_enabled": false }
+```
+
+The Linux script sends nothing. Details: [`docs/SUPPORT_UPLOAD.md`](docs/SUPPORT_UPLOAD.md).
+
 # Branches (for nerds)
 
 | Branch | What |

@@ -31,7 +31,7 @@ Exit codes: `0` ok, `1` error, `2` bad arguments, `4` cancelled, `5` verificatio
 
 ## Compatibility
 
-Ubuntu · Arch · CachyOS · Debian · CentOS · FreeBSD · Fedora · Void · NixOS (and similar)
+Ubuntu · Debian · Arch · CachyOS · Fedora · CentOS / AlmaLinux / Rocky · Void · Alpine · NixOS (and similar). Needs bash 4+, GNU coreutils and util-linux (`lsblk`, `findmnt`, `mountpoint`), so it does not run on FreeBSD or macOS.
 
 ## Requirements
 

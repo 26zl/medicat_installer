@@ -5,7 +5,7 @@ Two-tier reporting from the C++ installer:
 1. **Session report (automatic)** — small JSON at end of every install/verify: success/failure, installer version, OS summary. **No prompt.** No log files.
 2. **Failure bundle (on error only)** — zip of `.log` / `.txt` beside the exe when something fails; user consent before files leave the machine; returns a **support keyword** for Discord.
 
-**Status:** Tier A session reports implemented in C++. Tier B (failure log upload) not yet implemented.  
+**Status:** Tier A session reports and Tier B failure-log auto-upload are both implemented in `src/support.cpp`. Both default to on; `%AppData%\MedicatInstaller\preferences.json` with `"session_reports_enabled": false` / `"failure_log_auto_upload_enabled": false` turns them off. Tier B currently shows a notice, not a consent prompt (see the privacy section below).  
 **Related:** [`TODO.md`](../TODO.md) · [`SUPPORT_SERVER.md`](SUPPORT_SERVER.md) · [`debug.cpp`](../src/debug.cpp)
 
 ---

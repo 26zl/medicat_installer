@@ -76,3 +76,11 @@ cmake/ingest.token
 support-server/
 # Python bytecode
 __pycache__/
+
+# Linux installer work files (when run from linux/)
+linux/ventoy/
+linux/MedicatUSB/
+linux/MedicatFiles.md5
+linux/medicat_*.txt
+linux/medicat.torrent
+linux/*.tar.gz
