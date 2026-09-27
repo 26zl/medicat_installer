@@ -1356,6 +1356,11 @@ function acquireArchive() {
 		return 0
 	fi
 
+	if $SkipArchiveHash; then
+		colEcho $yellowB "Skipping the archive size and SHA256 checks (--skip-archive-hash): $location is used as-is."
+		return 0
+	fi
+
 	# Check size then SHA256 of the solid Medicat .7z
 	colEcho $cyanB "Checking size and SHA256 hash of$whiteB $location$cyanB..."
 
@@ -1366,11 +1371,6 @@ function acquireArchive() {
 		colEcho $cyanB "Size is$whiteB $fileSize$cyanB bytes; expected$whiteB $Medicat7zBytes$cyanB (at least $Medicat7zMinBytes)."
 		colEcho $yellowB "Delete the partial file and download again (prefer aria2c / a stable mirror)."
 		exit $ExitError
-	fi
-
-	if $SkipArchiveHash; then
-		colEcho $yellowB "Skipping the archive SHA256 check (--skip-archive-hash)."
-		return 0
 	fi
 
 	local checksha256
