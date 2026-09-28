@@ -230,6 +230,8 @@ constexpr int kCreditsSevenZipBtnId = 1131;
 constexpr int kCreditsVentoyBtnId = 1132;
 constexpr int kCreditsAria2BtnId = 1134;
 constexpr int kCreditsCloseBtnId = 1133;
+constexpr int kCreditsLicenseNoticeId = 1135;
+constexpr int kCreditsSourceBtnId = 1136;
 constexpr int kReExtractMessageId = 1101;
 constexpr int kReExtractListId = 1102;
 constexpr int kReExtractBtnId = 1103;
@@ -291,7 +293,7 @@ constexpr int kReExtractDialogSectionGap = 16;
 constexpr int kReExtractDialogBtnHeight = 34;
 constexpr int kReExtractDialogBtnGap = 10;
 constexpr int kCreditsClientWidth = 400;
-constexpr int kCreditsClientHeight = 312;
+constexpr int kCreditsClientHeight = 464;  // intro, license notice, four link buttons, close
 constexpr int kCreditsDialogMargin = 24;
 constexpr int kCreditsDialogTopPad = 20;
 constexpr int kCreditsDialogBtnHeight = 34;
@@ -2509,6 +2511,12 @@ void Gui::RefreshCreditsWindowText() {
     if (creditsIntro_ && IsWindow(creditsIntro_)) {
         SetWindowTextW(creditsIntro_, i18n::Tr(L"ui.credits_intro").c_str());
     }
+    if (creditsLicenseNotice_ && IsWindow(creditsLicenseNotice_)) {
+        SetWindowTextW(creditsLicenseNotice_, i18n::Tr(L"ui.credits_license_notice").c_str());
+    }
+    if (creditsSourceBtn_ && IsWindow(creditsSourceBtn_)) {
+        SetWindowTextW(creditsSourceBtn_, i18n::Tr(L"ui.credits_open_source").c_str());
+    }
     if (creditsSevenZipBtn_ && IsWindow(creditsSevenZipBtn_)) {
         SetWindowTextW(creditsSevenZipBtn_, i18n::Tr(L"ui.credits_open_7zip").c_str());
     }
@@ -2542,6 +2550,13 @@ void Gui::LayoutCreditsWindow() {
                      SWP_NOZORDER | SWP_NOACTIVATE);
         y += introHeight + kCreditsDialogSectionGap;
     }
+    if (creditsLicenseNotice_ && IsWindow(creditsLicenseNotice_)) {
+        const std::wstring notice = i18n::Tr(L"ui.credits_license_notice");
+        const int noticeHeight = MeasureWrappedStaticHeight(creditsLicenseNotice_, notice, contentWidth);
+        SetWindowPos(creditsLicenseNotice_, nullptr, kCreditsDialogMargin, y, contentWidth, noticeHeight,
+                     SWP_NOZORDER | SWP_NOACTIVATE);
+        y += noticeHeight + kCreditsDialogSectionGap;
+    }
 
     const auto placeButton = [&](HWND button) {
         if (!button || !IsWindow(button)) {
@@ -2555,6 +2570,7 @@ void Gui::LayoutCreditsWindow() {
     placeButton(creditsSevenZipBtn_);
     placeButton(creditsAria2Btn_);
     placeButton(creditsVentoyBtn_);
+    placeButton(creditsSourceBtn_);
     y += kCreditsDialogBtnGap;
     placeButton(creditsCloseBtn_);
 }
@@ -2592,6 +2608,13 @@ void Gui::OpenCreditsWindow() {
         0, 0, 100, 40, creditsWindow_,
         reinterpret_cast<HMENU>(static_cast<INT_PTR>(kCreditsIntroId)), instance_, nullptr);
 
+    // AGPL "appropriate legal notice": license, no warranty, copyright, where the source is.
+    creditsLicenseNotice_ = CreateWindowW(
+        L"STATIC", i18n::Tr(L"ui.credits_license_notice").c_str(),
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
+        0, 0, 100, 40, creditsWindow_,
+        reinterpret_cast<HMENU>(static_cast<INT_PTR>(kCreditsLicenseNoticeId)), instance_, nullptr);
+
     creditsSevenZipBtn_ = CreateWindowW(
         L"BUTTON", i18n::Tr(L"ui.credits_open_7zip").c_str(),
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP,
@@ -2610,6 +2633,12 @@ void Gui::OpenCreditsWindow() {
         0, 0, 100, kCreditsDialogBtnHeight, creditsWindow_,
         reinterpret_cast<HMENU>(static_cast<INT_PTR>(kCreditsVentoyBtnId)), instance_, nullptr);
 
+    creditsSourceBtn_ = CreateWindowW(
+        L"BUTTON", i18n::Tr(L"ui.credits_open_source").c_str(),
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP,
+        0, 0, 100, kCreditsDialogBtnHeight, creditsWindow_,
+        reinterpret_cast<HMENU>(static_cast<INT_PTR>(kCreditsSourceBtnId)), instance_, nullptr);
+
     creditsCloseBtn_ = CreateWindowW(
         L"BUTTON", i18n::Tr(L"ui.credits_close_button").c_str(),
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP,
@@ -2617,7 +2646,8 @@ void Gui::OpenCreditsWindow() {
         reinterpret_cast<HMENU>(static_cast<INT_PTR>(kCreditsCloseBtnId)), instance_, nullptr);
 
     SendMessageW(creditsIntro_, WM_SETFONT, reinterpret_cast<WPARAM>(subtitleFont), TRUE);
-    for (HWND child : {creditsSevenZipBtn_, creditsAria2Btn_, creditsVentoyBtn_, creditsCloseBtn_}) {
+    SendMessageW(creditsLicenseNotice_, WM_SETFONT, reinterpret_cast<WPARAM>(uiFont), TRUE);
+    for (HWND child : {creditsSevenZipBtn_, creditsAria2Btn_, creditsVentoyBtn_, creditsSourceBtn_, creditsCloseBtn_}) {
         if (child && IsWindow(child)) {
             SendMessageW(child, WM_SETFONT, reinterpret_cast<WPARAM>(uiFont), TRUE);
         }
@@ -2626,6 +2656,7 @@ void Gui::OpenCreditsWindow() {
     SubclassGlowButton(creditsSevenZipBtn_, false);
     SubclassGlowButton(creditsAria2Btn_, false);
     SubclassGlowButton(creditsVentoyBtn_, false);
+    SubclassGlowButton(creditsSourceBtn_, false);
     SubclassGlowButton(creditsCloseBtn_, false);
 
     LayoutCreditsWindow();
@@ -2663,6 +2694,11 @@ LRESULT CALLBACK Gui::CreditsWndProc(const HWND hwnd, const UINT msg, const WPAR
                 OpenBrowserUrl(kVentoyProjectUrl);
                 return 0;
             }
+            if (id == kCreditsSourceBtnId) {
+                const std::wstring url = std::wstring(L"https://github.com/") + kUpdateRepository;
+                OpenBrowserUrl(url.c_str());
+                return 0;
+            }
             if (id == kCreditsCloseBtnId) {
                 DestroyWindow(hwnd);
                 return 0;
@@ -2683,7 +2719,7 @@ LRESULT CALLBACK Gui::CreditsWndProc(const HWND hwnd, const UINT msg, const WPAR
             HDC hdc = reinterpret_cast<HDC>(wp);
             const HWND ctl = reinterpret_cast<HWND>(lp);
             SetBkMode(hdc, TRANSPARENT);
-            if (ctl == self->creditsIntro_) {
+            if (ctl == self->creditsIntro_ || ctl == self->creditsLicenseNotice_) {
                 SetTextColor(hdc, theme::Colors().muted);
             } else {
                 SetTextColor(hdc, theme::Colors().text);
@@ -2700,6 +2736,8 @@ LRESULT CALLBACK Gui::CreditsWndProc(const HWND hwnd, const UINT msg, const WPAR
             self->creditsAria2Btn_ = nullptr;
             self->creditsVentoyBtn_ = nullptr;
             self->creditsCloseBtn_ = nullptr;
+            self->creditsLicenseNotice_ = nullptr;
+            self->creditsSourceBtn_ = nullptr;
             return 0;
         default:
             break;

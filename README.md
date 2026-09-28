@@ -3,6 +3,8 @@
 
 Fork of [mon5termatt/medicat_installer](https://github.com/mon5termatt/medicat_installer) with a shared spec for both installers, a Linux installer with the same command-line interface as Windows, an extras catalog of boot images, telemetry consent and checksum-verified self-updates.
 
+Copyright (C) 2021-2026 the MediCat Installer [contributors](#credits). The installer is free software under the GNU AGPL-3.0 ([`LICENCE`](LICENCE)) and the Linux script under the GNU GPL-3.0 ([`linux/LICENSE`](linux/LICENSE)), both without any warranty. This fork has been modified from the upstream project since August 2026; every change is in the git history. Third-party components and their license texts: [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and [`THIRD_PARTY_LICENSES/`](THIRD_PARTY_LICENSES/README.md).
+
 # [Visit the Medicat website](https://medicatusb.com/)
 
 The Windows installer is now a native C++ app (`MedicatInstaller.exe`). Same job as before: Ventoy, optional format, extract MediCat, verify files. Linux has the shell script in [`linux/`](linux/). Both read the same [shared spec](spec/README.md) (archive, mirrors, hashes) and the same catalog of optional extra boot images.
@@ -41,7 +43,8 @@ OR:
 | `MedicatInstaller.exe` | Windows x64 |
 | `MedicatInstaller-x86.exe` | Windows 32-bit |
 | `Medicat_Installer.sh` | Linux |
-| `SHA256SUMS.txt` | Checksums of the three files above; the installer's self-update refuses releases without it |
+| `LICENSES.zip` | AGPL-3.0 and GPL-3.0 texts, `THIRD_PARTY_NOTICES.md` and the license texts of the embedded 7-Zip and aria2 |
+| `SHA256SUMS.txt` | Checksums of the files above; the installer's self-update refuses releases without it |
 
 # What it does (short version)
 
@@ -69,7 +72,7 @@ MedicatInstaller.exe /extras:systemrescue,gparted-live /drive:E
 MedicatInstaller.exe /list-extras
 ```
 
-Logs land beside the exe as `medicat_installer.log`. If something blows up and you upload logs, the dialog gives you a **Diag code** for Discord.
+Logs land in `logs\` beside the exe: `medicat_installer.log` plus the 7-Zip, Ventoy and download logs, with earlier sessions kept under `logs\archive\`. If something blows up and you upload logs, the dialog gives you a **Diag code** for Discord.
 
 On Linux the same jobs are flags of the shell script (no flags = interactive):
 
@@ -82,7 +85,7 @@ On Linux the same jobs are flags of the shell script (no flags = interactive):
 
 # Telemetry (Windows installer)
 
-Nothing leaves the machine without a yes. On first start `MedicatInstaller.exe` asks whether it may send an anonymous session report at the end of each install or verify (outcome, installer version, Windows build and edition, CPU/RAM class, UI language, a hash of the machine GUID). After a failure it asks whether to upload the `.log`/`.txt` files beside the exe, which contain file paths and drive details; the logs no longer include the computer or user name. Headless runs send nothing unless `/telemetry` or `/upload-logs` is passed. The saved answer lives in `%AppData%\MedicatInstaller\preferences.json`:
+Nothing leaves the machine without a yes. On first start `MedicatInstaller.exe` asks whether it may send an anonymous session report at the end of each install or verify (outcome, installer version, Windows build and edition, CPU/RAM class, UI language, a hash of the machine GUID). After a failure it asks whether to upload the `.log`/`.txt` files from `logs\` beside the exe, which contain file paths and drive details; the logs no longer include the computer or user name. Headless runs send nothing unless `/telemetry` or `/upload-logs` is passed. The saved answer lives in `%AppData%\MedicatInstaller\preferences.json`:
 
 ```json
 { "session_reports_enabled": false, "failure_log_auto_upload_enabled": false }
@@ -99,18 +102,26 @@ Builds without an ingest token (every CI build of this fork) send nothing at all
 Upstream is a fetch-only source; nothing here can push to it or open pull requests there.
 
 - `tools/sync_upstream.sh --dry-run` shows what upstream `main` has that we do not; without `--dry-run` it merges, regenerates `spec`/`i18n` outputs, runs the quick checks and tells you to push. `--linux` also merges upstream's `linux` branch into `linux/`, `--push` pushes `main` when everything passed.
-- [`upstream-sync.yml`](.github/workflows/upstream-sync.yml) does the same every Monday (or on demand): a clean merge becomes a pull request against **this** repository on a `sync/upstream-<date>` branch; conflicts become an issue.
-- Guardrails: the `upstream` remote's push URL is `no_push`, a global git rule rewrites any push to `github.com/mon5termatt/` to a dead URL, `gh repo set-default` points at this repository, and the release tooling targets the repository of the checkout. Leaving the fork network on GitHub (Settings, General, Danger Zone, "Leave fork network") also removes GitHub's own "Compare & pull request" suggestions toward upstream; syncing keeps working through the scripts above.
+- [`upstream-sync.yml`](.github/workflows/upstream-sync.yml) does the same every Monday (or on demand): a clean merge becomes a pull request against **this** repository on a `sync/upstream-<date>` branch; conflicts become an issue, which needs Issues enabled in the repository settings. GitHub can delay or skip a scheduled run, and a fork sometimes needs the workflow enabled once in the Actions tab; when a Monday run is missing, start it by hand with `gh workflow run upstream-sync.yml`.
+- Guardrails: the release tooling and `tools/bump_build_number.py` target the repository of the checkout, and `tools/sync_upstream.sh` sets the `upstream` push URL to `no_push` on first use. A fresh clone should set the rest up once:
+
+  ```bash
+  git remote set-url --push upstream no_push
+  git config remote.upstream.tagOpt --no-tags   # never fetch upstream's 1.0.N tags into this clone
+  gh repo set-default 26zl/medicat_installer
+  ```
+
+  Leaving the fork network on GitHub (Settings, General, Danger Zone, "Leave fork network") also removes GitHub's own "Compare & pull request" suggestions toward upstream; syncing keeps working through the scripts above.
 
 # Build from source
 
-Visual Studio 2022+, CMake, Python 3, plus `bin/7z/.../7za.exe` and `MedicatFiles.md5`. The build fetches official `aria2c` (GPL-2.0) and embeds it for multi-connection downloads.
+Visual Studio 2022 or newer with the C++ build tools (the Build Tools edition is enough), CMake, and Python 3 on `PATH`, plus the committed `bin/7z/.../7za.exe` and `MedicatFiles.md5`. `rebuild.bat` finds the CMake bundled with Visual Studio when `cmake` is not on `PATH`. Pillow (`pip install pillow`) is only needed to regenerate `res/discord.ico` after changing `res/discord.png`; without it the committed icon is kept. The build fetches official `aria2c` (GPL-2.0) and embeds it for multi-connection downloads, and fetches the Ventoy release list from GitHub (falling back to `res/ventoy_versions.txt` offline).
 
 ```bat
 rebuild.bat
 ```
 
-Outputs land in `build/Release/`. Tagged releases (`1.0.N`) are built on GitHub Actions; see [`docs/UPDATER.md`](docs/UPDATER.md). Every push also runs [`ci.yml`](.github/workflows/ci.yml): spec check, shellcheck and smoke tests for the Linux script, and a Windows build. Ask in Discord if you get stuck.
+Outputs land in `build/Release/`. The version goes to `build_number.txt` (gitignored) and into the exe's version resource and `/version`; `rebuild.bat` picks one above the latest release of this repository, `rebuild.bat as 1.0.N` pins it. Tagged releases (`1.0.N`) are built on GitHub Actions; see [`docs/UPDATER.md`](docs/UPDATER.md). Every push also runs [`ci.yml`](.github/workflows/ci.yml): spec check, shellcheck and smoke tests for the Linux script, and a Windows build. Ask in Discord if you get stuck.
 
 Mirrors, hashes and the extras catalog live in [`spec/`](spec/README.md); `python3 tools/gen_spec.py` regenerates `src/spec_generated.h` and the spec block in the Linux script (the CMake build does this automatically).
 

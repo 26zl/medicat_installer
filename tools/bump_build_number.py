@@ -19,7 +19,9 @@ import urllib.request
 from pathlib import Path
 
 _VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
-_DEFAULT_REPO = "mon5termatt/medicat_installer"
+# Used only when neither MEDICAT_GITHUB_REPO, `gh repo view` nor the origin remote names the repository.
+_FALLBACK_REPO = "26zl/medicat_installer"
+_GITHUB_REMOTE_RE = re.compile(r"github\.com[:/]([^/\s]+)/([^/\s]+?)(?:\.git)?/?$")
 _INSTALLER_ASSETS = ("MedicatInstaller.exe", "MedicatInstaller-x86.exe")
 
 
@@ -39,18 +41,50 @@ extern const int kInstallerBuildNumber = {build};
     return version
 
 
-def write_release_tag(repo_root: Path, version: str) -> None:
-    """Keep release_tag.txt in lockstep with installer version (GitHub tag = version)."""
-    tag_path = repo_root / "release_tag.txt"
-    tag_path.write_text(f"{version}\n", encoding="utf-8", newline="\n")
-
-
 def write_counter(counter_path: Path, major: int, minor: int, build: int) -> str:
     version = f"{major}.{minor}.{build}"
     counter_path.parent.mkdir(parents=True, exist_ok=True)
     counter_path.write_text(f"{version}\n", encoding="utf-8", newline="\n")
-    write_release_tag(counter_path.parent, version)
     return version
+
+
+def detect_checkout_repo(repo_root: Path) -> str:
+    """owner/name of the repository this checkout belongs to, resolved like tools/upload_release.bat.
+
+    Order: MEDICAT_GITHUB_REPO, `gh repo view` (honours `gh repo set-default`), the origin remote URL,
+    then the fallback constant. A fork therefore numbers its builds after its own releases.
+    """
+    from_env = os.environ.get("MEDICAT_GITHUB_REPO", "").strip()
+    if from_env:
+        return from_env
+    try:
+        completed = subprocess.run(
+            ["gh", "repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner"],
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            cwd=repo_root,
+        )
+        if completed.returncode == 0 and completed.stdout.strip():
+            return completed.stdout.strip()
+    except (FileNotFoundError, OSError):
+        pass
+    try:
+        completed = subprocess.run(
+            ["git", "remote", "get-url", "origin"],
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            cwd=repo_root,
+        )
+        match = _GITHUB_REMOTE_RE.search(completed.stdout.strip()) if completed.returncode == 0 else None
+        if match:
+            return f"{match.group(1)}/{match.group(2)}"
+    except (FileNotFoundError, OSError):
+        pass
+    return _FALLBACK_REPO
 
 
 def parse_version_text(text: str, default_major: int, default_minor: int) -> tuple[int, int, int] | None:
@@ -195,8 +229,9 @@ def main() -> int:
     parser.add_argument("--minor", default="0")
     parser.add_argument(
         "--repo",
-        default=os.environ.get("MEDICAT_GITHUB_REPO", _DEFAULT_REPO),
-        help=f"GitHub repo for latest-release sync (default: {_DEFAULT_REPO})",
+        default="",
+        help="GitHub repo (owner/name) for latest-release sync. Default: MEDICAT_GITHUB_REPO, else the "
+        f"repository of this checkout (gh repo view, then the origin remote), else {_FALLBACK_REPO}",
     )
     parser.add_argument(
         "--keep",
@@ -216,7 +251,7 @@ def main() -> int:
     parser.add_argument(
         "--set",
         default="",
-        help="Force version 1.0.N (or patch N) into build_number.txt, release_tag.txt, and build_version.cpp",
+        help="Force version 1.0.N (or patch N) into build_number.txt and build_version.cpp",
     )
     args = parser.parse_args()
 
@@ -258,7 +293,6 @@ def main() -> int:
         if parsed is not None:
             major, minor, build = parsed
             version = write_build_version(args.output, major, minor, build)
-            write_release_tag(args.counter.parent, version)
             print(f"Build number bump skipped ({args.skip_if_env}); using {version}")
         return 0
 
@@ -270,8 +304,10 @@ def main() -> int:
                 file=sys.stderr,
             )
             return 1
+        repo = args.repo.strip() or detect_checkout_repo(args.counter.resolve().parent)
+        print(f"Release repository: {repo}")
         next_ver = next_version_after_github(
-            args.repo, default_major, default_minor, args.counter
+            repo, default_major, default_minor, args.counter
         )
         if next_ver is None:
             print(

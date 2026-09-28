@@ -18,10 +18,14 @@ if(DEFINED ENV{MEDICAT_BUILD_NUMBER_BUMPED})
     list(APPEND _COMMON_CMAKE_CACHE_ARGS
         -DMEDICAT_BUILD_NUMBER_BUMPED:STRING=$ENV{MEDICAT_BUILD_NUMBER_BUMPED})
 endif()
-if(DEFINED ENV{MEDICAT_PIN_BUILD} AND NOT "$ENV{MEDICAT_PIN_BUILD}" STREQUAL "")
-    list(APPEND _COMMON_CMAKE_CACHE_ARGS
-        -DMEDICAT_PIN_BUILD:STRING=$ENV{MEDICAT_PIN_BUILD})
+# Always pass the pin, empty when unset: the sub-builds keep their own CMakeCache.txt, so a pin from an
+# earlier `rebuild.bat as 1.0.N` would otherwise stick to every later build in the same build directory.
+set(_PIN_BUILD "")
+if(DEFINED ENV{MEDICAT_PIN_BUILD})
+    set(_PIN_BUILD "$ENV{MEDICAT_PIN_BUILD}")
 endif()
+list(APPEND _COMMON_CMAKE_CACHE_ARGS
+    "-DMEDICAT_PIN_BUILD:STRING=${_PIN_BUILD}")
 
 ExternalProject_Add(medicat_installer_x64
     SOURCE_DIR "${REPO_ROOT}"

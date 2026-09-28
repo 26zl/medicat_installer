@@ -11,7 +11,7 @@ The C++ installer discovers updates via the **GitHub Releases API**.
 | Embedded `kInstallerVersion` | `1.0.41` |
 | Embedded `kInstallerBuildNumber` | `41` (patch) |
 
-`rebuild.bat` (local) sets `build_number.txt` to **one patch above** the latest GitHub release that ships `MedicatInstaller.exe` (e.g. latest `1.0.43` → next build `1.0.44`). That keeps local test builds aligned with published tags. Use `rebuild.bat as 1.0.N` to pin a version. CI pins the git tag and does not bump.
+`rebuild.bat` (local) sets `build_number.txt` to **one patch above** the latest GitHub release of this checkout's own repository that ships `MedicatInstaller.exe` (e.g. latest `1.0.43` → next build `1.0.44`); with no release yet it uses the local counter plus one. That keeps local test builds aligned with published tags. The same version goes into the exe's VERSIONINFO resource and `/version`. Use `rebuild.bat as 1.0.N` to pin a version. CI pins the git tag and does not bump.
 
 ### Publish from a tag (CI)
 
@@ -32,7 +32,7 @@ rebuild.bat as 1.0.50 release
 
 (omit TAG after `release` to use the version from `build_number.txt`)
 
-`tools/upload_release.bat` creates the GitHub release if the tag is missing (as **Latest**), using the annotated tag message or the tagged commit message as release notes (`gh --notes-from-tag`). It uploads both Windows exes and attaches **`Medicat_Installer.sh`** from `linux/` in the tagged tree. The release goes to the repository of the checkout (`GITHUB_REPOSITORY` in Actions, `gh repo view` locally), so forks release to themselves.
+`tools/upload_release.bat` creates the GitHub release if the tag is missing (as **Latest**), using the annotated tag message, or the tagged commit message for a lightweight tag, as release notes. It uploads both Windows exes, attaches **`Medicat_Installer.sh`** from `linux/` in the tagged tree, builds **`LICENSES.zip`** (`tools/make_licenses_zip.ps1`) and writes **`SHA256SUMS.txt`** for all of them. The release goes to the repository of the checkout (`GITHUB_REPOSITORY` in Actions, `gh repo view` locally), so forks release to themselves.
 
 ## Source
 
@@ -54,6 +54,7 @@ Selection (newest first, must include platform asset):
 | x64 | `MedicatInstaller.exe` |
 | x86 | `MedicatInstaller-x86.exe` |
 | Linux | `Medicat_Installer.sh` (from `linux/` in the tagged tree, attached every `upload_release.bat` run) |
+| all | `LICENSES.zip` (license texts for the installer and the embedded 7-Zip and aria2; not consulted by the updater) |
 
 ## Version compare
 

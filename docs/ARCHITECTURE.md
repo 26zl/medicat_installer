@@ -1,6 +1,6 @@
 # MediCat Installer — Architecture & Project Outline
 
-Native Windows (Win32) installer for MediCat USB bootable media. Active branch: **`cpp`**.  
+Native Windows (Win32) installer for MediCat USB bootable media. Everything lives on `main`, next to the Linux script (`linux/`) and the shared `spec/`.  
 User-facing overview: [`README.md`](../README.md) · Feature parity: [`FEATURES.md`](FEATURES.md) · Roadmap: [`TODO.md`](TODO.md)
 
 ---
@@ -10,45 +10,66 @@ User-facing overview: [`README.md`](../README.md) · Feature parity: [`FEATURES.
 ```
 medicat_installer/
 ├── src/                    # C++ application (namespace medicat)
-│   ├── main.cpp            # WinMain → App::Run()
-│   ├── app.cpp / app.h     # Orchestration, worker threads, verify/re-extract
+│   ├── main.cpp            # wWinMain → RunApp → App::RunParsed
+│   ├── app.cpp / app.h     # Orchestration, worker threads, verify/re-extract, headless runs
+│   ├── cli.cpp             # Flag parsing, console output, /help /version /list-* /dump-config
 │   ├── gui.cpp / gui.h     # Main window, dialogs, progress, status bar
+│   ├── theme.cpp           # Dark GDI+ controls
 │   ├── drives.cpp          # USB / VHD / fixed-disk enumeration
 │   ├── ventoy.cpp          # Ventoy download, extract, VTOYCLI /I /U
+│   ├── archive.cpp         # Locate the MediCat .7z, size and MD5 checks, ready-to-install gate
 │   ├── extract.cpp         # 7za subprocess (full + selective @list)
-│   ├── verify.cpp          # Parallel MD5 against MedicatFiles.md5
+│   ├── verify.cpp          # Parallel MD5 against MedicatFiles.md5, presence check, SHA hashing
+│   ├── extras.cpp          # Extras catalog: download, checksum, unpack into Extras/<category>/
+│   ├── update.cpp          # Self-update via GitHub Releases, verified against SHA256SUMS.txt
+│   ├── support.cpp         # Telemetry consent, session reports, failure-log upload
 │   ├── bundle.cpp          # Embedded 7za, aria2c, MD5 resources
 │   ├── download.cpp        # aria2c file downloads + WinHTTP (API, fallback)
-│   ├── offline.cpp         # Offline Ventoy/archive cache paths
+│   ├── offline.cpp         # offline/ cache paths for Ventoy and the archive
+│   ├── cancel.cpp          # Ctrl+C handling, cancel state, tracked child processes
+│   ├── failure_tracker.cpp # Counts failed runs for the help gate
+│   ├── sim_fail.cpp        # Debug menu: simulated failures and safety flags
 │   ├── debug.cpp           # System/installer diagnostics → medicat_installer.log
-│   ├── log.cpp             # medicat_installer.log
+│   ├── log.cpp             # Logger (file + optional console mirror)
 │   ├── i18n.cpp            # Runtime translation lookup
-│   ├── i18n_generated.h    # Build-generated string table (do not edit by hand)
-│   ├── theme.cpp           # Dark GDI+ controls
-│   └── util.cpp            # Paths, file helpers
+│   ├── util.cpp            # Paths, file helpers, logs/ rotation
+│   ├── i18n_generated.h    # Generated from i18n/translations.json (do not edit)
+│   └── spec_generated.h    # Generated from spec/*.json (do not edit)
+├── spec/                   # Shared spec: medicat.json, extras.json, torrent (spec/README.md)
+├── linux/                  # Medicat_Installer.sh with its README and CHANGELOG
 ├── i18n/
 │   └── translations.json   # EN, ES, FR, PL, TR source strings
 ├── tools/
+│   ├── gen_spec.py         # spec/*.json → spec_generated.h + the block in the Linux script
 │   ├── i18n_codegen.py     # translations.json → i18n_generated.h
+│   ├── bump_build_number.py# build_number.txt + generated/build_version.cpp
 │   ├── fetch_ventoy_versions.py
+│   ├── prepare_md5_bundle.py / prepare_aria2_bundle.py / prepare_discord_icon.py
+│   ├── generate_ingest_token.py
+│   ├── upload_release.bat  # Release assets + SHA256SUMS.txt (run by the release workflow)
+│   ├── sync_upstream.sh    # Merge the upstream project into main
 │   └── populate_offline.py # Optional offline cache setup
 ├── res/
-│   ├── app.manifest        # requireAdministrator
-│   ├── bundle.rc.in        # Embedded binary resources
+│   ├── bundle.rc.in        # Icons, VERSIONINFO and the embedded binary resources
+│   ├── icon.*, discord.*   # Application and Discord icons
+│   ├── app.manifest        # Reference copy only; the UAC level is set by the linker flag in CMakeLists.txt
 │   └── ventoy_versions.txt # Fallback version list
-├── docs/
-│   └── ARCHITECTURE.md     # This file
-├── build/                  # CMake output (gitignored)
-├── 7za.exe / bin/7z.exe    # Bundled into exe at build time
-├── aria2c.exe              # Fetched at build, gzipped, bundled
+├── tests/
+│   ├── windows/            # test_main.cpp (MedicatTests.exe), smoke_cli.ps1 (VHD smoke test)
+│   └── linux/              # smoke_test.sh
+├── cmake/unified/          # Superbuild: one configure builds x64 and Win32
+├── .github/workflows/      # ci.yml, release-build.yml, upstream-sync.yml
+├── docs/                   # This file, FEATURES.md, TODO.md, CLI.md, UPDATER.md, ...
+├── bin/7z/                 # 7za.exe (x64, x32), embedded at build time
+├── bin/aria2/              # aria2c.exe fetched at build time (gitignored)
+├── generated/, build/      # Build output (gitignored)
 ├── MedicatFiles.md5        # Verification manifest (bundled)
 ├── CMakeLists.txt
-├── README.md
-├── FEATURES.md
-└── TODO.md
+├── rebuild.bat
+└── README.md
 ```
 
-**Runtime layout (beside exe):** logs (`*.log`, `failed_files.txt`), `Ventoy2Disk/` after Ventoy download, optional `offline/` cache. MediCat `*.7z` is user-supplied or downloaded via UI.
+**Runtime layout (beside exe):** `logs/` (`medicat_installer.log`, the tool logs and `failed_files.txt`; earlier sessions rotate into `logs/archive/<timestamp>/`), `Ventoy2Disk/` after Ventoy download, optional `offline/` cache. MediCat `*.7z` is user-supplied or downloaded via UI. Preferences live in `%AppData%\MedicatInstaller\preferences.json`.
 
 ---
 
@@ -56,11 +77,11 @@ medicat_installer/
 
 | Layer | Modules | Responsibility |
 |-------|---------|----------------|
-| **Entry** | `main`, `App` | Startup, bundle extract, wire GUI handlers |
+| **Entry** | `main`, `cli`, `App` | Flag parsing, startup, bundle extract, wire GUI handlers or run headless |
 | **UI** | `gui`, `theme` | HWNDs, user input, thread-safe updates via `WM_APP` |
-| **Workflow** | `app` | Install / verify sequences, confirmations, `PostDone` |
-| **Domain** | `drives`, `ventoy`, `extract`, `verify` | Drive identity, tooling subprocesses |
-| **Infrastructure** | `bundle`, `download`, `offline`, `log`, `debug`, `i18n` | Assets, network, diagnostics |
+| **Workflow** | `app` | Install / verify / extras sequences, confirmations, `PostDone`, exit codes |
+| **Domain** | `drives`, `ventoy`, `archive`, `extract`, `verify`, `extras`, `update` | Drive identity, archive and image handling, tooling subprocesses, self-update |
+| **Infrastructure** | `bundle`, `download`, `offline`, `support`, `cancel`, `log`, `debug`, `i18n` | Assets, network, telemetry, cancellation, diagnostics |
 
 ---
 
@@ -156,27 +177,30 @@ Detection: `{drive}\ventoy` folder **or** physical-disk layout matching Ventoy2D
 
 ## Build pipeline
 
-1. **CMake** configures MSVC project (x64 / ARM64).
-2. **i18n_codegen.py** → `src/i18n_generated.h`
-3. **fetch_ventoy_versions.py** → embedded version list
-4. **bundle.rc** embeds `7za.exe`, gzipped `aria2c.exe`, `MedicatFiles.md5`
-5. Output: `build/Release/MedicatInstaller.exe` (single-file distribution; tools extracted to `%TEMP%\MedicatInstaller\{pid}\` at runtime)
-6. **Static CRT (`/MT`)** - no Visual C++ Redistributable required on end-user machines
+1. **tools/bump_build_number.py** writes `build_number.txt` and `generated/build_version.cpp` (`rebuild.bat`: one above the latest release of this repository; CI: the pushed tag).
+2. **cmake/unified** configures two ExternalProjects (x64 and Win32) of the root `CMakeLists.txt` and stages both exes into `build/Release/`.
+3. Per architecture, custom commands run **gen_spec.py**, **i18n_codegen.py**, **fetch_ventoy_versions.py**, **prepare_md5_bundle.py**, **prepare_aria2_bundle.py**, **prepare_discord_icon.py** and **generate_ingest_token.py**.
+4. **bundle.rc** (from `res/bundle.rc.in`) carries the icons, a VERSIONINFO block with the version from `build_number.txt`, `7za.exe`, gzipped `aria2c.exe` and the gzipped `MedicatFiles.md5`.
+5. Output: `build/Release/MedicatInstaller.exe` and `MedicatInstaller-x86.exe` (single-file distribution; tools extracted to `%TEMP%\MedicatInstaller\{pid}\` at runtime). `-DMEDICAT_BUILD_TESTS=ON` adds `MedicatTests.exe`.
+6. **Static CRT (`/MT`)** - no Visual C++ Redistributable required on end-user machines; the linker sets `requireAdministrator`.
 
 ---
 
 ## Logging
 
+Everything is written to `logs/` beside the exe; the previous sessions rotate into `logs/archive/<timestamp>/`.
+
 | File | Writer | When |
 |------|--------|------|
 | `medicat_installer.log` | `log.cpp`, `debug.cpp` | Every session (includes diagnostic sections) |
+| `ventoy.log` | `ventoy.cpp` | Ventoy2Disk output during install or update |
 | `extract.log` | `extract.cpp` | Full 7za extract |
 | `reextract.log` | `extract.cpp` | Selective re-extract |
 | `aria.log` | `download.cpp` | aria2c HTTP/torrent download |
 | `check.log` | `verify.cpp` | MD5 pass/fail lines |
 | `failed_files.txt` | `verify.cpp` | Verification failures |
 
-Future support upload: **`.log` / `.txt` only** — see [`TODO.md`](TODO.md).
+Support upload after a failure (**`.log` / `.txt` only**, with consent): see [`SUPPORT_UPLOAD.md`](SUPPORT_UPLOAD.md).
 
 ---
 
@@ -210,7 +234,7 @@ Future support upload: **`.log` / `.txt` only** — see [`TODO.md`](TODO.md).
 
 | Area | Issue | Suggestion |
 |------|-------|------------|
-| `gui.cpp` (~2k lines) | Monolithic UI | Split: `gui_layout.cpp`, `gui_checkbox.cpp`, `gui_reextract.cpp` |
+| `gui.cpp` (~5k lines) | Monolithic UI | Split: `gui_layout.cpp`, `gui_checkbox.cpp`, `gui_reextract.cpp` |
 | `ProgressPayload` | Many bool flags | Small enum `ProgressKind { Percent, Extract, Status }` |
 | `app.cpp` install thread | Long linear function | Named phases: `RunVentoyPhase`, `RunFormatPhase`, `RunExtractPhase` |
 | Ventoy UI state | Label + check in one function | Table-driven `struct DriveVentoyUiState { labelKey; defaultChecked; }` |
@@ -227,7 +251,7 @@ Future support upload: **`.log` / `.txt` only** — see [`TODO.md`](TODO.md).
 ## Security / safety
 
 - Destructive ops: wipe confirmation, Ventoy warning, drive-letter change confirmation
-- Admin elevation required (manifest)
+- Admin elevation required (`requireAdministrator`, set by the linker in `CMakeLists.txt`)
 - MD5 reads full file; partial reads fail
 - Internet needed for Ventoy download (offline cache supported); verify-only can use bundled manifest
 

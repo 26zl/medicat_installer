@@ -26,6 +26,7 @@ old/
 # C++ build output
 build/
 build-x86/
+build-tests/
 out/
 bundle/
 *.obj

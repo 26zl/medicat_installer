@@ -5,6 +5,10 @@
 #
 # Pull requests created by GITHUB_TOKEN do not trigger the CI workflow, so the job runs the
 # quick checks itself; the Windows build runs when the PR is merged into main.
+#
+# Scheduled runs are best effort: GitHub can delay or drop them, and a fork sometimes needs the
+# workflow enabled once in the Actions tab. Missing a Monday: gh workflow run upstream-sync.yml
+# The conflict path needs Issues enabled in the repository settings (forks start with them off).
 
 name: Upstream sync
 
@@ -114,6 +118,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           COUNT: ${{ steps.check.outputs.count }}
         run: |
+          if [ "$(gh api "repos/$GITHUB_REPOSITORY" --jq .has_issues)" != "true" ]; then
+            echo "::error::Issues are disabled in this repository, so the conflict cannot be reported as an issue. Enable Issues (Settings, General, Features) or resolve locally with tools/sync_upstream.sh."
+            cat /tmp/upstream_commits.md
+            exit 1
+          fi
           title="Upstream sync needs a manual merge ($COUNT commit(s))"
           {
             echo "upstream/main has $COUNT new commit(s) that do not merge cleanly into main:"

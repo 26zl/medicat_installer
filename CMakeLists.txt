@@ -84,13 +84,37 @@ add_custom_command(
     WORKING_DIRECTORY "${REPO_ROOT}"
 )
 
+# Installer version for the resources. build_number.txt is written by tools/bump_build_number.py
+# (rebuild.bat and CI run it before configure); the GitHub release tag equals this version (1.0.N).
+# Re-run configure when the counter changes so the VERSIONINFO and INSTALLER_RELEASE_TAG follow.
+set(BUILD_NUMBER_FILE "${REPO_ROOT}/build_number.txt")
+set(INSTALLER_RELEASE_TAG "unknown")
+if(EXISTS "${BUILD_NUMBER_FILE}")
+    file(READ "${BUILD_NUMBER_FILE}" INSTALLER_RELEASE_TAG)
+    string(STRIP "${INSTALLER_RELEASE_TAG}" INSTALLER_RELEASE_TAG)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${BUILD_NUMBER_FILE}")
+endif()
+set(VERSIONINFO_MAJOR 0)
+set(VERSIONINFO_MINOR 0)
+set(VERSIONINFO_PATCH 0)
+if(INSTALLER_RELEASE_TAG MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
+    set(VERSIONINFO_MAJOR "${CMAKE_MATCH_1}")
+    set(VERSIONINFO_MINOR "${CMAKE_MATCH_2}")
+    set(VERSIONINFO_PATCH "${CMAKE_MATCH_3}")
+endif()
+set(VERSIONINFO_STRING "${VERSIONINFO_MAJOR}.${VERSIONINFO_MINOR}.${VERSIONINFO_PATCH}")
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(VERSIONINFO_ORIGINAL_FILENAME "MedicatInstaller.exe")
+else()
+    set(VERSIONINFO_ORIGINAL_FILENAME "MedicatInstaller-x86.exe")
+endif()
+
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/res/bundle.rc.in" "${CMAKE_BINARY_DIR}/bundle.rc" @ONLY)
 set(APP_ICO "${CMAKE_CURRENT_SOURCE_DIR}/res/icon.ico")
 set_source_files_properties("${CMAKE_BINARY_DIR}/bundle.rc" PROPERTIES
     OBJECT_DEPENDS "${VENTOY_VERSIONS_GEN};${BUNDLE_MD5_GZ};${BUNDLE_7ZA};${BUNDLE_ARIA2_GZ};${DISCORD_ICO};${APP_ICO}"
 )
 
-set(BUILD_NUMBER_FILE "${REPO_ROOT}/build_number.txt")
 set(BUILD_VERSION_CPP "${REPO_ROOT}/generated/build_version.cpp")
 set(INGEST_TOKEN_CPP "${REPO_ROOT}/generated/ingest_token.cpp")
 set(GENERATE_INGEST_SCRIPT "${REPO_ROOT}/tools/generate_ingest_token.py")
@@ -222,16 +246,7 @@ add_custom_command(
     WORKING_DIRECTORY "${REPO_ROOT}"
 )
 
-set(INSTALLER_RELEASE_TAG "unknown")
-# Release GitHub tag matches installer version (1.0.N). Prefer build_number.txt.
-if(EXISTS "${BUILD_NUMBER_FILE}")
-    file(READ "${BUILD_NUMBER_FILE}" INSTALLER_RELEASE_TAG)
-    string(STRIP "${INSTALLER_RELEASE_TAG}" INSTALLER_RELEASE_TAG)
-elseif(EXISTS "${REPO_ROOT}/release_tag.txt")
-    file(READ "${REPO_ROOT}/release_tag.txt" INSTALLER_RELEASE_TAG)
-    string(STRIP "${INSTALLER_RELEASE_TAG}" INSTALLER_RELEASE_TAG)
-endif()
-
+# INSTALLER_RELEASE_TAG (GitHub tag == installer version 1.0.N) is read from build_number.txt above.
 set(MEDICAT_COMPILE_DEFINITIONS
     UNICODE
     _UNICODE

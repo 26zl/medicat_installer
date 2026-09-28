@@ -1,376 +1,166 @@
-# Command-line flags — design draft
+# Command-line interface
 
-Work file for optional **command-line control** of `MedicatInstaller.exe` (GUI-first today; flags enable scripting, diagnostics, and unattended flows).
-
-**Partially implemented** — parsing, help/version/diagnostics, headless `/install` and `/verify` with `/yes` `/quiet`. GUI remains the default when no action flags are passed.
-
----
-
-## Goal
-
-Support three usage modes without forking the codebase:
-
-| Mode | Behavior |
-|------|----------|
-| **Default (no args)** | Current Win32 GUI — drive picker, checkboxes, confirm dialogs |
-| **Info / exit** | Print version or help to stdout/console and exit |
-| **Scripted action** | Run **install** or **verify** headlessly with explicit options; log to file; exit code for automation |
-
-Non-goals for v1:
-
-- Fully silent replace of the running exe (see [UPDATER.md](UPDATER.md)).
-- Embedding or downloading the MediCat `.7z` via new flags beyond existing path resolution.
-- PowerShell-style `-WhatIf` dry run (could be v2).
-
----
+`MedicatInstaller.exe` is GUI-first: without flags it opens the window. The flags below make the same jobs scriptable for support scripts, diagnostics and unattended installs. The Linux script offers the same flags in `--flag` form ([`linux/README.md`](../linux/README.md)).
 
 ## Conventions
 
-- **Windows style:** `/flag`, `/flag:value`, `/flag value` (Ventoy / `format.com` parity).
-- **Unix style (alias):** `--flag`, `--flag=value`, `--flag value` — accepted for the same options where unambiguous.
-- **Case:** Insensitive for flag names; drive letters normalized to `E:`.
-- **Parsing:** Single pass over `CommandLineToArgvW` tokens; unknown flags → exit **2** with help hint.
-- **Elevation:** Destructive actions still require Administrator (UAC manifest). If not elevated, exit **3** with a clear message (console or `MessageBox` unless `/quiet`).
-- **Mutually exclusive groups:** Documented per section; last wins or hard error (prefer **error** for safety).
+- **Windows style:** `/flag`, `/flag:value`, `/flag value`. **Unix style:** `--flag`, `--flag=value`, `--flag value`. Flag names are case-insensitive; drive letters are normalized (`e`, `E:` and `E:\` all mean `E:`).
+- Unknown flags, missing values and conflicting flags exit **2** with a one-line message and a pointer to `/help`.
+- **Elevation:** the exe carries a `requireAdministrator` manifest, so every launch, `/help` included, goes through UAC. Run scripts from an elevated prompt.
+- **Console:** the installer is a GUI-subsystem program and opens its own console window for output (`AllocConsole`). The calling shell does not capture that text, so automation should rely on exit codes and the log files in `logs\`. `Ctrl+C` in that console cancels a headless run (exit **4**), stops the worker threads and terminates the tracked `7za.exe` children.
+- **Language:** help and version output are English; dialogs and log lines follow `/lang:` or the Windows UI language.
 
-### Console attachment
-
-Info flags (`/help`, `/version`) should attach or allocate a console (`AttachConsole(ATTACH_PARENT_PROCESS)` then fallback `AllocConsole`) so output is visible when launched from `cmd` / PowerShell / CI. GUI-only launches without those flags behave as today.
-
----
-
-## Exit codes (proposed)
+## Exit codes
 
 | Code | Meaning |
 |------|---------|
-| `0` | Success (install finished + verify passed, or verify-only passed) |
-| `1` | Operation failed (Ventoy, extract, verify, network, bundled tools missing) |
-| `2` | Invalid or conflicting arguments |
-| `3` | Administrator elevation required |
-| `4` | User cancelled (confirmation or re-extract prompt in interactive CLI) |
-| `5` | Verify found failures (install completed but hash mismatches remain) |
-| `6` | Partial success — re-extract offered but skipped or still failing (unattended policy dependent) |
-| `7` | Verify aborted: the drive does not look like a MediCat stick (presence check below threshold) |
+| `0` | Success: install finished and verify passed, verify-only passed, or every requested extra is on the drive |
+| `1` | Operation failed: Ventoy, extract, download, bundled tools missing, an extra failed to download |
+| `2` | Invalid or conflicting arguments, or the drive is not eligible |
+| `3` | `/install` started without Administrator rights (only reachable when the UAC manifest is bypassed) |
+| `4` | Cancelled: `Ctrl+C`, or a confirmation declined |
+| `5` | Verify found failures and no re-extract ran |
+| `6` | Re-extract ran but files still fail (the log carries the antivirus/firewall hint) |
+| `7` | Verify aborted: the drive does not look like a MediCat stick |
 
-Log detail always goes to `medicat_installer.log` beside the exe (or `/log:` path).
+Details always go to `logs\medicat_installer.log` beside the exe (or the `/log:` path).
 
----
-
-## Flags reference
+## Flags
 
 ### Help and version
 
 | Flag | Alias | Action |
 |------|-------|--------|
-| `/help` | `/h`, `/?`, `--help` | Print usage summary to console; exit `0` |
-| `/version` | `/v`, `--version` | Print installer version, build number, arch, release tag (when embedded); exit `0` |
-
-**Example output (`/version`):**
+| `/help` | `/h`, `/?`, `--help` | Print usage; exit `0` |
+| `/version` | `/v`, `--version` | Print version, architecture, embedded release tag and MediCat version; exit `0` |
 
 ```text
-MedicatInstaller 1.0.11 (build 11) x64
-Release tag: 3521-BETA
+MedicatInstaller 1.0.49 x64
+Release tag: 1.0.49
 MediCat USB: v21.12
 ```
 
----
+The release tag comes from `build_number.txt` at build time and equals the GitHub tag ([UPDATER.md](UPDATER.md)); ad-hoc builds without it print `(not embedded)`.
 
-### Language (GUI + messages)
+### Language
 
 | Flag | Alias | Values | Default |
 |------|-------|--------|---------|
-| `/lang:` | `--lang=` | `en`, `es`, `fr`, `pl`, `tr` | OS UI language (same as GUI combo) |
+| `/lang:` | `--lang=` | `en`, `es`, `fr`, `pl`, `tr` (and `cat`, a generated test language) | Windows UI language, `en` when unsupported |
 
-Applies before any user-visible text (dialogs, log prefixes). Invalid code → exit **2**.
-
-*(Future: persist in `%AppData%\MedicatInstaller\settings.json` — see [UPDATER.md](UPDATER.md).)*
-
----
+`/lang:` alone opens the GUI in that language. An unknown code exits **2**.
 
 ### Target drive
 
-| Flag | Alias | Values | Required when |
-|------|-------|--------|---------------|
-| `/drive:` | `--drive=` | `E`, `E:`, `E:\` | `/install` or `/verify` |
+| Flag | Alias | Values | Required for |
+|------|-------|--------|--------------|
+| `/drive:` | `--drive=` | `E`, `E:`, `E:\` | `/install`, `/verify`, `/extras` |
 
-Rules (same as GUI):
-
-- Must not be `C:`.
-- Must meet **≥ 30 GiB** capacity (`kMinDriveCapacityBytes`).
-- Must appear in the drive list for the current **show-all-drives** policy unless `/allow-fixed` is set (see below).
-
-Without `/drive:` in GUI mode, user picks from the combo as today.
-
----
+Rules, same as the GUI: not `C:`, at least 30 GiB, and listed as a removable or VHD drive unless `/allow-fixed` is given. Anything else exits **2** with `Drive not eligible`.
 
 ### Actions
 
 | Flag | Alias | Description |
 |------|-------|-------------|
-| `/install` | `--install` | Full install pipeline: optional Ventoy → optional format → extract → verify |
-| `/verify` | `--verify` | MD5 verify only (**Check USB Files**); no Ventoy, format, or extract |
-| `/extras:LIST` | `--extras=` | Download catalog boot images (`spec/extras.json`) into `E:\Extras\<category>\`. `LIST` is `all`, `none` or comma-separated ids. Alone it needs `/drive:`; with `/install` or `/verify` it runs after a successful verify |
+| `/install` | `--install` | Full pipeline: optional Ventoy, optional format, extract, verify |
+| `/verify` | `--verify` | MD5 verify only (**Check USB Files**); no Ventoy, format or extract |
+| `/extras:LIST` | `--extras=` | Download catalog boot images ([`spec/extras.json`](../spec/README.md)) into `E:\Extras\<category>\`. `LIST` is `all`, `none` or comma-separated ids. Alone it needs `/drive:`; with `/install` or `/verify` it runs afterwards when that step exits `0` or `5` |
 | `/list-extras` | `--list-extras` | Print the extras catalog and exit |
 
-If both are present → exit **2**. If neither is present → normal GUI.
+`/install` and `/verify` together exit **2**. Without an action the GUI opens. Images already on the drive are kept, and every download is recorded in `E:\Extras\extras_manifest.txt`.
 
-**Re-extract on verify failure:**
+### Re-extract on verify failure
 
-| Flag | Default (unattended) | Behavior |
-|------|----------------------|----------|
-| `/reextract` | off unless `/yes` | On verify failure, run selective `7za @list` then re-verify |
-| `/noreextract` | — | Fail with exit **5** after first verify failure |
-| `/reextract-only` | — | Skip install/extract; only re-extract paths listed in `failed_files.txt` on the drive (advanced recovery) |
+| Flag | Behaviour |
+|------|-----------|
+| `/reextract` | After a failed verify, re-extract the failed files with `7za @list`, then re-verify |
+| `/noreextract` | Stop after the first verify; exit **5** |
+| `/reextract-only` | Accepted; currently behaves like `/reextract` |
+| *(none)* | Re-extract runs when `/yes` is given, otherwise the run ends with exit **5** |
 
-Interactive CLI (no `/quiet`): show re-extract prompt equivalent to `Gui::OpenReExtractPrompt`.
+### Install options
 
----
+Defaults depend on whether Ventoy is already on the drive (`TestVentoyInstalled`, the same check as the GUI).
 
-### Install options (mirror GUI checkboxes)
+| Flag | GUI equivalent | No Ventoy on drive | Ventoy present |
+|------|----------------|--------------------|----------------|
+| `/format` / `/noformat` | Format checkbox | forced on; `/noformat` exits **2** | off unless `/format` |
+| `/ventoy` / `/noventoy` | Install / Update Ventoy | forced on (`VTOYCLI /I`); `/noventoy` exits **2** | off unless `/ventoy` (`VTOYCLI /U`, or `/I` together with `/format`) |
+| `/gpt` / `/nogpt` | Advanced: GPT | MBR | MBR |
+| `/secureboot` / `/nosb` | Advanced: Secure Boot | on | on |
+| `/ventoy-version:1.1.12` | Pin Ventoy version | latest | latest |
 
-Defaults match a **fresh USB without Ventoy** (forced install path). When Ventoy is already on the drive, defaults match GUI: format **off**, Ventoy update **off** unless flags say otherwise.
+A pinned version that cannot be downloaded fails the run with exit **1**.
 
-| Flag | GUI equivalent | Default (no Ventoy on drive) | Default (Ventoy present) |
-|------|----------------|------------------------------|---------------------------|
-| `/format` | Format checkbox | on (forced) | off |
-| `/noformat` | Unchecked format | — | explicit off |
-| `/ventoy` | Install / Update Ventoy | on (forced) | off |
-| `/noventoy` | Skip Ventoy step | — | explicit skip |
-| `/gpt` | Advanced → GPT | off | off |
-| `/nogpt` | MBR | — | — |
-| `/secureboot` | Advanced → Secure Boot | on | on |
-| `/nosb` | `/nosecureboot` → `/NOSB` to Ventoy | — | — |
-| `/ventoy-version:` | Pin Ventoy version | latest (or offline embed) | same |
-| `/allow-fixed` | Show all drives | off | off |
-
-**Forced Ventoy rule:** When the selected drive has **no Ventoy**, `/noventoy` and `/noformat` are rejected (exit **2**) — same as `RequiresForcedVentoyInstall()` in `gui.cpp`.
-
-**Ventoy version pin:** `/ventoy-version:1.1.12` implies pin enabled; invalid or unavailable version → exit **1** with log line.
-
----
-
-### Paths and offline assets
+### Paths and offline use
 
 | Flag | Alias | Description |
 |------|-------|-------------|
-| `/archive:` | `--archive=` | Override MediCat `.7z` path (instead of beside exe / `offline/` lookup) |
-| `/offline` | `--offline` | Do not download Ventoy or archive from the network; use embedded Ventoy ([OFFLINE.md](OFFLINE.md)) and `offline/` cache only |
-| `/log:` | `--log=` | Write session log to a custom file (default: `{exeDir}\medicat_installer.log`) |
+| `/archive:` | `--archive=` | Path to `MediCat.USB.v21.12.7z` instead of the lookup beside the exe and in `offline\` |
+| `/offline` | `--offline` | Use only the `offline\` cache for Ventoy and the archive ([OFFLINE.md](OFFLINE.md)); exit **1** when it is missing |
+| `/log:` | `--log=` | Session log path (default `logs\medicat_installer.log`) |
 
-`/archive:` does not bypass missing-file UI in GUI mode unless combined with `/install` and `/quiet`.
-
----
-
-### Unattended / automation
+### Unattended runs
 
 | Flag | Alias | Description |
 |------|-------|-------------|
-| `/yes` | `/y`, `--yes` | Auto-accept wipe confirmation and Ventoy warning ( **destructive** ) |
-| `/quiet` | `/q`, `--quiet` | No message boxes; errors to log + stderr; exit code only |
-| `/telemetry` / `/no-telemetry` | `--telemetry`, `--no-telemetry` | Send or skip the anonymous session report for this run. Headless runs send nothing unless `/telemetry` is given or the GUI consent was saved earlier |
-| `/upload-logs` | `--upload-logs` | Allow the diagnostic-log upload when a headless run fails (logs contain paths and drive details) |
-| `/noprogress` | — | Do not show progress window (future: console `%` lines when console attached) |
+| `/yes` | `/y`, `--yes` | Accept the wipe confirmation and the Ventoy warning (**destructive**) and run the re-extract without asking |
+| `/quiet` | `/q`, `--quiet` | No message boxes; only errors are mirrored to the console. `/install` with `/quiet` needs `/yes` (exit **2** otherwise) |
+| `/telemetry` / `/no-telemetry` | `--telemetry`, `--no-telemetry` | Send or skip the anonymous session report. Headless runs send nothing unless `/telemetry` is given |
+| `/upload-logs` | `--upload-logs` | Allow the failure-log upload after a failed headless run (logs contain paths and drive details) |
 
-`/quiet` without `/yes` on `/install` → exit **4** at first confirmation (fail closed).
-
-**Suggested automation example:**
-
-```bat
-MedicatInstaller.exe /install /drive:E /yes /quiet /lang:en
-```
-
----
-
-### Self-update (future — [UPDATER.md](UPDATER.md))
-
-| Flag | Description |
-|------|-------------|
-| `/check-update` | Fetch manifest / GitHub; print result; exit `0` if up to date, `1` if update available (or invert for CI — TBD) |
-| `/no-update-check` | Skip deferred startup update check (when updater is implemented) |
-
-When `MEDICAT_OFFLINE_BUILD` is defined at compile time, `/check-update` is a no-op (exit `0`, message “offline build”).
-
----
+Builds without an ingest token, such as every CI build of this repository, never send anything ([SUPPORT_UPLOAD.md](SUPPORT_UPLOAD.md)).
 
 ### Diagnostics
 
 | Flag | Description |
 |------|-------------|
-| `/list-drives` | Print eligible drives (one per line: letter, label, type, size) and exit `0` |
-| `/dump-config` | Print resolved paths (exe dir, 7za/aria2c temp, archive, Ventoy dir, manifest) and exit `0` |
-
-Useful for support scripts; no admin required for `/list-drives` (read-only).
-
----
+| `/list-drives` | Eligible drives, one per line: letter, label, type, free and total size. Add `/allow-fixed` to include fixed disks |
+| `/dump-config` | Resolved paths: installer directory, `7za`, `aria2c`, MD5 manifest, archive, temp dir |
 
 ## Mode matrix
 
 ```text
-(no args)                    → GUI
-/help, /version              → console, exit
-/list-drives, /dump-config  → console, exit
-/verify /drive:E             → headless verify (+ optional /quiet)
-/install /drive:E /yes …    → headless install
-/lang:fr (alone)             → GUI in French
-/check-update                → console check, exit (future)
+(no args)                     → GUI
+/lang:fr                      → GUI in French
+/help, /version               → console, exit 0
+/list-drives, /dump-config,
+/list-extras                  → console, exit 0
+/verify /drive:E              → headless verify (+ /quiet, /yes, /extras:)
+/install /drive:E /yes …      → headless install
+/extras:LIST /drive:E         → headless extras only
 ```
 
----
+## Headless flow
 
-## Headless install flow (proposed)
+1. `ParseCommandLine` builds `CliOptions`; errors exit **2** before anything runs.
+2. `App::RunParsed` mirrors the session log to the console (errors only with `/quiet`), logs the command line and the system diagnostics, and installs the `Ctrl+C` handler.
+3. `RunHeadless` validates the drive, then runs the same worker code as the GUI (`RunPreInstallThread`, `RunVerifyThread`) with confirmations answered by `/yes`; `MapHeadlessExitCode` turns the outcome into the exit code.
+4. `/extras` runs last through `RunExtrasForDrive`, shared with the stand-alone `/extras` action.
 
-Same worker threads as GUI (`RunInstallThread` / `RunVerifyThread`), but:
+Extraction and download progress appear as console lines (`42% — <file>`) unless `/quiet` is set.
 
-1. Parse flags → `CliOptions` struct (parallel to `Gui` getters).
-2. Skip `gui_.Create()` when action is `/install` or `/verify` and `/drive:` is valid.
-3. Replace `MessageBox` confirmations with `/yes` or fail with exit **4**.
-4. Replace `PostDone` UI with log + `ExitProcess(code)`.
-5. Re-extract prompt: `/reextract` + `/yes` auto-runs; else exit **5** or **6**.
+## Examples
 
-Progress callbacks write to log; optional console progress when stdout is a TTY.
-
-```text
-Parse CLI
-  → elevation check
-  → EnsureBundledTools
-  → resolve drive + archive
-  → ConfirmWipe (if /install && !/yes) 
-  → RunInstallThread or RunVerifyThread
-  → join worker
-  → exit code
+```bat
+MedicatInstaller.exe /install /drive:E /yes /quiet /lang:en
+MedicatInstaller.exe /verify /drive:E /yes /reextract
+MedicatInstaller.exe /extras:systemrescue,gparted-live /drive:E /quiet
+MedicatInstaller.exe /install /drive:E /yes /extras:all /nosb /gpt
 ```
 
----
+## Not implemented
 
-## Help text (draft)
+Tracked in [TODO.md](TODO.md): `/check-update` and `/no-update-check` (the GUI checks GitHub Releases on start, the CLI cannot), and a full headless install in CI.
 
-```text
-MediCat USB Installer — usage
-
-  MedicatInstaller.exe                     Open graphical installer
-  MedicatInstaller.exe /help               Show this help
-  MedicatInstaller.exe /version            Show version and build
-
-Actions:
-  /install /drive:E                        Install MediCat to drive E:
-  /verify /drive:E                         Verify MD5 hashes on drive E:
-
-Common options:
-  /format /noformat                        NTFS format before extract
-  /ventoy /noventoy                        Install or update Ventoy
-  /gpt /secureboot /nosb                   Ventoy partition options
-  /ventoy-version:1.1.12                   Pin Ventoy release
-  /archive:"D:\path\MediCat.USB.v21.12.7z" Override archive location
-  /lang:en                                 UI language (en es fr pl tr)
-  /yes                                     Accept destructive prompts (required with /quiet)
-  /quiet                                   No dialogs; use exit codes
-
-Diagnostics:
-  /list-drives                             List eligible removable/VHD drives
-  /dump-config                             Show resolved paths and options
-
-Exit codes: 0 ok, 1 error, 2 bad args, 3 need admin, 4 cancelled, 5 verify failed
-
-Administrator required for /install. Logs: medicat_installer.log beside the exe.
-```
-
----
-
-## Architecture (proposed modules)
-
-```text
-src/cli.h / cli.cpp
-  struct CliOptions { ... };
-  CliParseResult ParseCommandLine(int argc, wchar_t** argv);
-  void PrintHelp();
-  void PrintVersion();
-  int RunHeadless(App& app, const CliOptions& opts);
-```
-
-```text
-App::Run()
-  auto cli = ParseCommandLine(__argc, __wargv);
-  if (cli.showHelp) { PrintHelp(); return 0; }
-  if (cli.showVersion) { PrintVersion(); return 0; }
-  if (cli.action == Install || Verify) return RunHeadless(*this, cli);
-  // existing GUI path
-```
-
-Threading unchanged — headless mode still uses worker threads; only the UI sink differs (`PostDone` → exit code).
-
-Settings precedence (when implemented):
-
-```text
-defaults ← GUI checkbox rules ← CLI flags ← (optional) settings.json
-```
-
----
-
-## Security and safety
-
-| Topic | Approach |
-|-------|----------|
-| Destructive ops | Require `/yes` for unattended `/install`; never imply `/yes` from `/quiet` alone |
-| Drive validation | Same capacity and `C:` rules as GUI; log physical disk number |
-| Forced Ventoy | Reject `/noventoy` when Ventoy missing on target |
-| Logging | Always log full CLI argv (redact nothing — no secrets expected) in `medicat_installer.log` |
-| Elevation | Manifest stays `requireAdministrator`; document “Run as administrator” for scripts |
-
----
-
-## i18n
-
-CLI **help and version strings** stay **English** for v1 (console tooling convention). `/lang:` affects confirmation dialogs and log messages that use `i18n::Tr()` when those dialogs are shown (non-`/quiet`).
-
----
-
-## Implementation checklist
-
-- [x] `ParseCommandLine` using `CommandLineToArgvW` / `__wargv` from `RunApp`
-- [x] `CliOptions` + validation (conflicts, forced Ventoy rule)
-- [x] Console attach for `/help`, `/version`, `/list-drives`, `/dump-config`
-- [x] `RunHeadless` — wire to `RunInstallThread` / `RunVerifyThread` without message loop
-- [x] Confirmation bypass via `/yes`; map `PostDone` for headless exit codes
-- [x] Exit codes documented in help
-- [x] Log argv + parsed options at startup (`LogCommandLine`)
-- [ ] Embed `kInstallerReleaseTag` for `/version` (CMake — see [UPDATER.md](UPDATER.md))
-- [ ] `/lang:` alone in GUI — sync language combo on startup (partial: i18n loads; combo may lag until refresh)
-- [ ] `/reextract-only` recovery path
-- [ ] `/check-update`, `/no-update-check` (updater module)
-- [ ] Manual test: VHD install/verify with `/yes /quiet`
-- [ ] Optional: `--` end-of-options marker for paths with spaces
-
-**Note:** The exe UAC manifest is `requireAdministrator`, so **all** launches (including `/help`) prompt for elevation today.
-
-**Ctrl+C / Ctrl+Break (CLI mode):** Cancels the current operation (exit code **4**), terminates all tracked `7za.exe` child processes, and stops verify worker threads. Enabled automatically for `/install` and `/verify`.
-
----
-
-## Related files (today)
+## Related files
 
 | Path | Role |
 |------|------|
-| `src/main.cpp` | Entry — pass cmdline to `App` |
-| `src/app.cpp` | Install/verify orchestration, confirmations |
-| `src/gui.cpp` | Checkbox defaults, forced Ventoy logic |
+| `src/cli.cpp` | Parsing, console output, help and version text |
+| `src/app.cpp` | `RunHeadless*`, exit code mapping, confirmations |
+| `src/extras.cpp` | Extras download, checksum and unpack |
+| `src/gui.cpp` | Checkbox defaults and the forced Ventoy rule shared with the CLI |
 | `generated/build_version.cpp` | `kInstallerVersion`, `kInstallerBuildNumber` |
-| `src/offline.cpp` | Archive / Ventoy cache paths |
-| `src/debug.cpp` | Diagnostics logged at startup |
-
----
-
-## Open questions
-
-1. Should `/install` imply `/format` when Ventoy is present, or always require explicit `/format` for destructive format?
-2. Console progress (`Extracting 42%`) in v1 or log-only until v2?
-3. Should `/list-drives` include fixed disks only when `/allow-fixed` is passed?
-4. Integrate with Task Scheduler / Intune — need exit **5** distinct from generic **1**? (Proposed: yes.)
-5. Export equivalent **response file** (`@options.txt`) for repeatable installs?
-
----
-
-## See also
-
-- [FEATURES.md](FEATURES.md) — “Language override setting — Future: CLI flag or ini”
-- [OFFLINE.md](OFFLINE.md) — `/offline` behavior vs compile-time offline exe
-- [UPDATER.md](UPDATER.md) — `/check-update`, `/no-update-check`
+| `tests/windows/test_main.cpp` | Parser tests (`MedicatTests.exe`) |
+| `tests/windows/smoke_cli.ps1` | Runtime smoke test on a VHD (CI) |

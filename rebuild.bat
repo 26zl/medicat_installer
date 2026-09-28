@@ -43,6 +43,9 @@ exit /b 1
 call :close_running_installer
 call :detect_cmake_generator
 if errorlevel 1 goto fail
+call :ensure_cmake
+if errorlevel 1 goto fail
+call :check_pillow
 
 echo Regenerating i18n...
 python "tools\i18n_codegen.py"
@@ -54,7 +57,7 @@ if not "%PIN_BUILD%"=="0" (
     python "tools\bump_build_number.py" "build_number.txt" "generated\build_version.cpp" --major 1 --minor 0 --set "%PIN_BUILD%"
     if errorlevel 1 goto fail
 ) else (
-    echo Syncing build number from latest GitHub release...
+    echo Syncing build number from the latest GitHub release of this repository...
     python "tools\bump_build_number.py" "build_number.txt" "generated\build_version.cpp" --major 1 --minor 0 --next-after-github
     if errorlevel 1 goto fail
 )
@@ -198,6 +201,32 @@ if exist "%BUILD_DIR%\CMakeCache.txt" (
 )
 cmake -S "%SRC_DIR%" -B "%BUILD_DIR%" -G "%CMAKE_GENERATOR%" -A %VS_ARCH%
 exit /b %ERRORLEVEL%
+
+:ensure_cmake
+where cmake >nul 2>&1
+if not errorlevel 1 exit /b 0
+REM No parenthesised blocks here: PATH and "Program Files (x86)" contain parentheses that break them.
+set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+set "VS_INSTALL_PATH="
+if not exist "%VSWHERE%" goto cmake_missing
+for /f "usebackq delims=" %%p in (`"%VSWHERE%" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath 2^>nul`) do set "VS_INSTALL_PATH=%%p"
+if not defined VS_INSTALL_PATH goto cmake_missing
+set "VS_CMAKE_BIN=%VS_INSTALL_PATH%\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin"
+if not exist "%VS_CMAKE_BIN%\cmake.exe" goto cmake_missing
+echo cmake is not on PATH; using the copy bundled with Visual Studio: %VS_CMAKE_BIN%
+set "PATH=%VS_CMAKE_BIN%;%PATH%"
+exit /b 0
+
+:cmake_missing
+echo cmake not found. Install CMake, add the "C++ CMake tools for Windows" component to Visual Studio,
+echo or run this script from a Developer Command Prompt.
+exit /b 1
+
+:check_pillow
+python -c "import PIL" >nul 2>&1
+if not errorlevel 1 exit /b 0
+echo Note: Pillow is not installed, so res\discord.ico is kept as committed ^(pip install pillow to regenerate it^).
+exit /b 0
 
 :fail
 echo Build failed.

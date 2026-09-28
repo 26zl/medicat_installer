@@ -305,6 +305,8 @@ private:
     HWND creditsAria2Btn_ = nullptr;
     HWND creditsVentoyBtn_ = nullptr;
     HWND creditsCloseBtn_ = nullptr;
+    HWND creditsLicenseNotice_ = nullptr;  // AGPL notice under the intro
+    HWND creditsSourceBtn_ = nullptr;      // opens the repository (source + license texts)
     HWND reExtractWindow_ = nullptr;
     HWND reExtractMessage_ = nullptr;
     HWND reExtractList_ = nullptr;

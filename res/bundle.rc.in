@@ -1,4 +1,34 @@
 #include "resource.h"
+#include <winver.h>
+
+// Version block shown in Explorer's Properties dialog; values come from CMake (build_number.txt).
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION @VERSIONINFO_MAJOR@,@VERSIONINFO_MINOR@,@VERSIONINFO_PATCH@,0
+ PRODUCTVERSION @VERSIONINFO_MAJOR@,@VERSIONINFO_MINOR@,@VERSIONINFO_PATCH@,0
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+ FILEFLAGS 0x0L
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "MediCat USB Installer"
+            VALUE "FileVersion", "@VERSIONINFO_STRING@"
+            VALUE "InternalName", "MedicatInstaller"
+            VALUE "LegalCopyright", "Copyright (C) 2021-2026 the MediCat Installer contributors. GNU AGPL-3.0, no warranty."
+            VALUE "OriginalFilename", "@VERSIONINFO_ORIGINAL_FILENAME@"
+            VALUE "ProductName", "MediCat Installer"
+            VALUE "ProductVersion", "@VERSIONINFO_STRING@"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
 
 IDI_APP_ICON ICON "icon.ico"
 IDI_DISCORD_ICON ICON "discord.ico"
