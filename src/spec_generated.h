@@ -115,7 +115,7 @@ constexpr MediCatExtra kMediCatExtras[] = {
         "", "",
         L"", L"",
         L"https://www.system-rescue.org/", L"GPL-2.0-or-later (Arch-based live system, mixed licenses)",
-        L"Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines.",
+        L"Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines. Newer than the copy inside MediCat 21.12.",
     },
     {
         L"super-grub2-disk", L"Super Grub2 Disk", L"2.06s4",
@@ -126,7 +126,7 @@ constexpr MediCatExtra kMediCatExtras[] = {
         "", "",
         L"", L"",
         L"https://www.supergrubdisk.org/super-grub2-disk/", L"GPL-3.0",
-        L"Boot-repair menu that finds and starts the Linux and Windows systems on a disk whose bootloader is broken, on BIOS and UEFI machines. Tiny image.",
+        L"Boot-repair menu that finds and starts the Linux and Windows systems on a disk whose bootloader is broken, on BIOS and UEFI machines. Tiny image. Newer than the copy inside MediCat 21.12.",
     },
     {
         L"gparted-live", L"GParted Live", L"1.8.1-6",
@@ -159,7 +159,7 @@ constexpr MediCatExtra kMediCatExtras[] = {
         "", "",
         L"", L"",
         L"https://rescuezilla.com/", L"GPL-3.0",
-        L"Point-and-click backup and restore, compatible with Clonezilla images.",
+        L"Point-and-click backup and restore, compatible with Clonezilla images. Newer than the copy inside MediCat 21.12.",
     },
     {
         L"memtest86plus", L"Memtest86+", L"8.10",
@@ -170,7 +170,7 @@ constexpr MediCatExtra kMediCatExtras[] = {
         "", "",
         L"zip", L"memtest.iso",
         L"https://www.memtest.org/", L"GPL-2.0",
-        L"Stand-alone RAM tester for BIOS and UEFI machines.",
+        L"Stand-alone RAM tester for BIOS and UEFI machines. Newer than the copy inside MediCat 21.12.",
     },
     {
         L"freedos-live", L"FreeDOS LiveCD", L"1.4",
@@ -247,7 +247,7 @@ constexpr MediCatExtra kMediCatExtras[] = {
         "ef4b41f95f96b2bc80ee3fbe2e9ca9ea51750569", "",
         L"", L"",
         L"https://github.com/PartialVolume/shredos.x86_64", L"GPL-2.0",
-        L"Boots straight into nwipe to securely erase disks (DoD, PRNG, verify) before a machine is sold or recycled. The project publishes SHA-1 only.",
+        L"Boots straight into nwipe to securely erase disks (DoD, PRNG, verify) before a machine is sold or recycled. The project publishes SHA-1 only. Newer than the copy inside MediCat 21.12.",
     },
     {
         L"windows-10-iso", L"Windows 10 installation media", L"22H2",

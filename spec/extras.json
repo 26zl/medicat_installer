@@ -20,7 +20,7 @@
       "checksum_source": "https://fastly-cdn.system-rescue.org/releases/13.02/systemrescue-13.02-amd64.iso.sha256",
       "homepage": "https://www.system-rescue.org/",
       "license": "GPL-2.0-or-later (Arch-based live system, mixed licenses)",
-      "description": "Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines."
+      "description": "Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines. Newer than the copy inside MediCat 21.12."
     },
     {
       "id": "super-grub2-disk",
@@ -39,7 +39,7 @@
       "checksum_source": "https://downloads.sourceforge.net/project/supergrub2/2.06s4/SHA256SUMS",
       "homepage": "https://www.supergrubdisk.org/super-grub2-disk/",
       "license": "GPL-3.0",
-      "description": "Boot-repair menu that finds and starts the Linux and Windows systems on a disk whose bootloader is broken, on BIOS and UEFI machines. Tiny image."
+      "description": "Boot-repair menu that finds and starts the Linux and Windows systems on a disk whose bootloader is broken, on BIOS and UEFI machines. Tiny image. Newer than the copy inside MediCat 21.12."
     },
     {
       "id": "gparted-live",
@@ -96,7 +96,7 @@
       "checksum_source": "https://github.com/rescuezilla/rescuezilla/releases/download/2.6.2/SHA256SUM",
       "homepage": "https://rescuezilla.com/",
       "license": "GPL-3.0",
-      "description": "Point-and-click backup and restore, compatible with Clonezilla images."
+      "description": "Point-and-click backup and restore, compatible with Clonezilla images. Newer than the copy inside MediCat 21.12."
     },
     {
       "id": "memtest86plus",
@@ -119,7 +119,7 @@
       "checksum_source": "https://www.memtest.org/download/v8.10/sha256sum.txt",
       "homepage": "https://www.memtest.org/",
       "license": "GPL-2.0",
-      "description": "Stand-alone RAM tester for BIOS and UEFI machines."
+      "description": "Stand-alone RAM tester for BIOS and UEFI machines. Newer than the copy inside MediCat 21.12."
     },
     {
       "id": "freedos-live",
@@ -249,7 +249,7 @@
       "checksum_source": "https://github.com/PartialVolume/shredos.x86_64/releases/download/v2025.11_31_x86-64_0.42/shredos-2025.11_31_x86-64_v0.42_20260716.iso.sha1",
       "homepage": "https://github.com/PartialVolume/shredos.x86_64",
       "license": "GPL-2.0",
-      "description": "Boots straight into nwipe to securely erase disks (DoD, PRNG, verify) before a machine is sold or recycled. The project publishes SHA-1 only."
+      "description": "Boots straight into nwipe to securely erase disks (DoD, PRNG, verify) before a machine is sold or recycled. The project publishes SHA-1 only. Newer than the copy inside MediCat 21.12."
     },
     {
       "id": "windows-10-iso",
