@@ -4,7 +4,7 @@
 
 ![Logo](res/icon.png)
 
-Installer for [MediCat USB](https://medicatusb.com/): puts Ventoy on a USB stick, extracts the MediCat archive onto it, verifies every file against the MD5 manifest and optionally adds extra boot images from a checksummed catalog. Windows gets a native C++ app with a GUI and a CLI, Linux a self-contained bash script with the same flags; both are generated from one [shared spec](spec/README.md) of mirrors, hashes and the extras catalog.
+Installer for [MediCat USB](https://medicatusb.com/): puts Ventoy on a USB stick, extracts the MediCat archive onto it and verifies every file against the MD5 manifest. On top of that it can add a curated set of current tools from a checksummed catalog, so the stick is MediCat plus newer builds of some of the tools MediCat ships and boot images MediCat does not have. Windows gets a native C++ app with a GUI and a CLI, Linux a self-contained bash script with the same flags; both are generated from one [shared spec](spec/README.md) of mirrors, hashes and the extras catalog.
 
 Fork of [mon5termatt/medicat_installer](https://github.com/mon5termatt/medicat_installer), modified since September 2026 with every change in the git history. `main` is the only branch; upstream's commits arrive through pull requests that a weekly workflow opens here. Questions and help: the [MediCat Discord](https://url.medicatusb.com/discord) or an [issue](https://github.com/26zl/medicat_installer/issues).
 
@@ -90,11 +90,11 @@ Visual Studio 2022 or newer with the C++ build tools (the Build Tools edition is
 rebuild.bat
 ```
 
-Outputs land in `build/Release/`. The version goes to `build_number.txt` (gitignored) and into the exe's version resource and `/version`; `rebuild.bat` bumps the local counter, `rebuild.bat as 1.0.N` pins it and CI uses `1.0.<run number>`. Every push runs [`ci.yml`](.github/workflows/ci.yml): spec check, shellcheck and smoke tests for the Linux script, and a Windows build; a push to `main` also refreshes the `latest` release. Ask in Discord if you get stuck.
+Outputs land in `build/Release/`. The version goes to `build_number.txt` (gitignored) and into the exe's version resource and `/version`; `rebuild.bat` bumps the local counter, `rebuild.bat as 1.0.N` pins it and CI uses `1.0.<run number>`. Every push runs [`ci.yml`](.github/workflows/ci.yml): spec check, shellcheck and smoke tests for the Linux script, and a Windows build. Ask in Discord if you get stuck.
 
 Mirrors, hashes and the extras catalog live in [`spec/`](spec/README.md); `python3 tools/gen_spec.py` regenerates `src/spec_generated.h` and the spec block in the Linux script (the CMake build does this automatically).
 
-Contributing: pull requests against `main` are welcome. Run `bash tests/linux/smoke_test.sh` for the Linux script (`sudo bash tests/linux/loop_install_test.sh` for a full install on a loop device) and `rebuild.bat` plus `tests\windows\smoke_cli.ps1` for Windows; CI runs the same checks on every push.
+Contributing: pull requests against `main` are welcome. Run `bash tests/linux/smoke_test.sh` for the Linux script (`sudo bash tests/linux/loop_install_test.sh` for a full install on a loop device) and `rebuild.bat` plus `tests\windows\smoke_cli.ps1` for Windows.
 
 ## Documentation
 
