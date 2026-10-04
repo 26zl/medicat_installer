@@ -69,15 +69,16 @@ exit /b 0
 
 :close_running_installer
 echo Checking for running installer...
+REM findstr and System32\timeout.exe by path: a Git Bash PATH puts GNU find and timeout first.
 for %%P in (MedicatInstaller.exe MedicatInstaller-x86.exe) do (
-    tasklist /FI "IMAGENAME eq %%P" 2>nul | find /I "%%P" >nul
+    tasklist /FI "IMAGENAME eq %%P" 2>nul | findstr /I /C:"%%P" >nul
     if not errorlevel 1 (
         echo Closing %%P...
         taskkill /IM %%P /F >nul 2>&1
         if errorlevel 1 (
             echo Warning: could not close %%P. Close it manually if linking fails.
         ) else (
-            timeout /t 1 /nobreak >nul
+            %SystemRoot%\System32\timeout.exe /t 1 /nobreak >nul
         )
     )
 )
