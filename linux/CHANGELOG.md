@@ -20,7 +20,7 @@ All notable changes to `Medicat_Installer.sh` (now `linux/` on `main`).
 - Add `tests/linux/loop_install_test.sh`: a root-only end-to-end install on a sparse loop device.
 - Install 7-Zip as `7zip` on RHEL-family systems too (EPEL 9 and 10 ship it, EPEL 10 has no p7zip) and enable EPEL first when it is missing.
 - Remove the FreeBSD branch; the script needs `lsblk`, `findmnt` and GNU `stat` and never ran there.
-- Credit everyone who worked on the script on one banner line.
+- Credit everyone who worked on the script on one banner line, and carry the copyright and GPL-3.0 notice at the top so a stand-alone copy keeps it.
 - Catalog 2026-10-04: Clonezilla 3.3.3-37, Parrot 7.4, Super Grub2 Disk and FreeDOS 1.4 added, ESET SysRescue Live as a manual entry; SANS SIFT (not bootable) and Ubuntu Desktop (covered by Linux Mint) removed. `--list-extras` prints the total size of `all`.
 
 ## 0025

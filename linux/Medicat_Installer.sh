@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Medicat_Installer.sh: MediCat USB installer for Linux.
+# Copyright (C) 2021-2026 the MediCat Installer contributors. Free software under the GNU GPL-3.0,
+# WITHOUT ANY WARRANTY; the license text is linux/LICENSE in https://github.com/26zl/medicat_installer,
+# where this script is maintained. Modified in that fork since September 2026; see linux/CHANGELOG.md.
 
 ScriptVersion="0026"
 

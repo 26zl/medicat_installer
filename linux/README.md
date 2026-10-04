@@ -1,6 +1,6 @@
 # MediCat USB — Linux installer
 
-Bash installer for MediCat USB on Linux: **`Medicat_Installer.sh`**.
+Bash installer for MediCat USB on Linux: **`Medicat_Installer.sh`**. Free software under the GNU GPL-3.0 ([`LICENSE`](LICENSE)), without any warranty; the repository as a whole is AGPL-3.0 ([`../LICENCE`](../LICENCE)).
 
 Website: [medicatusb.com](https://medicatusb.com/) · Discord: [url.medicatusb.com/discord](https://url.medicatusb.com/discord)
 
@@ -120,10 +120,10 @@ Improvements to the Linux installer are welcome:
 
 ## Star History
 
-<a href="https://star-history.com/#mon5termatt/medicat_installer&Date">
+<a href="https://star-history.com/#26zl/medicat_installer&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=mon5termatt/medicat_installer&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=mon5termatt/medicat_installer&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=mon5termatt/medicat_installer&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=26zl/medicat_installer&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=26zl/medicat_installer&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=26zl/medicat_installer&type=Date" />
  </picture>
 </a>

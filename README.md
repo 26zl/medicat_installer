@@ -3,7 +3,7 @@
 
 Fork of [mon5termatt/medicat_installer](https://github.com/mon5termatt/medicat_installer) with a shared spec for both installers, a Linux installer with the same command-line interface as Windows, an extras catalog of boot images and telemetry consent.
 
-Copyright (C) 2021-2026 the MediCat Installer [contributors](#credits). The installer is free software under the GNU AGPL-3.0 ([`LICENCE`](LICENCE)) and the Linux script under the GNU GPL-3.0 ([`linux/LICENSE`](linux/LICENSE)), both without any warranty. This fork has been modified from the upstream project since August 2026; every change is in the git history. Third-party components and their license texts: [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and [`THIRD_PARTY_LICENSES/`](THIRD_PARTY_LICENSES/README.md).
+Copyright (C) 2021-2026 the MediCat Installer [contributors](#credits). The installer is free software under the GNU AGPL-3.0 ([`LICENCE`](LICENCE)) and the Linux script under the GNU GPL-3.0 ([`linux/LICENSE`](linux/LICENSE)), both without any warranty. This fork has been modified from the upstream project since September 2026; every change is in the git history. Third-party components and their license texts: [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and [`THIRD_PARTY_LICENSES/`](THIRD_PARTY_LICENSES/README.md).
 
 # [Visit the Medicat website](https://medicatusb.com/)
 
@@ -32,7 +32,7 @@ OR:
 * Terminal
 * Like 75% of a brain
 * General Linux knowledge
-* Script lives in [`linux/`](linux/); the one-liner above fetches it from `main`
+* Script lives in [`linux/`](linux/); the one-liner below fetches it from `main`
 
 # Grab it
 
@@ -65,7 +65,7 @@ More detail: [`docs/FEATURES.md`](docs/FEATURES.md) · [`docs/CLI.md`](docs/CLI.
 
 # Quick start
 
-1. Download the exe from Releases.
+1. Download `MedicatInstaller.exe` from the latest build (see [Grab it](#grab-it)).
 2. Drop `MediCat.USB.v21.12.7z` next to it (or use the in-app download).
 3. Run as Administrator.
 4. Pick your USB. Install. Drink water.
@@ -91,13 +91,13 @@ On Linux the same jobs are flags of the shell script (no flags = interactive):
 
 # Telemetry (Windows installer)
 
-Nothing leaves the machine without a yes. On first start `MedicatInstaller.exe` asks whether it may send an anonymous session report at the end of each install or verify (outcome, installer version, Windows build and edition, CPU/RAM class, UI language, a hash of the machine GUID). After a failure it asks whether to upload the `.log`/`.txt` files from `logs\` beside the exe, which contain file paths and drive details; the logs no longer include the computer or user name. Headless runs follow the saved answer, `/telemetry` and `/no-telemetry` override it for one run, and the log upload needs `/upload-logs`. The saved answer lives in `%AppData%\MedicatInstaller\preferences.json`:
+Nothing leaves the machine without a yes. On first start `MedicatInstaller.exe` asks whether it may send an anonymous session report when it starts and at the end of each install or verify (outcome, installer version, Windows build and edition, CPU/RAM class, UI language, a hash of the machine GUID). After a failure it asks whether to upload the `.log`/`.txt` files from `logs\` beside the exe, which contain file paths and drive details; the logs no longer include the computer or user name. Headless runs follow the saved answer, `/telemetry` and `/no-telemetry` override it for one run, and the log upload needs `/upload-logs`. The saved answer lives in `%AppData%\MedicatInstaller\preferences.json`:
 
 ```json
 { "session_reports_enabled": false, "failure_log_auto_upload_enabled": false }
 ```
 
-Builds without an ingest token (every CI build of this fork) send nothing at all. The Linux script sends nothing. Details: [`docs/SUPPORT_UPLOAD.md`](docs/SUPPORT_UPLOAD.md).
+Builds without an ingest token (every CI build of this fork, including the published `latest` exe) send nothing at all. The Linux script sends nothing. Details: [`docs/SUPPORT_UPLOAD.md`](docs/SUPPORT_UPLOAD.md).
 
 # Branches
 
@@ -127,7 +127,7 @@ Visual Studio 2022 or newer with the C++ build tools (the Build Tools edition is
 rebuild.bat
 ```
 
-Outputs land in `build/Release/`. The version goes to `build_number.txt` (gitignored) and into the exe's version resource and `/version`; `rebuild.bat` bumps the local counter, `rebuild.bat as 1.0.N` pins it and CI uses `1.0.<run number>`. Every push runs [`ci.yml`](.github/workflows/ci.yml): spec check, shellcheck and smoke tests for the Linux script, and a Windows build. Ask in Discord if you get stuck.
+Outputs land in `build/Release/`. The version goes to `build_number.txt` (gitignored) and into the exe's version resource and `/version`; `rebuild.bat` bumps the local counter, `rebuild.bat as 1.0.N` pins it and CI uses `1.0.<run number>`. Every push runs [`ci.yml`](.github/workflows/ci.yml): spec check, shellcheck and smoke tests for the Linux script, and a Windows build; a push to `main` also refreshes the `latest` release. Ask in Discord if you get stuck.
 
 Mirrors, hashes and the extras catalog live in [`spec/`](spec/README.md); `python3 tools/gen_spec.py` regenerates `src/spec_generated.h` and the spec block in the Linux script (the CMake build does this automatically).
 
@@ -173,12 +173,12 @@ Mirrors, hashes and the extras catalog live in [`spec/`](spec/README.md); `pytho
 
 * Along with all the others helping in the Discord server!
 
-  ## Star History
+## Star History
 
-<a href="https://star-history.com/#mon5termatt/medicat_installer&Date">
+<a href="https://star-history.com/#26zl/medicat_installer&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=mon5termatt/medicat_installer&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=mon5termatt/medicat_installer&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=mon5termatt/medicat_installer&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=26zl/medicat_installer&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=26zl/medicat_installer&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=26zl/medicat_installer&type=Date" />
  </picture>
 </a>

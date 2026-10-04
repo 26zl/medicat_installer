@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Only the latest release of this repository is supported. The batch-era installers and their packed executables were removed from this fork and are not supported.
+Only the current `latest` build of the Windows installer and the Linux script on `main` are supported. The batch-era installers and their packed executables were removed from this fork and are not supported.
 
 ## Reporting a vulnerability
 

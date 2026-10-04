@@ -165,7 +165,7 @@
       "drive_io_error_during_operation": "A read/write error occurred on drive {0} during the operation. Check the USB connection and try again.",
       "archive_download_failed": "Archive download failed: {0}",
       "archive_browse_invalid": "That file does not look like a complete MediCat archive (.7z or Google Drive .zip.001-.006).",
-      "telemetry_consent": "MediCat Installer can send an anonymous usage report at the end of each install or verify: outcome, installer version, Windows build and edition, hardware class, UI language and a hash of the machine GUID. No file names, drive contents or user names are sent.\n\nSend these reports? You can change this later in %AppData%\\MedicatInstaller\\preferences.json.",
+      "telemetry_consent": "MediCat Installer can send an anonymous usage report when it starts and at the end of each install or verify: outcome, installer version, Windows build and edition, hardware class, UI language and a hash of the machine GUID. No file names, drive contents or user names are sent.\n\nSend these reports? You can change this later in %AppData%\\MedicatInstaller\\preferences.json.",
       "upload_logs_prompt": "Upload the diagnostic log files next to the installer to the MediCat support server? They contain file paths and drive details. You will get a Diag code to paste in Discord."
     },
     "ventoy_warning": {
@@ -440,7 +440,7 @@
       "archive_download_failed": "Error al descargar el archivo: {0}",
       "drive_under_minimum": "La unidad {0} es demasiado pequeña. MediCat requiere al menos 30 GB de capacidad total.",
       "archive_browse_invalid": "Ese archivo no parece un archivo MediCat completo (.7z o Google Drive .zip.001-.006).",
-      "telemetry_consent": "MediCat Installer puede enviar un informe de uso anónimo al final de cada instalación o verificación: resultado, versión del instalador, compilación y edición de Windows, clase de hardware, idioma de la interfaz y un hash del GUID del equipo. No se envían nombres de archivo, contenido de unidades ni nombres de usuario.\n\n¿Enviar estos informes? Puede cambiarlo más tarde en %AppData%\\MedicatInstaller\\preferences.json.",
+      "telemetry_consent": "MediCat Installer puede enviar un informe de uso anónimo al iniciarse y al final de cada instalación o verificación: resultado, versión del instalador, compilación y edición de Windows, clase de hardware, idioma de la interfaz y un hash del GUID del equipo. No se envían nombres de archivo, contenido de unidades ni nombres de usuario.\n\n¿Enviar estos informes? Puede cambiarlo más tarde en %AppData%\\MedicatInstaller\\preferences.json.",
       "upload_logs_prompt": "¿Subir los archivos de registro de diagnóstico junto al instalador al servidor de soporte de MediCat? Contienen rutas de archivos y detalles de unidades. Recibirá un código Diag para pegar en Discord."
     },
     "ventoy_warning": {
@@ -716,7 +716,7 @@
       "archive_download_failed": "Échec du téléchargement de l'archive : {0}",
       "drive_under_minimum": "Le lecteur {0} est trop petit. MediCat nécessite au moins 30 Go de capacité totale.",
       "archive_browse_invalid": "Ce fichier ne semble pas être une archive MediCat complète (.7z ou Google Drive .zip.001-.006).",
-      "telemetry_consent": "MediCat Installer peut envoyer un rapport d'utilisation anonyme à la fin de chaque installation ou vérification : résultat, version de l'installateur, build et édition de Windows, classe de matériel, langue de l'interface et un hachage du GUID de la machine. Aucun nom de fichier, contenu de disque ni nom d'utilisateur n'est envoyé.\n\nEnvoyer ces rapports ? Vous pourrez changer d'avis dans %AppData%\\MedicatInstaller\\preferences.json.",
+      "telemetry_consent": "MediCat Installer peut envoyer un rapport d'utilisation anonyme au démarrage et à la fin de chaque installation ou vérification : résultat, version de l'installateur, build et édition de Windows, classe de matériel, langue de l'interface et un hachage du GUID de la machine. Aucun nom de fichier, contenu de disque ni nom d'utilisateur n'est envoyé.\n\nEnvoyer ces rapports ? Vous pourrez changer d'avis dans %AppData%\\MedicatInstaller\\preferences.json.",
       "upload_logs_prompt": "Envoyer les fichiers journaux de diagnostic situés à côté de l'installateur au serveur de support MediCat ? Ils contiennent des chemins de fichiers et des détails sur les disques. Vous recevrez un code Diag à coller sur Discord."
     },
     "ventoy_warning": {
@@ -992,7 +992,7 @@
       "archive_download_failed": "Pobieranie archiwum nie powiodło się: {0}",
       "drive_under_minimum": "Dysk {0} jest za mały. MediCat wymaga co najmniej 30 GB całkowitej pojemności.",
       "archive_browse_invalid": "Ten plik nie wygląda na kompletne archiwum MediCat (.7z lub Google Drive .zip.001-.006).",
-      "telemetry_consent": "MediCat Installer może wysyłać anonimowy raport użycia po każdej instalacji lub weryfikacji: wynik, wersję instalatora, kompilację i edycję Windows, klasę sprzętu, język interfejsu oraz skrót GUID komputera. Nie są wysyłane nazwy plików, zawartość dysków ani nazwy użytkowników.\n\nWysyłać te raporty? Możesz to później zmienić w %AppData%\\MedicatInstaller\\preferences.json.",
+      "telemetry_consent": "MediCat Installer może wysyłać anonimowy raport użycia przy uruchomieniu i po każdej instalacji lub weryfikacji: wynik, wersję instalatora, kompilację i edycję Windows, klasę sprzętu, język interfejsu oraz skrót GUID komputera. Nie są wysyłane nazwy plików, zawartość dysków ani nazwy użytkowników.\n\nWysyłać te raporty? Możesz to później zmienić w %AppData%\\MedicatInstaller\\preferences.json.",
       "upload_logs_prompt": "Przesłać pliki dziennika diagnostycznego znajdujące się obok instalatora na serwer wsparcia MediCat? Zawierają ścieżki plików i szczegóły dysków. Otrzymasz kod Diag do wklejenia na Discordzie."
     },
     "ventoy_warning": {
@@ -1270,7 +1270,7 @@
       "drive_io_error_during_operation": "İşlem sırasında {0} sürücüsünde okuma/yazma hatası oluştu. USB bağlantısını kontrol edip tekrar deneyin.",
       "archive_download_failed": "Arşiv indirilemedi: {0}",
       "archive_browse_invalid": "Bu dosya eksiksiz bir MediCat arşivi gibi görünmüyor (.7z veya Google Drive .zip.001-.006).",
-      "telemetry_consent": "MediCat Installer her kurulum veya doğrulamanın sonunda anonim bir kullanım raporu gönderebilir: sonuç, yükleyici sürümü, Windows derlemesi ve sürümü, donanım sınıfı, arayüz dili ve makine GUID'sinin karması. Dosya adları, sürücü içerikleri veya kullanıcı adları gönderilmez.\n\nBu raporlar gönderilsin mi? Bunu daha sonra %AppData%\\MedicatInstaller\\preferences.json dosyasından değiştirebilirsiniz.",
+      "telemetry_consent": "MediCat Installer başlangıçta ve her kurulum veya doğrulamanın sonunda anonim bir kullanım raporu gönderebilir: sonuç, yükleyici sürümü, Windows derlemesi ve sürümü, donanım sınıfı, arayüz dili ve makine GUID'sinin karması. Dosya adları, sürücü içerikleri veya kullanıcı adları gönderilmez.\n\nBu raporlar gönderilsin mi? Bunu daha sonra %AppData%\\MedicatInstaller\\preferences.json dosyasından değiştirebilirsiniz.",
       "upload_logs_prompt": "Yükleyicinin yanındaki tanı günlük dosyaları MediCat destek sunucusuna yüklensin mi? Dosya yolları ve sürücü ayrıntıları içerirler. Discord'a yapıştırmak için bir Diag kodu alacaksınız."
     },
     "ventoy_warning": {

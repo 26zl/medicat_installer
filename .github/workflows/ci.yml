@@ -137,3 +137,22 @@ jobs:
             gh release create latest --title "Latest build" --notes "$notes"
           fi
           gh release upload latest build/Release/MedicatInstaller.exe build/Release/MedicatInstaller-x86.exe --clobber
+          # Corresponding source of the embedded 7-Zip and aria2 (LGPL/GPL): uploaded once per version,
+          # superseded archives removed. Keep in step with THIRD_PARTY_NOTICES.md when bumping either.
+          sources=(
+            "41e2a7c0e9f838351c625e01f0f581a2188bb3dda10c8e0b4a852da26546ffe2 https://www.7-zip.org/a/7z2603-src.7z"
+            "60a420ad7085eb616cb6e2bdf0a7206d68ff3d37fb5a956dc44242eb2f79b66b https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0.tar.xz"
+          )
+          have=$(gh release view latest --json assets --jq '.assets[].name')
+          wanted=""
+          for entry in "${sources[@]}"; do
+            sha=${entry%% *}; url=${entry#* }; name=${url##*/}; wanted="$wanted $name"
+            if ! grep -qx "$name" <<<"$have"; then
+              curl -fsSLO "$url"
+              echo "$sha  $name" | sha256sum -c -
+              gh release upload latest "$name"
+            fi
+          done
+          for name in $(grep -E '^(7z[0-9]+-src\.7z|aria2-.*\.tar\.xz)$' <<<"$have"); do
+            case " $wanted " in *" $name "*) ;; *) gh release delete-asset latest "$name" --yes ;; esac
+          done
