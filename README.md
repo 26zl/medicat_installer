@@ -1,8 +1,8 @@
 # Medicat Installer
 
-![Logo](res/icon.png)
+[![CI](https://github.com/26zl/medicat_installer/actions/workflows/ci.yml/badge.svg)](https://github.com/26zl/medicat_installer/actions/workflows/ci.yml) [![Upstream sync](https://github.com/26zl/medicat_installer/actions/workflows/upstream-sync.yml/badge.svg)](https://github.com/26zl/medicat_installer/actions/workflows/upstream-sync.yml)
 
-[![CI](https://github.com/26zl/medicat_installer/actions/workflows/ci.yml/badge.svg)](https://github.com/26zl/medicat_installer/actions/workflows/ci.yml)
+![Logo](res/icon.png)
 
 Installer for [MediCat USB](https://medicatusb.com/): puts Ventoy on a USB stick, extracts the MediCat archive onto it, verifies every file against the MD5 manifest and optionally adds extra boot images from a checksummed catalog. Windows gets a native C++ app with a GUI and a CLI, Linux a self-contained bash script with the same flags; both are generated from one [shared spec](spec/README.md) of mirrors, hashes and the extras catalog.
 
