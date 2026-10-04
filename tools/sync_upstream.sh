@@ -6,6 +6,10 @@
 #   tools/sync_upstream.sh --dry-run  only show what is new
 #   tools/sync_upstream.sh --linux    also merge upstream's linux branch into linux/
 #   tools/sync_upstream.sh --push     push main to origin when the merge and checks pass
+#
+# .github/workflows/upstream-sync.yml runs the same every Monday and opens a pull request here.
+# One-time setup for a fresh clone: git remote set-url --push upstream no_push,
+# git config remote.upstream.tagOpt --no-tags, gh repo set-default 26zl/medicat_installer.
 set -euo pipefail
 
 UPSTREAM_URL="https://github.com/mon5termatt/medicat_installer.git"

@@ -103,22 +103,6 @@ Builds without an ingest token (every CI build of this fork, including the publi
 
 `main` is the only branch: C++ Windows installer, Linux script in `linux/`, shared `spec/`. Work happens on short-lived topic branches that are merged into `main` and deleted. The batch-era scripts and their helper binaries were removed from this fork; they live on in the upstream repository's `legacy` branch.
 
-# Syncing with upstream
-
-Upstream is a fetch-only source; nothing here can push to it or open pull requests there.
-
-- `tools/sync_upstream.sh --dry-run` shows what upstream `main` has that we do not; without `--dry-run` it merges, regenerates `spec`/`i18n` outputs, runs the quick checks and tells you to push. `--linux` also merges upstream's `linux` branch into `linux/`, `--push` pushes `main` when everything passed.
-- [`upstream-sync.yml`](.github/workflows/upstream-sync.yml) does the same every Monday (or on demand): a clean merge becomes a pull request against **this** repository on a `sync/upstream-<date>` branch; conflicts become an issue, which needs Issues enabled in the repository settings. GitHub can delay or skip a scheduled run, and a fork sometimes needs the workflow enabled once in the Actions tab; when a Monday run is missing, start it by hand with `gh workflow run upstream-sync.yml`.
-- Guardrails: `tools/sync_upstream.sh` sets the `upstream` push URL to `no_push` on first use. A fresh clone should set the rest up once:
-
-  ```bash
-  git remote set-url --push upstream no_push
-  git config remote.upstream.tagOpt --no-tags   # never fetch upstream's tags into this clone
-  gh repo set-default 26zl/medicat_installer
-  ```
-
-  Leaving the fork network on GitHub (Settings, General, Danger Zone, "Leave fork network") also removes GitHub's own "Compare & pull request" suggestions toward upstream; syncing keeps working through the scripts above.
-
 # Build from source
 
 Visual Studio 2022 or newer with the C++ build tools (the Build Tools edition is enough), CMake, and Python 3 on `PATH`, plus the committed `bin/7z/.../7za.exe` and `MedicatFiles.md5`. `rebuild.bat` finds the CMake bundled with Visual Studio when `cmake` is not on `PATH`. Pillow (`pip install pillow`) is only needed to regenerate `res/discord.ico` after changing `res/discord.png`; without it the committed icon is kept. The build fetches official `aria2c` (GPL-2.0) and embeds it for multi-connection downloads, and fetches the Ventoy release list from GitHub (falling back to `res/ventoy_versions.txt` offline).
