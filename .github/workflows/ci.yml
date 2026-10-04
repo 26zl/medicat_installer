@@ -115,8 +115,8 @@ jobs:
             build/Release/MedicatInstaller-x86.exe
           if-no-files-found: error
 
-      # Rolling download without a GitHub login: one release named latest, its tag re-pointed at
-      # HEAD and the assets replaced in place. Not a versioned release.
+      # Rolling download without a GitHub login: one release named latest, its tag moved to HEAD and
+      # the assets replaced in place. Not a versioned release.
       - name: Refresh the latest release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
@@ -129,10 +129,15 @@ jobs:
           - \`MedicatInstaller.exe\`: Windows x64. \`MedicatInstaller-x86.exe\`: Windows 32-bit.
           - Linux: the one-liner in the README fetches \`Medicat_Installer.sh\` from \`main\`.
           - The exe embeds 7-Zip and aria2; their licenses: https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_SHA}/THIRD_PARTY_NOTICES.md"
-          git push origin ":refs/tags/latest" || true
-          git push origin "HEAD:refs/tags/latest"
+          # Move the tag in place: deleting it would turn the release into a draft and break the download URLs.
+          old=$(git ls-remote origin refs/tags/latest | cut -f1)
+          if [ -n "$old" ]; then
+            git push --force-with-lease="refs/tags/latest:${old}" origin "HEAD:refs/tags/latest"
+          else
+            git push origin "HEAD:refs/tags/latest"
+          fi
           if gh release view latest >/dev/null 2>&1; then
-            gh release edit latest --title "Latest build" --notes "$notes"
+            gh release edit latest --draft=false --title "Latest build" --notes "$notes"
           else
             gh release create latest --title "Latest build" --notes "$notes"
           fi
