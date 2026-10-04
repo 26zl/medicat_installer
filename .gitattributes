@@ -1,3 +1,6 @@
 *.sh text eol=lf
 *.bat text eol=crlf
 
+# Written with LF by tools/gen_spec.py and tools/i18n_codegen.py; keep the checkout LF so a build
+# does not show them as modified on Windows.
+src/*_generated.h text eol=lf
