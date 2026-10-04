@@ -94,7 +94,7 @@ Outputs land in `build/Release/`. The version goes to `build_number.txt` (gitign
 
 Mirrors, hashes and the extras catalog live in [`spec/`](spec/README.md); `python3 tools/gen_spec.py` regenerates `src/spec_generated.h` and the spec block in the Linux script (the CMake build does this automatically).
 
-Contributing: pull requests against `main` are welcome. Run `bash tests/linux/smoke_test.sh` for the Linux script (`sudo bash tests/linux/loop_install_test.sh` for a full install on a loop device) and `rebuild.bat` plus `tests\windows\smoke_cli.ps1` for Windows.
+Contributing: pull requests against `main` are welcome. Run `bash tests/linux/smoke_test.sh` for the Linux script (`sudo bash tests/linux/loop_install_test.sh` for a full install on a loop device) and `rebuild.bat` plus `tests\windows\smoke_cli.ps1` for Windows. The smoke test needs an elevated PowerShell; if Defender's "Use advanced protection against ransomware" rule blocks the freshly built exe (event 1121 in the Defender log), add an ASR exclusion for `build\Release\`.
 
 ## Documentation
 
