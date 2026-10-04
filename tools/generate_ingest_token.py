@@ -76,7 +76,6 @@ def main() -> int:
         return 2
 
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(render_cpp(token), encoding="utf-8", newline="\n")
     return 0
 

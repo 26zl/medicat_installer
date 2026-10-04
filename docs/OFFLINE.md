@@ -169,7 +169,6 @@ For a fully air-gapped **workflow**, users still place the `.7z` in `offline/` o
 | Ventoy updates | Rebuild offline exe to bump version; no “always latest” without network |
 | Exe size | +~13 MB per release (acceptable for a dedicated offline tool) |
 | Licensing | Ventoy is GPL — keep credits / project link in UI |
-| Release artifacts | May ship **online** + **offline** exes on GitHub releases |
 | Two build matrices | x64 + x86 offline = 2 exes, same embedded Ventoy blob in each |
 
 ---
@@ -183,7 +182,6 @@ For a fully air-gapped **workflow**, users still place the `.7z` in `offline/` o
 - [ ] `ventoy.cpp` — embedded-first path in `EnsureVentoyReady`; skip download when offline build
 - [ ] `gui.cpp` — lock/hide Ventoy version UI when `MEDICAT_OFFLINE_BUILD`
 - [ ] `rebuild.bat` — `offline` argument for offline flavor
-- [ ] `tools/upload_release.bat` — optional upload of `MedicatInstaller-Offline.exe`
 - [ ] README / FEATURES — document offline artifact vs `offline/` folder layout
 
 ---

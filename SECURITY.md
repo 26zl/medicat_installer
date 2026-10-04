@@ -12,5 +12,4 @@ Use GitHub's private vulnerability reporting for this repository (Security tab, 
 
 - Both installers download Ventoy and the MediCat archive over HTTPS and verify them (Ventoy against the release `sha256.txt`, the archive by SHA-256/MD5, every extracted file by MD5).
 - Extras from `spec/extras.json` are verified with the checksum the upstream project publishes.
-- The Windows installer only applies a self-update whose SHA-256 matches the release's `SHA256SUMS.txt`.
 - Nothing is sent to a server without consent; see the telemetry section in the README.

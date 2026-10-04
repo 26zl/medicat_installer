@@ -85,8 +85,8 @@ add_custom_command(
 )
 
 # Installer version for the resources. build_number.txt is written by tools/bump_build_number.py
-# (rebuild.bat and CI run it before configure); the GitHub release tag equals this version (1.0.N).
-# Re-run configure when the counter changes so the VERSIONINFO and INSTALLER_RELEASE_TAG follow.
+# (rebuild.bat and CI run it before configure). Re-run configure when the counter changes so the
+# VERSIONINFO and MEDICAT_RELEASE_TAG follow.
 set(BUILD_NUMBER_FILE "${REPO_ROOT}/build_number.txt")
 set(INSTALLER_RELEASE_TAG "unknown")
 if(EXISTS "${BUILD_NUMBER_FILE}")
@@ -246,7 +246,7 @@ add_custom_command(
     WORKING_DIRECTORY "${REPO_ROOT}"
 )
 
-# INSTALLER_RELEASE_TAG (GitHub tag == installer version 1.0.N) is read from build_number.txt above.
+# MEDICAT_RELEASE_TAG (installer version 1.0.N) is read from build_number.txt above.
 set(MEDICAT_COMPILE_DEFINITIONS
     UNICODE
     _UNICODE
@@ -255,7 +255,6 @@ set(MEDICAT_COMPILE_DEFINITIONS
     MEDICAT_USB_VERSION="21.12"
     MEDICAT_SESSIONS_URL="${MEDICAT_SESSIONS_URL}"
     MEDICAT_UPLOADS_URL="${MEDICAT_UPLOADS_URL}"
-    INSTALLER_RELEASE_TAG="${INSTALLER_RELEASE_TAG}"
     MEDICAT_RELEASE_TAG="${INSTALLER_RELEASE_TAG}"
 )
 target_compile_definitions(MedicatInstaller PRIVATE ${MEDICAT_COMPILE_DEFINITIONS})

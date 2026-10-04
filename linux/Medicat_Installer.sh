@@ -53,28 +53,27 @@ function loadSpec() {
 	LinkManualInstallDoc='https://medicatusb.com/docs/medicat/installation/manual-install/'
 	LinkIssues='https://github.com/26zl/medicat_installer/issues'
 	LinkDiscord='https://url.medicatusb.com/discord'
-	UpdateRepository='26zl/medicat_installer'
-	UpdateChecksumsAsset='SHA256SUMS.txt'
-	ExtrasCatalogVersion='2026-09-27'
+	LinkRepository='https://github.com/26zl/medicat_installer'
+	ExtrasCatalogVersion='2026-10-04'
 	ExtrasDestRoot='Extras'
-	ExtrasIds=('systemrescue' 'gparted-live' 'clonezilla-live' 'rescuezilla' 'memtest86plus' 'hirens-bootcd-pe' 'ubuntu-desktop-lts' 'windows-11-iso' 'linux-mint-cinnamon' 'debian-live-kde' 'shredos' 'windows-10-iso' 'caine' 'parrot-security' 'sift-workstation' 'paladin' 'tsurugi-acquire' 'tsurugi-linux')
-	ExtrasNames=('SystemRescue' 'GParted Live' 'Clonezilla Live' 'Rescuezilla' 'Memtest86+' 'Hiren'\''s BootCD PE' 'Ubuntu Desktop LTS' 'Windows 11 installation media' 'Linux Mint Cinnamon' 'Debian Live KDE' 'ShredOS (nwipe)' 'Windows 10 installation media' 'CAINE' 'Parrot Security' 'SANS SIFT Workstation' 'SUMURI PALADIN' 'Tsurugi Acquire' 'Tsurugi Linux LAB')
-	ExtrasVersions=('13.02' '1.8.1-6' '3.1.2-9' '2.6.2' '8.10' '1.0.8' '24.04.5.1' 'current' '22.3' '13.7.0' '2025.11 / nwipe 0.42' '22H2' '14.0' '7.3' 'current' 'current' '2021.1' '26.03')
-	ExtrasCategories=('Rescue' 'Partition_and_Imaging' 'Partition_and_Imaging' 'Partition_and_Imaging' 'Diagnostics' 'Windows_Rescue' 'Live_Linux' 'Windows_Install' 'Live_Linux' 'Live_Linux' 'Disk_Wipe' 'Windows_Install' 'Forensics' 'Forensics' 'Forensics' 'Forensics' 'Forensics' 'Forensics')
-	ExtrasTargets=('linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'windows' 'linux' 'windows' 'linux' 'linux' 'linux,windows' 'windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows')
-	ExtrasTypes=('iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'manual' 'iso' 'iso' 'iso' 'manual' 'iso' 'iso' 'manual' 'manual' 'iso' 'iso')
-	ExtrasUrls=('https://fastly-cdn.system-rescue.org/releases/13.02/systemrescue-13.02-amd64.iso' 'https://downloads.sourceforge.net/gparted/gparted-live-1.8.1-6-amd64.iso' 'https://downloads.sourceforge.net/project/clonezilla/clonezilla_live_stable/3.1.2-9/clonezilla-live-3.1.2-9-amd64.iso' 'https://github.com/rescuezilla/rescuezilla/releases/download/2.6.2/rescuezilla-2.6.2-64bit.noble.iso' 'https://www.memtest.org/download/v8.10/mt86plus_8.10_x86_64.iso.zip' 'https://www.hirensbootcd.org/files/HBCD_PE_x64.iso' 'https://releases.ubuntu.com/24.04/ubuntu-24.04.5.1-desktop-amd64.iso' 'https://www.microsoft.com/software-download/windows11' 'https://mirrors.edge.kernel.org/linuxmint/stable/22.3/linuxmint-22.3-cinnamon-64bit.iso' 'https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-13.7.0-amd64-kde.iso' 'https://github.com/PartialVolume/shredos.x86_64/releases/download/v2025.11_31_x86-64_0.42/shredos-2025.11_31_x86-64_v0.42_20260716.iso' 'https://www.microsoft.com/software-download/windows10ISO' 'https://www.caine-live.net/Downloads/caine14.0.iso' 'https://deb.parrot.sh/parrot/iso/7.3/Parrot-security-7.3_amd64.iso' 'https://www.sans.org/tools/sift-workstation/' 'https://sumuri.com/paladin/' 'https://ftp.nluug.nl/os/Linux/distr/tsurugi/02.Tsurugi_Acquire/tsurugi_acquire_2021.1.iso' 'https://mirrors.gandi.net/tsurugi/01.Tsurugi_Linux_%5BLAB%5D/tsurugi_linux_26.03.iso')
-	ExtrasFileNames=('systemrescue-13.02-amd64.iso' 'gparted-live-1.8.1-6-amd64.iso' 'clonezilla-live-3.1.2-9-amd64.iso' 'rescuezilla-2.6.2-64bit.noble.iso' 'mt86plus_8.10_x86_64.iso' 'HBCD_PE_x64.iso' 'ubuntu-24.04.5.1-desktop-amd64.iso' 'Win11.iso' 'linuxmint-22.3-cinnamon-64bit.iso' 'debian-live-13.7.0-amd64-kde.iso' 'shredos-2025.11_31_x86-64_v0.42_20260716.iso' 'Win10_22H2.iso' 'caine14.0.iso' 'Parrot-security-7.3_amd64.iso' 'SIFT-Workstation.ova' 'paladin.iso' 'tsurugi_acquire_2021.1.iso' 'tsurugi_linux_26.03.iso')
-	ExtrasBytes=('1381629952' '720371712' '437256192' '1594339328' '233712' '3291686912' '6250332160' '0' '3091660800' '4186112000' '360710144' '0' '4169138176' '8555526144' '0' '0' '1215299584' '11786315776')
-	ExtrasSha256=('ad4d670b72859d887c7960142a9a9d36a3e50446694a035e254442f65d6e7572' 'd789c38779f0d6f7026c12f44c2c52a04f66e28a1aea7d51f3045ad1bbf28411' '' '285db0af83213e2297490ca1cfd74ecd607c3b0a2f1d14e11a8412c0b71eea50' '93530005d6ac6a85aa2a49c68604a43c25794ecccf796c4f8849a73a8001be9a' '8c4c670c9c84d6c4b5a9c32e0aa5a55d8c23de851d259207d54679ea774c2498' '4da4a0c9035da8e68a59a838674f403f0a54472c78a83b4fb7f78d03588f85a7' '' 'a081ab202cfda17f6924128dbd2de8b63518ac0531bcfe3f1a1b88097c459bd4' '37dedc921f50325665c75829597126b3eeb70ff5cd8c511a7230ace09ae939be' '' '' '2702226cf9ee131ee54e9649d6d90008f3fe851ba35939f43ae8cb614a00d564' 'fe8ec64f92d8d629b1fcae85d9fab81c87e3ff30584201e82b7c453a740cefbc' '' '' '' '')
-	ExtrasSha512=('' '' '' '' '' '' '' '' '' '' '' '' '' '' '' '' 'bd5488e9e75bbcbc6560d166031e84c70bf19c1b9db6f872df99212fef110296c3e7735e39bdee533aaaa92a64e1096fb674b1d45dd4c88cde280442737d77fe' '1284c3b4145ef2201e831350fde20a1445171be66ca34ab909cbd22eb77d5f19ec28a26275955538bddf7abb77ec5ac0c05f3383502c2ac83770150be1c31d8c')
-	ExtrasSha1=('' '' '' '' '' '' '' '' '' '' 'ef4b41f95f96b2bc80ee3fbe2e9ca9ea51750569' '' '' '' '' '' '' '')
-	ExtrasMd5=('' '' '99353cf50559fe8e5450643a764f0f57' '' '' '' '' '' '' '' '' '' '' '' '' '' '' '')
-	ExtrasUnpackFormat=('' '' '' '' 'zip' '' '' '' '' '' '' '' '' '' '' '' '' '')
-	ExtrasUnpackMember=('' '' '' '' 'memtest.iso' '' '' '' '' '' '' '' '' '' '' '' '' '')
-	ExtrasHomepages=('https://www.system-rescue.org/' 'https://gparted.org/' 'https://clonezilla.org/' 'https://rescuezilla.com/' 'https://www.memtest.org/' 'https://www.hirensbootcd.org/' 'https://ubuntu.com/download/desktop' 'https://www.microsoft.com/software-download/windows11' 'https://linuxmint.com/' 'https://www.debian.org/CD/live/' 'https://github.com/PartialVolume/shredos.x86_64' 'https://www.microsoft.com/software-download/windows10ISO' 'https://www.caine-live.net/' 'https://www.parrotsec.org/' 'https://www.sans.org/tools/sift-workstation/' 'https://sumuri.com/paladin/' 'https://tsurugi-linux.org/' 'https://tsurugi-linux.org/')
-	ExtrasLicenses=('GPL-2.0-or-later (Arch-based live system, mixed licenses)' 'GPL-2.0-or-later' 'GPL-2.0' 'GPL-3.0' 'GPL-2.0' 'Freeware; bundled tools keep their own licenses' 'Mixed open source' 'Proprietary (Microsoft); download from Microsoft only' 'Mixed open source' 'Mixed open source (DFSG)' 'GPL-2.0' 'Proprietary (Microsoft); download from Microsoft only' 'GPL-3.0 (Ubuntu-based live system, mixed licenses)' 'GPL-3.0 (Debian-based, mixed licenses)' 'Free for use; download requires a SANS account' 'Free edition; download requires registration' 'Free to use (Ubuntu-based, mixed licenses)' 'Free to use (Ubuntu-based, mixed licenses)')
-	ExtrasDescriptions=('Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines.' 'Resize, move, copy and check partitions (NTFS, ext4, exFAT, FAT, btrfs and more).' 'Disk and partition imaging and cloning, sector-level or filesystem-aware.' 'Point-and-click backup and restore, compatible with Clonezilla images.' 'Stand-alone RAM tester for BIOS and UEFI machines.' 'Windows 11 PE based repair environment with password, driver, backup and diagnostics tools.' 'Live desktop and installer; handy for rescuing files from a Linux or Windows disk with a full GUI.' 'Microsoft issues time-limited download links, so fetch the ISO from the Microsoft page and copy it into Extras/Windows_Install/ on the stick.' 'Beginner-friendly live desktop and installer; the usual choice when a Windows PC is being moved to Linux.' 'Debian stable live desktop with the Calamares installer. The current-live URL moves at each point release, so bump the version when it 404s.' 'Boots straight into nwipe to securely erase disks (DoD, PRNG, verify) before a machine is sold or recycled. The project publishes SHA-1 only.' 'Still needed for machines that cannot run Windows 11. Microsoft issues time-limited links, so fetch the ISO from the Microsoft page and copy it into Extras/Windows_Install/ on the stick.' 'Computer Aided INvestigative Environment: boots with all disks read-only, with Autopsy, Guymager, PhotoRec and other acquisition and analysis tools. For authorized investigations and data recovery.' 'Security and forensics live system with a dedicated forensic boot mode (no automount, no swap) plus the usual pentest and analysis toolset. Large image.' 'DFIR toolkit (Plaso, Volatility, Sleuth Kit and more). SANS only offers it behind a login as a VM image or an Ubuntu install script, so fetch it from the SANS page; it is not a bootable ISO.' 'Forensic boot ISO with a write-blocked imager and disk tools. SUMURI issues the download after registration, so fetch it from their page and copy the ISO into Extras/Forensics/.' 'Small Tsurugi image built for evidence acquisition: boots read-only and images disks with Guymager, dc3dd and ewfacquire. The project publishes SHA-512 only.' 'Full DFIR lab live system (memory, disk, network and malware analysis, OSINT). Very large image; Tsurugi Acquire covers the acquisition part alone.')
+	ExtrasIds=('systemrescue' 'super-grub2-disk' 'gparted-live' 'clonezilla-live' 'rescuezilla' 'memtest86plus' 'freedos-live' 'hirens-bootcd-pe' 'eset-sysrescue-live' 'windows-11-iso' 'linux-mint-cinnamon' 'debian-live-kde' 'shredos' 'windows-10-iso' 'caine' 'parrot-security' 'paladin' 'tsurugi-acquire' 'tsurugi-linux')
+	ExtrasNames=('SystemRescue' 'Super Grub2 Disk' 'GParted Live' 'Clonezilla Live' 'Rescuezilla' 'Memtest86+' 'FreeDOS LiveCD' 'Hiren'\''s BootCD PE' 'ESET SysRescue Live' 'Windows 11 installation media' 'Linux Mint Cinnamon' 'Debian Live KDE' 'ShredOS (nwipe)' 'Windows 10 installation media' 'CAINE' 'Parrot Security' 'SUMURI PALADIN' 'Tsurugi Acquire' 'Tsurugi Linux LAB')
+	ExtrasVersions=('13.02' '2.06s4' '1.8.1-6' '3.3.3-37' '2.6.2' '8.10' '1.4' '1.0.8' 'current' 'current' '22.3' '13.7.0' '2025.11 / nwipe 0.42' '22H2' '14.0' '7.4' 'current' '2021.1' '26.03')
+	ExtrasCategories=('Rescue' 'Rescue' 'Partition_and_Imaging' 'Partition_and_Imaging' 'Partition_and_Imaging' 'Diagnostics' 'DOS' 'Windows_Rescue' 'Antivirus' 'Windows_Install' 'Live_Linux' 'Live_Linux' 'Disk_Wipe' 'Windows_Install' 'Forensics' 'Forensics' 'Forensics' 'Forensics' 'Forensics')
+	ExtrasTargets=('linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'windows' 'windows' 'windows' 'linux' 'linux' 'linux,windows' 'windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows' 'linux,windows')
+	ExtrasTypes=('iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'iso' 'manual' 'manual' 'iso' 'iso' 'iso' 'manual' 'iso' 'iso' 'manual' 'iso' 'iso')
+	ExtrasUrls=('https://fastly-cdn.system-rescue.org/releases/13.02/systemrescue-13.02-amd64.iso' 'https://downloads.sourceforge.net/project/supergrub2/2.06s4/super_grub2_disk_2.06s4/supergrub2-classic-2.06s4-multiarch-CD.iso' 'https://downloads.sourceforge.net/gparted/gparted-live-1.8.1-6-amd64.iso' 'https://downloads.sourceforge.net/project/clonezilla/clonezilla_live_stable/3.3.3-37/clonezilla-live-3.3.3-37-amd64.iso' 'https://github.com/rescuezilla/rescuezilla/releases/download/2.6.2/rescuezilla-2.6.2-64bit.noble.iso' 'https://www.memtest.org/download/v8.10/mt86plus_8.10_x86_64.iso.zip' 'https://download.freedos.org/1.4/FD14-LiveCD.zip' 'https://www.hirensbootcd.org/files/HBCD_PE_x64.iso' 'https://www.eset.com/int/support/sysrescue/' 'https://www.microsoft.com/software-download/windows11' 'https://mirrors.edge.kernel.org/linuxmint/stable/22.3/linuxmint-22.3-cinnamon-64bit.iso' 'https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-13.7.0-amd64-kde.iso' 'https://github.com/PartialVolume/shredos.x86_64/releases/download/v2025.11_31_x86-64_0.42/shredos-2025.11_31_x86-64_v0.42_20260716.iso' 'https://www.microsoft.com/software-download/windows10ISO' 'https://www.caine-live.net/Downloads/caine14.0.iso' 'https://deb.parrot.sh/parrot/iso/7.4/Parrot-security-7.4_amd64.iso' 'https://sumuri.com/paladin/' 'https://ftp.nluug.nl/os/Linux/distr/tsurugi/02.Tsurugi_Acquire/tsurugi_acquire_2021.1.iso' 'https://mirrors.gandi.net/tsurugi/01.Tsurugi_Linux_%5BLAB%5D/tsurugi_linux_26.03.iso')
+	ExtrasFileNames=('systemrescue-13.02-amd64.iso' 'supergrub2-classic-2.06s4-multiarch-CD.iso' 'gparted-live-1.8.1-6-amd64.iso' 'clonezilla-live-3.3.3-37-amd64.iso' 'rescuezilla-2.6.2-64bit.noble.iso' 'mt86plus_8.10_x86_64.iso' 'FD14LIVE.iso' 'HBCD_PE_x64.iso' 'eset_sysrescue_live_enu.iso' 'Win11.iso' 'linuxmint-22.3-cinnamon-64bit.iso' 'debian-live-13.7.0-amd64-kde.iso' 'shredos-2025.11_31_x86-64_v0.42_20260716.iso' 'Win10_22H2.iso' 'caine14.0.iso' 'Parrot-security-7.4_amd64.iso' 'paladin.iso' 'tsurugi_acquire_2021.1.iso' 'tsurugi_linux_26.03.iso')
+	ExtrasBytes=('1381629952' '24905728' '720371712' '505413632' '1594339328' '233712' '293950337' '3291686912' '0' '0' '3091660800' '4186112000' '360710144' '0' '4169138176' '8682078208' '0' '1215299584' '11786315776')
+	ExtrasSha256=('ad4d670b72859d887c7960142a9a9d36a3e50446694a035e254442f65d6e7572' 'd26ee9cda990051fbe4c2b367659df5156a130a7ada29f0b4fb0e65928d8ebab' 'd789c38779f0d6f7026c12f44c2c52a04f66e28a1aea7d51f3045ad1bbf28411' '' '285db0af83213e2297490ca1cfd74ecd607c3b0a2f1d14e11a8412c0b71eea50' '93530005d6ac6a85aa2a49c68604a43c25794ecccf796c4f8849a73a8001be9a' '2020ff6bb681967fd6eff8f51ad2e5cd5ab4421165948cef4246e4f7fcaf6339' '8c4c670c9c84d6c4b5a9c32e0aa5a55d8c23de851d259207d54679ea774c2498' '' '' 'a081ab202cfda17f6924128dbd2de8b63518ac0531bcfe3f1a1b88097c459bd4' '37dedc921f50325665c75829597126b3eeb70ff5cd8c511a7230ace09ae939be' '' '' '2702226cf9ee131ee54e9649d6d90008f3fe851ba35939f43ae8cb614a00d564' '' '' '' '')
+	ExtrasSha512=('' '' '' '' '' '' '' '' '' '' '' '' '' '' '' '' '' 'bd5488e9e75bbcbc6560d166031e84c70bf19c1b9db6f872df99212fef110296c3e7735e39bdee533aaaa92a64e1096fb674b1d45dd4c88cde280442737d77fe' '1284c3b4145ef2201e831350fde20a1445171be66ca34ab909cbd22eb77d5f19ec28a26275955538bddf7abb77ec5ac0c05f3383502c2ac83770150be1c31d8c')
+	ExtrasSha1=('' '' '' '' '' '' '' '' '' '' '' '' 'ef4b41f95f96b2bc80ee3fbe2e9ca9ea51750569' '' '' '' '' '' '')
+	ExtrasMd5=('' '' '' '0a5a4a795ce9cfb7059870290bcbc421' '' '' '' '' '' '' '' '' '' '' '' 'a3ddddeb89af1768ff28d45dce5c6285' '' '' '')
+	ExtrasUnpackFormat=('' '' '' '' '' 'zip' 'zip' '' '' '' '' '' '' '' '' '' '' '' '')
+	ExtrasUnpackMember=('' '' '' '' '' 'memtest.iso' 'FD14LIVE.iso' '' '' '' '' '' '' '' '' '' '' '' '')
+	ExtrasHomepages=('https://www.system-rescue.org/' 'https://www.supergrubdisk.org/super-grub2-disk/' 'https://gparted.org/' 'https://clonezilla.org/' 'https://rescuezilla.com/' 'https://www.memtest.org/' 'https://www.freedos.org/' 'https://www.hirensbootcd.org/' 'https://www.eset.com/int/support/sysrescue/' 'https://www.microsoft.com/software-download/windows11' 'https://linuxmint.com/' 'https://www.debian.org/CD/live/' 'https://github.com/PartialVolume/shredos.x86_64' 'https://www.microsoft.com/software-download/windows10ISO' 'https://www.caine-live.net/' 'https://www.parrotsec.org/' 'https://sumuri.com/paladin/' 'https://tsurugi-linux.org/' 'https://tsurugi-linux.org/')
+	ExtrasLicenses=('GPL-2.0-or-later (Arch-based live system, mixed licenses)' 'GPL-3.0' 'GPL-2.0-or-later' 'GPL-2.0' 'GPL-3.0' 'GPL-2.0' 'GPL-2.0 and other free licenses, per package' 'Freeware; bundled tools keep their own licenses' 'Free (ESET); download from ESET only' 'Proprietary (Microsoft); download from Microsoft only' 'Mixed open source' 'Mixed open source (DFSG)' 'GPL-2.0' 'Proprietary (Microsoft); download from Microsoft only' 'GPL-3.0 (Ubuntu-based live system, mixed licenses)' 'GPL-3.0 (Debian-based, mixed licenses)' 'Free edition; download requires registration' 'Free to use (Ubuntu-based, mixed licenses)' 'Free to use (Ubuntu-based, mixed licenses)')
+	ExtrasDescriptions=('Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines.' 'Boot-repair menu that finds and starts the Linux and Windows systems on a disk whose bootloader is broken, on BIOS and UEFI machines. Tiny image.' 'Resize, move, copy and check partitions (NTFS, ext4, exFAT, FAT, btrfs and more).' 'Disk and partition imaging and cloning, sector-level or filesystem-aware.' 'Point-and-click backup and restore, compatible with Clonezilla images.' 'Stand-alone RAM tester for BIOS and UEFI machines.' 'DOS live system for vendor BIOS and firmware flashers and old DOS utilities on legacy-BIOS machines. If Ventoy'\''s normal mode does not start it, use Memdisk mode (F1 in the Ventoy menu).' 'Windows 11 PE based repair environment with password, driver, backup and diagnostics tools.' 'Linux-based offline scanner that cleans an infected Windows disk. ESET refreshes the image continuously without a fixed checksum, so download the current ISO from the ESET page and copy it into Extras/Antivirus/.' 'Microsoft issues time-limited download links, so fetch the ISO from the Microsoft page and copy it into Extras/Windows_Install/ on the stick.' 'Beginner-friendly live desktop and installer; the usual choice when a Windows PC is being moved to Linux.' 'Debian stable live desktop with the Calamares installer. The current-live URL moves at each point release, so bump the version when it 404s.' 'Boots straight into nwipe to securely erase disks (DoD, PRNG, verify) before a machine is sold or recycled. The project publishes SHA-1 only.' 'Still needed for machines that cannot run Windows 11. Microsoft issues time-limited links, so fetch the ISO from the Microsoft page and copy it into Extras/Windows_Install/ on the stick.' 'Computer Aided INvestigative Environment: boots with all disks read-only, with Autopsy, Guymager, PhotoRec and other acquisition and analysis tools. For authorized investigations and data recovery.' 'Security and forensics live system with a dedicated forensic boot mode (no automount, no swap) plus the usual pentest and analysis toolset. Large image; the project publishes MD5 only for this release.' 'Forensic boot ISO with a write-blocked imager and disk tools. SUMURI issues the download after registration, so fetch it from their page and copy the ISO into Extras/Forensics/.' 'Small Tsurugi image built for evidence acquisition: boots read-only and images disks with Guymager, dc3dd and ewfacquire. The project publishes SHA-512 only.' 'Full DFIR lab live system (memory, disk, network and malware analysis, OSINT). Very large image; Tsurugi Acquire covers the acquisition part alone.')
 }
 # END GENERATED SPEC
 loadSpec
@@ -123,19 +122,20 @@ MountedByUs=false
 
 # Dependencies: package names per distro for each required command.
 declare -A depCommands=(
-	[wget]="wget" [7z]="zip" [mkfs.vfat]="mkfs" [mkntfs]="ntfs" [mkfs.exfat]="exfat" [parted]="parted"
+	[wget]="wget" [7z]="zip" [mkfs.vfat]="mkfs" [mkntfs]="ntfs" [parted]="parted"
 )
 # mkntfs lives in ntfsprogs on RHEL-family and Arch (split from ntfs-3g in 2026); Debian, Ubuntu,
-# Alpine and Void still ship it inside ntfs-3g. Bookworm+ and Ubuntu get mkfs.exfat from exfatprogs.
+# Alpine and Void still ship it inside ntfs-3g. 7-Zip is the 7zip package on Fedora 41+ and Debian
+# bookworm+/Ubuntu 22.04+ (p7zip-full is only a transitional package there) and in EPEL 9/10; Arch keeps p7zip.
+# Ventoy brings its own mkexfatfs and formats VTOYEFI with mkfs.vfat, so dosfstools is needed and exfatprogs is not.
 # shellcheck disable=SC2034  # looked up by name through declare -n in dependenciesHandler
 declare -A wget=([nixos]="nixos.wget" [default]="wget") \
-	zip=([arch]="p7zip" [cachyos]="p7zip" [nixos]="nixos.p7zip" [fedora]="p7zip p7zip-plugins" [nobara]="p7zip-full p7zip-plugins" [centos]="p7zip p7zip-plugins" [alpine]="7zip" [void]="7zip" [default]="p7zip-full") \
+	zip=([arch]="p7zip" [cachyos]="p7zip" [nixos]="nixos.p7zip" [default]="7zip") \
 	mkfs=([nixos]="nixos.dosfstools" [default]="dosfstools") \
 	ntfs=([centos]="ntfsprogs" [fedora]="ntfsprogs" [arch]="ntfsprogs" [cachyos]="ntfsprogs" [nixos]="nixos.ntfs3g" [default]="ntfs-3g") \
 	aria=([nixos]="nixos.aria" [default]="aria2") \
 	ventoy=([nixos]="nixos.ventoy-full" [default]="ventoy") \
-	parted=([default]="parted") \
-	exfat=([ubuntu]="exfatprogs" [debian]="exfatprogs" [fedora]="exfatprogs" [centos]="exfatprogs" [arch]="exfatprogs" [cachyos]="exfatprogs" [alpine]="exfatprogs" [void]="exfatprogs" [default]="exfatprogs")
+	parted=([default]="parted")
 
 # Other Variables
 sudo="sudo" # By default use sudo with package manager
@@ -158,7 +158,7 @@ if [[ -n "$NumColours" && "$NumColours" -ge 8 ]]; then
 fi
 
 # Debian/Ubuntu omit /sbin from a normal user's PATH (#175).
-# mkntfs, mkfs.vfat, mkfs.exfat, and parted live under /usr/sbin.
+# mkntfs, mkfs.vfat and parted live under /usr/sbin.
 for _sbinDir in /usr/local/sbin /usr/sbin /sbin; do
 	if [[ -d "$_sbinDir" ]]; then
 		case ":$PATH:" in
@@ -402,7 +402,7 @@ function dumpSpec() {
 		MedicatManifestFileCount MedicatExtractedBytes MedicatUsbMinBytes MedicatUsbRecommendedBytes MedicatDataLabel \
 		MedicatDataFs MedicatDownloadMinFreeBytes MedicatWorkMinFreeBytes MedicatUsbMinFreeBytes VentoyKnownGoodVersion \
 		VentoyPinnedVersion VentoyDefaultPartitionStyle VentoyDefaultSecureBoot VentoyReleaseApi \
-		VentoyLinuxTarUrlTemplate UpdateRepository UpdateChecksumsAsset ExtrasCatalogVersion ExtrasDestRoot ExtrasIds; do
+		VentoyLinuxTarUrlTemplate LinkRepository ExtrasCatalogVersion ExtrasDestRoot ExtrasIds; do
 		declare -p "$name" 2>/dev/null | sed 's/^declare -[-aA] //'
 	done
 }
@@ -419,7 +419,11 @@ function listExtras() {
 		printf '%-20s %-30s %-10s %-10s %-14s %s\n' "${ExtrasIds[$i]}" "${ExtrasNames[$i]}" "${ExtrasVersions[$i]}" \
 			"$size" "${ExtrasTargets[$i]}" "${ExtrasCategories[$i]}"
 	done
-	printf '\n'
+	local totalBytes=0
+	for i in "${!ExtrasIds[@]}"; do
+		[[ "${ExtrasTypes[$i]}" == "iso" ]] && totalBytes=$(( totalBytes + ExtrasBytes[i] ))
+	done
+	printf '\nTotal for --extras all: %s of downloads on top of MediCat; a 64 GB stick fits a selection, 128 GB fits all.\n\n' "$(humanBytes "$totalBytes")"
 	for i in "${!ExtrasIds[@]}"; do
 		printf '%s: %s\n    %s\n' "${ExtrasIds[$i]}" "${ExtrasDescriptions[$i]}" "${ExtrasHomepages[$i]}"
 	done
@@ -624,6 +628,10 @@ function parseArgs() {
 	if [[ -n "$TargetDisk" ]]; then
 		TargetDisk="${TargetDisk#/dev/}"
 		TargetDisk="/dev/${TargetDisk}"
+		# /dev/disk/by-id/... symlinks name partitions "-part1", so work on the kernel name.
+		if [[ -b "$TargetDisk" ]]; then
+			TargetDisk=$(readlink -f -- "$TargetDisk")
+		fi
 	fi
 	if [[ ! -d "$WorkDir" ]]; then
 		badArgs "--work-dir is not a directory: $WorkDir"
@@ -676,9 +684,16 @@ function dependenciesHandler() {
 		exit $ExitError
 	fi
 
-	colEcho $cyanB "Refreshing package indexes ($pkgmgr $update_arg)..."
-	# shellcheck disable=SC2086
-	$sudo $pkgmgr $update_arg
+	if [[ "$os" == "centos" ]] && ! rpm -q epel-release >/dev/null 2>&1; then
+		colEcho $cyanB "Enabling EPEL (7zip, ntfsprogs and aria2 come from there on RHEL-family systems)..."
+		# shellcheck disable=SC2086
+		$sudo $pkgmgr $install_arg epel-release || colEcho $yellowB "WARNING: Could not enable EPEL; package installs may fail."
+	fi
+	if [[ -n "$update_arg" ]]; then
+		colEcho $cyanB "Refreshing package indexes ($pkgmgr $update_arg)..."
+		# shellcheck disable=SC2086
+		$sudo $pkgmgr $update_arg
+	fi
 
 	colEcho $cyanB "The following dependencies will be installed (one at a time):$whiteB ${toInstall[*]}"
 	UserWait
@@ -1033,7 +1048,7 @@ function mountMedicatVolume() {
 
 	colEcho $redB "ERROR: Failed to mount$whiteB $device$redB at$whiteB $mnt"
 	if [[ "$fs" == "exfat" ]]; then
-		colEcho $yellowB "Install exfatprogs (or a kernel with exfat support), then re-run."
+		colEcho $yellowB "Mounting exFAT needs the kernel exfat driver (Linux 5.7+); load it or install with the default NTFS layout."
 	else
 		colEcho $yellowB "Tried ntfs3, ntfs, ntfs-3g, and auto. Install ntfs-3g if needed, then re-run."
 	fi
@@ -1885,17 +1900,12 @@ function setDistroVars() {
 		pkgmgr="apt"
 		install_arg="install -y"
 		update_arg="update"
-	elif grep -qs "freebsd" /etc/os-release; then
-		os="freebsd"
-		pkgmgr="pkg"
-		install_arg="install -y"
-		update_arg="update"
 	elif grep -qs "nixos" /etc/os-release; then
 		os="nixos"
 		sudo=""
 		pkgmgr="nix-env"
 		install_arg="-iA"
-		update_arg="--upgrade"
+		update_arg=""  # nix-env --upgrade would upgrade every user package, not refresh an index
 		ventoyFS=false
 	elif grep -qs "alpine" /etc/os-release; then
 		os="alpine"
@@ -1911,17 +1921,17 @@ function setDistroVars() {
 		os="centos"
 		pkgmgr="yum"
 		install_arg="install -y"
-		update_arg="update"
+		update_arg="makecache"
 	elif [[ -e /etc/fedora-release ]]; then
 		os="fedora"
 		pkgmgr="dnf"
 		install_arg="install -y"
-		update_arg="upgrade"
+		update_arg="makecache"
 	elif [[ -e /etc/nobara ]]; then
 		os="fedora"
 		pkgmgr="yum"
 		install_arg="install -y"
-		update_arg="update"
+		update_arg="makecache"
 	elif grep -qs "cachyos" /etc/os-release; then
 		# Must run before /etc/arch-release: CachyOS is Arch-based and often has that file.
 		os="cachyos"
@@ -2068,7 +2078,7 @@ function runVerify() {
 
 # --extras: add catalog images to an existing stick.
 function runExtras() {
-	depCommands=(["7z"]="zip" ["aria2c"]="aria")
+	depCommands=(["7z"]="zip")
 	dependenciesHandler
 	attachTarget
 	local exitCode=$ExitOk
@@ -2115,10 +2125,7 @@ CheckNotElevated
 if [[ "$Mode" == "interactive" || "$Mode" == "install" ]]; then
 	colEcho $cyanB "This Installer will install Ventoy and Medicat.\n"
 	colEcho $yellowB "THIS IS IN BETA. PLEASE CONTACT MATT IN THE DISCORD FOR ALL ISSUES.\n"
-	colEcho $cyanB "Updated for efficiency and cross-distro use by SkeletonMan.\n"
-	colEcho $cyanB "Enhancements by Manganar.\n"
-	colEcho $cyanB "Thanks to @m3p89goljrf7fu9eched in the Medicat Discord for pointing out a bug.\n"
-	colEcho $cyanB "Refactored by id3v1669.\n"
+	colEcho $cyanB "Script by SkeletonMan, Manganar, id3v1669 and 26zl.\n"
 fi
 
 setDistroVars

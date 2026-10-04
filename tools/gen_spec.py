@@ -58,11 +58,8 @@ def validate(spec: dict, extras: dict) -> None:
             fail(f"mirror {mirror['name']} must use https")
     if not medicat["manifest"]["urls"]:
         fail("manifest.urls is empty")
-    updates = spec["updates"]
-    if not re.match(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$", updates["github_repository"]):
-        fail("updates.github_repository must be owner/name")
-    if not updates["checksums_asset"] or "/" in updates["checksums_asset"]:
-        fail("updates.checksums_asset must be a plain file name")
+    if not spec["links"]["repository"].startswith("https://github.com/"):
+        fail("links.repository must be the GitHub repository URL")
     if extras["dest_root"] in ("", ".", "..") or "/" in extras["dest_root"]:
         fail("extras.dest_root must be a single folder name")
     seen: set[str] = set()
@@ -182,6 +179,7 @@ def render_header(spec: dict, extras: dict) -> str:
     out(f"constexpr wchar_t kSevenZipProjectUrl[] = {cpp_wide(links['seven_zip'])};")
     out(f"constexpr wchar_t kAria2ProjectUrl[] = {cpp_wide(links['aria2'])};")
     out(f"constexpr wchar_t kVentoyProjectUrl[] = {cpp_wide(links['ventoy'])};")
+    out(f"constexpr wchar_t kProjectRepositoryUrl[] = {cpp_wide(links['repository'])};")
     out("")
     manifest = medicat["manifest"]
     out(f"constexpr wchar_t kMd5ManifestFileName[] = {cpp_wide(manifest['file_name'])};")
@@ -203,9 +201,6 @@ def render_header(spec: dict, extras: dict) -> str:
     out(f"constexpr wchar_t kVentoyPinnedVersion[] = {cpp_wide(pinned)};  // empty = latest")
     out(f"constexpr bool kVentoyDefaultSecureBoot = {'true' if ventoy['secure_boot'] else 'false'};")
     out(f"constexpr bool kVentoyDefaultGpt = {'true' if ventoy['default_partition_style'] == 'gpt' else 'false'};")
-    updates = spec["updates"]
-    out(f"constexpr wchar_t kUpdateRepository[] = {cpp_wide(updates['github_repository'])};  // owner/name on GitHub")
-    out(f"constexpr wchar_t kUpdateChecksumsAssetName[] = {cpp_wide(updates['checksums_asset'])};")
     out("")
     out("struct MediCatExtra {")
     out("    const wchar_t* id;")
@@ -270,7 +265,6 @@ def render_bash_block(spec: dict, extras: dict) -> str:
     ventoy = spec["ventoy"]
     links = spec["links"]
     entries = extras["entries"]
-    updates = spec["updates"]
     body: list[str] = []
     out = body.append
     out(f"SpecVersion={spec['spec_version']}")
@@ -310,8 +304,7 @@ def render_bash_block(spec: dict, extras: dict) -> str:
     out(f"LinkManualInstallDoc={bash_quote(links['manual_install_doc'])}")
     out(f"LinkIssues={bash_quote(links['issues'])}")
     out(f"LinkDiscord={bash_quote(links['discord'])}")
-    out(f"UpdateRepository={bash_quote(updates['github_repository'])}")
-    out(f"UpdateChecksumsAsset={bash_quote(updates['checksums_asset'])}")
+    out(f"LinkRepository={bash_quote(links['repository'])}")
     out(f"ExtrasCatalogVersion={bash_quote(extras['catalog_version'])}")
     out(f"ExtrasDestRoot={bash_quote(extras['dest_root'])}")
     out(bash_array("ExtrasIds", [e["id"] for e in entries]))

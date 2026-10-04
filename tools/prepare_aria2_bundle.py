@@ -8,7 +8,6 @@ import gzip
 import hashlib
 import io
 import pathlib
-import sys
 import urllib.request
 import zipfile
 

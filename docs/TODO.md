@@ -6,6 +6,4 @@ What is still missing or worth doing next. Everything else in this file's histor
 - **Telemetry settings in the GUI.** Consent is asked on first start and stored in `preferences.json`; an Advanced checkbox to change it later would avoid editing the file by hand.
 - **Refresh drives** button and a **Cancel** button during install (see `FEATURES.md`).
 - **Kali Linux in the catalog.** `cdimage.kali.org` answers 404 to direct ISO downloads; adding it needs a torrent-based entry.
-- **Signed releases.** `SHA256SUMS.txt` protects the self-update; Authenticode signing of the exe would add SmartScreen trust.
-- **`/check-update` and `/no-update-check` on the CLI.** The GUI polls GitHub Releases on start (`docs/UPDATER.md`); headless runs have no way to check or skip it.
 - **Headless install smoke test.** CI exercises the information commands, `/extras` and `/verify` on a throw-away VHD (`tests/windows/smoke_cli.ps1`); a full `/install /yes /quiet` run needs the 23 GB archive and is still manual.

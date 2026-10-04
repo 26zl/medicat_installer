@@ -22,10 +22,6 @@
 #define MEDICAT_USB_VERSION "unknown"
 #endif
 
-#ifndef INSTALLER_RELEASE_TAG
-#define INSTALLER_RELEASE_TAG "unknown"
-#endif
-
 namespace medicat {
 
 namespace {
@@ -300,10 +296,6 @@ void PrintCliVersion() {
 #else
     out << "MedicatInstaller " << kInstallerVersion << " x86\n";
 #endif
-    // CMake embeds the GitHub release tag from build_number.txt; ad-hoc builds without it say so.
-    const std::string releaseTag = INSTALLER_RELEASE_TAG;
-    out << "Release tag: " << ((releaseTag.empty() || releaseTag == "unknown") ? "(not embedded)" : releaseTag)
-        << "\n";
     out << "MediCat USB: v" << MEDICAT_USB_VERSION;
     WriteCliUtf8(out.str());
 }

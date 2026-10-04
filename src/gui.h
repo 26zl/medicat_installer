@@ -1,7 +1,6 @@
 #pragma once
 
 #include "drives.h"
-#include "update.h"
 #include "ventoy.h"
 #include "verify.h"
 
@@ -23,7 +22,6 @@ constexpr UINT WM_MEDICAT_VENTOY_VERSIONS = WM_APP + 3;
 constexpr UINT WM_MEDICAT_REEXTRACT_PROMPT = WM_APP + 4;
 constexpr UINT WM_MEDICAT_DRIVE_LIST = WM_APP + 5;
 constexpr UINT WM_MEDICAT_VENTOY_STATUS = WM_APP + 6;
-constexpr UINT WM_MEDICAT_UPDATE_RESULT = WM_APP + 7;
 constexpr UINT WM_MEDICAT_FAILURE_DIAG = WM_APP + 8;
 constexpr UINT WM_MEDICAT_CONFIRM_PROMPT = WM_APP + 9;
 
@@ -102,10 +100,6 @@ struct VentoyStatusPayload {
     uint64_t generation = 0;
 };
 
-struct UpdateResultPayload {
-    InstallerUpdateInfo info;
-};
-
 struct FailureDiagPayload {
     bool uploadSucceeded = false;
     std::wstring keyword;
@@ -120,10 +114,7 @@ public:
     void SetInstallHandler(InstallHandler handler);
     void SetVerifyHandler(InstallHandler handler);
     void SetLogHandler(std::function<void(const std::wstring&)> handler);
-    void SetUpdateCheckHandler(std::function<void()> handler);
     void SetFailureLogUploadHandler(std::function<void()> handler);
-    void SetApplyInstallerUpdateHandler(std::function<void(const InstallerUpdateInfo&)> handler);
-    void ScheduleUpdateCheck();
     void SetBusy(bool busy, BusyProgressMode progressMode = BusyProgressMode::FileLog);
     void SetProgress(int percent, bool clearLog = false);
     void SetDownloadProgress(int percent, const std::wstring& barText, const std::wstring& labelText);
@@ -247,7 +238,6 @@ private:
     void StartTorrentDownload();
     void StartArchiveDownload(const std::wstring& url, const std::wstring& sourceName, bool torrent);
     void SetDownloadControlsEnabled(bool enabled);
-    void ShowUpdatePrompt(const InstallerUpdateInfo& info);
     bool LogoHitTest(HWND hwnd, int clientX, int clientY) const;
     void TryOpenDebugMenuFromLogoClick(HWND source);
     void OpenDebugMenu(int screenX, int screenY);
@@ -358,10 +348,7 @@ private:
     InstallHandler onInstall_;
     InstallHandler onVerify_;
     std::function<void(const std::wstring&)> onLog_;
-    std::function<void()> onUpdateCheck_;
     std::function<void()> onFailureLogUpload_;
-    std::function<void(const InstallerUpdateInfo&)> onApplyInstallerUpdate_;
-    std::wstring lastUpdatePromptReleaseTag_;
     bool hasLastVentoyLog_ = false;
     std::wstring lastVentoyLogDrive_;
     bool lastVentoyLogFound_ = false;

@@ -36,11 +36,10 @@ Details always go to `logs\medicat_installer.log` beside the exe (or the `/log:`
 
 ```text
 MedicatInstaller 1.0.49 x64
-Release tag: 1.0.49
 MediCat USB: v21.12
 ```
 
-The release tag comes from `build_number.txt` at build time and equals the GitHub tag ([UPDATER.md](UPDATER.md)); ad-hoc builds without it print `(not embedded)`.
+The version comes from `build_number.txt` at build time (`rebuild.bat` bumps it, CI pins `1.0.1`).
 
 ### Language
 
@@ -106,7 +105,7 @@ A pinned version that cannot be downloaded fails the run with exit **1**.
 |------|-------|-------------|
 | `/yes` | `/y`, `--yes` | Accept the wipe confirmation and the Ventoy warning (**destructive**) and run the re-extract without asking |
 | `/quiet` | `/q`, `--quiet` | No message boxes; only errors are mirrored to the console. `/install` with `/quiet` needs `/yes` (exit **2** otherwise) |
-| `/telemetry` / `/no-telemetry` | `--telemetry`, `--no-telemetry` | Send or skip the anonymous session report. Headless runs send nothing unless `/telemetry` is given |
+| `/telemetry` / `/no-telemetry` | `--telemetry`, `--no-telemetry` | Send or skip the anonymous session report for this run. Without either flag a headless run follows the answer saved by the GUI, and sends nothing when none is saved |
 | `/upload-logs` | `--upload-logs` | Allow the failure-log upload after a failed headless run (logs contain paths and drive details) |
 
 Builds without an ingest token, such as every CI build of this repository, never send anything ([SUPPORT_UPLOAD.md](SUPPORT_UPLOAD.md)).
@@ -151,7 +150,7 @@ MedicatInstaller.exe /install /drive:E /yes /extras:all /nosb /gpt
 
 ## Not implemented
 
-Tracked in [TODO.md](TODO.md): `/check-update` and `/no-update-check` (the GUI checks GitHub Releases on start, the CLI cannot), and a full headless install in CI.
+Tracked in [TODO.md](TODO.md): a full headless install in CI.
 
 ## Related files
 

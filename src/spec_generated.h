@@ -63,6 +63,7 @@ constexpr wchar_t kDiscordSupportUrl[] = L"https://url.medicatusb.com/discord";
 constexpr wchar_t kSevenZipProjectUrl[] = L"https://www.7-zip.org/";
 constexpr wchar_t kAria2ProjectUrl[] = L"https://aria2.github.io/";
 constexpr wchar_t kVentoyProjectUrl[] = L"https://www.ventoy.net/en/index.html";
+constexpr wchar_t kProjectRepositoryUrl[] = L"https://github.com/26zl/medicat_installer";
 
 constexpr wchar_t kMd5ManifestFileName[] = L"MedicatFiles.md5";
 constexpr const wchar_t* kMd5ManifestUrls[] = {
@@ -80,8 +81,6 @@ constexpr wchar_t kVentoyKnownGoodVersion[] = L"1.1.17";
 constexpr wchar_t kVentoyPinnedVersion[] = L"";  // empty = latest
 constexpr bool kVentoyDefaultSecureBoot = true;
 constexpr bool kVentoyDefaultGpt = false;
-constexpr wchar_t kUpdateRepository[] = L"26zl/medicat_installer";  // owner/name on GitHub
-constexpr wchar_t kUpdateChecksumsAssetName[] = L"SHA256SUMS.txt";
 
 struct MediCatExtra {
     const wchar_t* id;
@@ -104,7 +103,7 @@ struct MediCatExtra {
     const wchar_t* description;
 };
 
-constexpr wchar_t kExtrasCatalogVersion[] = L"2026-09-27";
+constexpr wchar_t kExtrasCatalogVersion[] = L"2026-10-04";
 constexpr wchar_t kExtrasDestRoot[] = L"Extras";
 constexpr MediCatExtra kMediCatExtras[] = {
     {
@@ -119,6 +118,17 @@ constexpr MediCatExtra kMediCatExtras[] = {
         L"Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines.",
     },
     {
+        L"super-grub2-disk", L"Super Grub2 Disk", L"2.06s4",
+        L"Rescue", L"linux,windows", L"iso",
+        L"https://downloads.sourceforge.net/project/supergrub2/2.06s4/super_grub2_disk_2.06s4/supergrub2-classic-2.06s4-multiarch-CD.iso",
+        L"supergrub2-classic-2.06s4-multiarch-CD.iso", 24905728ULL,
+        "d26ee9cda990051fbe4c2b367659df5156a130a7ada29f0b4fb0e65928d8ebab", "",
+        "", "",
+        L"", L"",
+        L"https://www.supergrubdisk.org/super-grub2-disk/", L"GPL-3.0",
+        L"Boot-repair menu that finds and starts the Linux and Windows systems on a disk whose bootloader is broken, on BIOS and UEFI machines. Tiny image.",
+    },
+    {
         L"gparted-live", L"GParted Live", L"1.8.1-6",
         L"Partition_and_Imaging", L"linux,windows", L"iso",
         L"https://downloads.sourceforge.net/gparted/gparted-live-1.8.1-6-amd64.iso",
@@ -130,12 +140,12 @@ constexpr MediCatExtra kMediCatExtras[] = {
         L"Resize, move, copy and check partitions (NTFS, ext4, exFAT, FAT, btrfs and more).",
     },
     {
-        L"clonezilla-live", L"Clonezilla Live", L"3.1.2-9",
+        L"clonezilla-live", L"Clonezilla Live", L"3.3.3-37",
         L"Partition_and_Imaging", L"linux,windows", L"iso",
-        L"https://downloads.sourceforge.net/project/clonezilla/clonezilla_live_stable/3.1.2-9/clonezilla-live-3.1.2-9-amd64.iso",
-        L"clonezilla-live-3.1.2-9-amd64.iso", 437256192ULL,
+        L"https://downloads.sourceforge.net/project/clonezilla/clonezilla_live_stable/3.3.3-37/clonezilla-live-3.3.3-37-amd64.iso",
+        L"clonezilla-live-3.3.3-37-amd64.iso", 505413632ULL,
         "", "",
-        "", "99353cf50559fe8e5450643a764f0f57",
+        "", "0a5a4a795ce9cfb7059870290bcbc421",
         L"", L"",
         L"https://clonezilla.org/", L"GPL-2.0",
         L"Disk and partition imaging and cloning, sector-level or filesystem-aware.",
@@ -163,6 +173,17 @@ constexpr MediCatExtra kMediCatExtras[] = {
         L"Stand-alone RAM tester for BIOS and UEFI machines.",
     },
     {
+        L"freedos-live", L"FreeDOS LiveCD", L"1.4",
+        L"DOS", L"linux,windows", L"iso",
+        L"https://download.freedos.org/1.4/FD14-LiveCD.zip",
+        L"FD14LIVE.iso", 293950337ULL,
+        "2020ff6bb681967fd6eff8f51ad2e5cd5ab4421165948cef4246e4f7fcaf6339", "",
+        "", "",
+        L"zip", L"FD14LIVE.iso",
+        L"https://www.freedos.org/", L"GPL-2.0 and other free licenses, per package",
+        L"DOS live system for vendor BIOS and firmware flashers and old DOS utilities on legacy-BIOS machines. If Ventoy's normal mode does not start it, use Memdisk mode (F1 in the Ventoy menu).",
+    },
+    {
         L"hirens-bootcd-pe", L"Hiren's BootCD PE", L"1.0.8",
         L"Windows_Rescue", L"windows", L"iso",
         L"https://www.hirensbootcd.org/files/HBCD_PE_x64.iso",
@@ -174,15 +195,15 @@ constexpr MediCatExtra kMediCatExtras[] = {
         L"Windows 11 PE based repair environment with password, driver, backup and diagnostics tools.",
     },
     {
-        L"ubuntu-desktop-lts", L"Ubuntu Desktop LTS", L"24.04.5.1",
-        L"Live_Linux", L"linux", L"iso",
-        L"https://releases.ubuntu.com/24.04/ubuntu-24.04.5.1-desktop-amd64.iso",
-        L"ubuntu-24.04.5.1-desktop-amd64.iso", 6250332160ULL,
-        "4da4a0c9035da8e68a59a838674f403f0a54472c78a83b4fb7f78d03588f85a7", "",
+        L"eset-sysrescue-live", L"ESET SysRescue Live", L"current",
+        L"Antivirus", L"windows", L"manual",
+        L"https://www.eset.com/int/support/sysrescue/",
+        L"eset_sysrescue_live_enu.iso", 0ULL,
+        "", "",
         "", "",
         L"", L"",
-        L"https://ubuntu.com/download/desktop", L"Mixed open source",
-        L"Live desktop and installer; handy for rescuing files from a Linux or Windows disk with a full GUI.",
+        L"https://www.eset.com/int/support/sysrescue/", L"Free (ESET); download from ESET only",
+        L"Linux-based offline scanner that cleans an infected Windows disk. ESET refreshes the image continuously without a fixed checksum, so download the current ISO from the ESET page and copy it into Extras/Antivirus/.",
     },
     {
         L"windows-11-iso", L"Windows 11 installation media", L"current",
@@ -251,26 +272,15 @@ constexpr MediCatExtra kMediCatExtras[] = {
         L"Computer Aided INvestigative Environment: boots with all disks read-only, with Autopsy, Guymager, PhotoRec and other acquisition and analysis tools. For authorized investigations and data recovery.",
     },
     {
-        L"parrot-security", L"Parrot Security", L"7.3",
+        L"parrot-security", L"Parrot Security", L"7.4",
         L"Forensics", L"linux,windows", L"iso",
-        L"https://deb.parrot.sh/parrot/iso/7.3/Parrot-security-7.3_amd64.iso",
-        L"Parrot-security-7.3_amd64.iso", 8555526144ULL,
-        "fe8ec64f92d8d629b1fcae85d9fab81c87e3ff30584201e82b7c453a740cefbc", "",
+        L"https://deb.parrot.sh/parrot/iso/7.4/Parrot-security-7.4_amd64.iso",
+        L"Parrot-security-7.4_amd64.iso", 8682078208ULL,
         "", "",
+        "", "a3ddddeb89af1768ff28d45dce5c6285",
         L"", L"",
         L"https://www.parrotsec.org/", L"GPL-3.0 (Debian-based, mixed licenses)",
-        L"Security and forensics live system with a dedicated forensic boot mode (no automount, no swap) plus the usual pentest and analysis toolset. Large image.",
-    },
-    {
-        L"sift-workstation", L"SANS SIFT Workstation", L"current",
-        L"Forensics", L"linux,windows", L"manual",
-        L"https://www.sans.org/tools/sift-workstation/",
-        L"SIFT-Workstation.ova", 0ULL,
-        "", "",
-        "", "",
-        L"", L"",
-        L"https://www.sans.org/tools/sift-workstation/", L"Free for use; download requires a SANS account",
-        L"DFIR toolkit (Plaso, Volatility, Sleuth Kit and more). SANS only offers it behind a login as a VM image or an Ubuntu install script, so fetch it from the SANS page; it is not a bootable ISO.",
+        L"Security and forensics live system with a dedicated forensic boot mode (no automount, no swap) plus the usual pentest and analysis toolset. Large image; the project publishes MD5 only for this release.",
     },
     {
         L"paladin", L"SUMURI PALADIN", L"current",

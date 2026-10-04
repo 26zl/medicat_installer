@@ -1,7 +1,7 @@
 {
-  "catalog_version": "2026-09-27",
+  "catalog_version": "2026-10-04",
   "dest_root": "Extras",
-  "notes": "Optional boot images the installers can download onto a finished MediCat stick. Ventoy lists every ISO it finds, so entries land in Extras/<category>/. Checksums come from the upstream project (checksum_source); refresh them when bumping a version.",
+  "notes": "Optional boot images the installers can download onto a finished MediCat stick. Ventoy lists every ISO it finds, so entries land in Extras/<category>/. Only images Ventoy can boot belong here; rolling images without a fixed checksum are manual entries. Checksums come from the upstream project (checksum_source); refresh them when bumping a version.",
   "entries": [
     {
       "id": "systemrescue",
@@ -21,6 +21,25 @@
       "homepage": "https://www.system-rescue.org/",
       "license": "GPL-2.0-or-later (Arch-based live system, mixed licenses)",
       "description": "Arch-based rescue system with disk, network and recovery tools for Linux and Windows machines."
+    },
+    {
+      "id": "super-grub2-disk",
+      "name": "Super Grub2 Disk",
+      "version": "2.06s4",
+      "category": "Rescue",
+      "targets": [
+        "linux",
+        "windows"
+      ],
+      "type": "iso",
+      "url": "https://downloads.sourceforge.net/project/supergrub2/2.06s4/super_grub2_disk_2.06s4/supergrub2-classic-2.06s4-multiarch-CD.iso",
+      "file_name": "supergrub2-classic-2.06s4-multiarch-CD.iso",
+      "bytes": 24905728,
+      "sha256": "d26ee9cda990051fbe4c2b367659df5156a130a7ada29f0b4fb0e65928d8ebab",
+      "checksum_source": "https://downloads.sourceforge.net/project/supergrub2/2.06s4/SHA256SUMS",
+      "homepage": "https://www.supergrubdisk.org/super-grub2-disk/",
+      "license": "GPL-3.0",
+      "description": "Boot-repair menu that finds and starts the Linux and Windows systems on a disk whose bootloader is broken, on BIOS and UEFI machines. Tiny image."
     },
     {
       "id": "gparted-live",
@@ -44,18 +63,18 @@
     {
       "id": "clonezilla-live",
       "name": "Clonezilla Live",
-      "version": "3.1.2-9",
+      "version": "3.3.3-37",
       "category": "Partition_and_Imaging",
       "targets": [
         "linux",
         "windows"
       ],
       "type": "iso",
-      "url": "https://downloads.sourceforge.net/project/clonezilla/clonezilla_live_stable/3.1.2-9/clonezilla-live-3.1.2-9-amd64.iso",
-      "file_name": "clonezilla-live-3.1.2-9-amd64.iso",
-      "bytes": 437256192,
-      "md5": "99353cf50559fe8e5450643a764f0f57",
-      "checksum_source": "https://sourceforge.net/projects/clonezilla/rss?path=/clonezilla_live_stable/3.1.2-9",
+      "url": "https://downloads.sourceforge.net/project/clonezilla/clonezilla_live_stable/3.3.3-37/clonezilla-live-3.3.3-37-amd64.iso",
+      "file_name": "clonezilla-live-3.3.3-37-amd64.iso",
+      "bytes": 505413632,
+      "md5": "0a5a4a795ce9cfb7059870290bcbc421",
+      "checksum_source": "https://sourceforge.net/projects/clonezilla/rss?path=/clonezilla_live_stable/3.3.3-37",
       "homepage": "https://clonezilla.org/",
       "license": "GPL-2.0",
       "description": "Disk and partition imaging and cloning, sector-level or filesystem-aware."
@@ -103,6 +122,29 @@
       "description": "Stand-alone RAM tester for BIOS and UEFI machines."
     },
     {
+      "id": "freedos-live",
+      "name": "FreeDOS LiveCD",
+      "version": "1.4",
+      "category": "DOS",
+      "targets": [
+        "linux",
+        "windows"
+      ],
+      "type": "iso",
+      "url": "https://download.freedos.org/1.4/FD14-LiveCD.zip",
+      "file_name": "FD14LIVE.iso",
+      "bytes": 293950337,
+      "sha256": "2020ff6bb681967fd6eff8f51ad2e5cd5ab4421165948cef4246e4f7fcaf6339",
+      "unpack": {
+        "format": "zip",
+        "member": "FD14LIVE.iso"
+      },
+      "checksum_source": "https://download.freedos.org/1.4/verify.txt",
+      "homepage": "https://www.freedos.org/",
+      "license": "GPL-2.0 and other free licenses, per package",
+      "description": "DOS live system for vendor BIOS and firmware flashers and old DOS utilities on legacy-BIOS machines. If Ventoy's normal mode does not start it, use Memdisk mode (F1 in the Ventoy menu)."
+    },
+    {
       "id": "hirens-bootcd-pe",
       "name": "Hiren's BootCD PE",
       "version": "1.0.8",
@@ -121,22 +163,21 @@
       "description": "Windows 11 PE based repair environment with password, driver, backup and diagnostics tools."
     },
     {
-      "id": "ubuntu-desktop-lts",
-      "name": "Ubuntu Desktop LTS",
-      "version": "24.04.5.1",
-      "category": "Live_Linux",
+      "id": "eset-sysrescue-live",
+      "name": "ESET SysRescue Live",
+      "version": "current",
+      "category": "Antivirus",
       "targets": [
-        "linux"
+        "windows"
       ],
-      "type": "iso",
-      "url": "https://releases.ubuntu.com/24.04/ubuntu-24.04.5.1-desktop-amd64.iso",
-      "file_name": "ubuntu-24.04.5.1-desktop-amd64.iso",
-      "bytes": 6250332160,
-      "sha256": "4da4a0c9035da8e68a59a838674f403f0a54472c78a83b4fb7f78d03588f85a7",
-      "checksum_source": "https://releases.ubuntu.com/24.04/SHA256SUMS",
-      "homepage": "https://ubuntu.com/download/desktop",
-      "license": "Mixed open source",
-      "description": "Live desktop and installer; handy for rescuing files from a Linux or Windows disk with a full GUI."
+      "type": "manual",
+      "url": "https://www.eset.com/int/support/sysrescue/",
+      "file_name": "eset_sysrescue_live_enu.iso",
+      "bytes": 0,
+      "checksum_source": "",
+      "homepage": "https://www.eset.com/int/support/sysrescue/",
+      "license": "Free (ESET); download from ESET only",
+      "description": "Linux-based offline scanner that cleans an infected Windows disk. ESET refreshes the image continuously without a fixed checksum, so download the current ISO from the ESET page and copy it into Extras/Antivirus/."
     },
     {
       "id": "windows-11-iso",
@@ -249,39 +290,21 @@
     {
       "id": "parrot-security",
       "name": "Parrot Security",
-      "version": "7.3",
+      "version": "7.4",
       "category": "Forensics",
       "targets": [
         "linux",
         "windows"
       ],
       "type": "iso",
-      "url": "https://deb.parrot.sh/parrot/iso/7.3/Parrot-security-7.3_amd64.iso",
-      "file_name": "Parrot-security-7.3_amd64.iso",
-      "bytes": 8555526144,
-      "sha256": "fe8ec64f92d8d629b1fcae85d9fab81c87e3ff30584201e82b7c453a740cefbc",
-      "checksum_source": "https://deb.parrot.sh/parrot/iso/7.3/signed-hashes.txt",
+      "url": "https://deb.parrot.sh/parrot/iso/7.4/Parrot-security-7.4_amd64.iso",
+      "file_name": "Parrot-security-7.4_amd64.iso",
+      "bytes": 8682078208,
+      "md5": "a3ddddeb89af1768ff28d45dce5c6285",
+      "checksum_source": "https://deb.parrot.sh/parrot/iso/7.4/signed-hashes.txt",
       "homepage": "https://www.parrotsec.org/",
       "license": "GPL-3.0 (Debian-based, mixed licenses)",
-      "description": "Security and forensics live system with a dedicated forensic boot mode (no automount, no swap) plus the usual pentest and analysis toolset. Large image."
-    },
-    {
-      "id": "sift-workstation",
-      "name": "SANS SIFT Workstation",
-      "version": "current",
-      "category": "Forensics",
-      "targets": [
-        "linux",
-        "windows"
-      ],
-      "type": "manual",
-      "url": "https://www.sans.org/tools/sift-workstation/",
-      "file_name": "SIFT-Workstation.ova",
-      "bytes": 0,
-      "checksum_source": "",
-      "homepage": "https://www.sans.org/tools/sift-workstation/",
-      "license": "Free for use; download requires a SANS account",
-      "description": "DFIR toolkit (Plaso, Volatility, Sleuth Kit and more). SANS only offers it behind a login as a VM image or an Ubuntu install script, so fetch it from the SANS page; it is not a bootable ISO."
+      "description": "Security and forensics live system with a dedicated forensic boot mode (no automount, no swap) plus the usual pentest and analysis toolset. Large image; the project publishes MD5 only for this release."
     },
     {
       "id": "paladin",

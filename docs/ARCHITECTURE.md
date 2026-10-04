@@ -21,7 +21,6 @@ medicat_installer/
 │   ├── extract.cpp         # 7za subprocess (full + selective @list)
 │   ├── verify.cpp          # Parallel MD5 against MedicatFiles.md5, presence check, SHA hashing
 │   ├── extras.cpp          # Extras catalog: download, checksum, unpack into Extras/<category>/
-│   ├── update.cpp          # Self-update via GitHub Releases, verified against SHA256SUMS.txt
 │   ├── support.cpp         # Telemetry consent, session reports, failure-log upload
 │   ├── bundle.cpp          # Embedded 7za, aria2c, MD5 resources
 │   ├── download.cpp        # aria2c file downloads + WinHTTP (API, fallback)
@@ -46,7 +45,6 @@ medicat_installer/
 │   ├── fetch_ventoy_versions.py
 │   ├── prepare_md5_bundle.py / prepare_aria2_bundle.py / prepare_discord_icon.py
 │   ├── generate_ingest_token.py
-│   ├── upload_release.bat  # Release assets + SHA256SUMS.txt (run by the release workflow)
 │   ├── sync_upstream.sh    # Merge the upstream project into main
 │   └── populate_offline.py # Optional offline cache setup
 ├── res/
@@ -58,8 +56,8 @@ medicat_installer/
 │   ├── windows/            # test_main.cpp (MedicatTests.exe), smoke_cli.ps1 (VHD smoke test)
 │   └── linux/              # smoke_test.sh
 ├── cmake/unified/          # Superbuild: one configure builds x64 and Win32
-├── .github/workflows/      # ci.yml, release-build.yml, upstream-sync.yml
-├── docs/                   # This file, FEATURES.md, TODO.md, CLI.md, UPDATER.md, ...
+├── .github/workflows/      # ci.yml, upstream-sync.yml
+├── docs/                   # This file, FEATURES.md, TODO.md, CLI.md, ...
 ├── bin/7z/                 # 7za.exe (x64, x32), embedded at build time
 ├── bin/aria2/              # aria2c.exe fetched at build time (gitignored)
 ├── generated/, build/      # Build output (gitignored)
@@ -80,7 +78,7 @@ medicat_installer/
 | **Entry** | `main`, `cli`, `App` | Flag parsing, startup, bundle extract, wire GUI handlers or run headless |
 | **UI** | `gui`, `theme` | HWNDs, user input, thread-safe updates via `WM_APP` |
 | **Workflow** | `app` | Install / verify / extras sequences, confirmations, `PostDone`, exit codes |
-| **Domain** | `drives`, `ventoy`, `archive`, `extract`, `verify`, `extras`, `update` | Drive identity, archive and image handling, tooling subprocesses, self-update |
+| **Domain** | `drives`, `ventoy`, `archive`, `extract`, `verify`, `extras` | Drive identity, archive and image handling, tooling subprocesses |
 | **Infrastructure** | `bundle`, `download`, `offline`, `support`, `cancel`, `log`, `debug`, `i18n` | Assets, network, telemetry, cancellation, diagnostics |
 
 ---
@@ -177,7 +175,7 @@ Detection: `{drive}\ventoy` folder **or** physical-disk layout matching Ventoy2D
 
 ## Build pipeline
 
-1. **tools/bump_build_number.py** writes `build_number.txt` and `generated/build_version.cpp` (`rebuild.bat`: one above the latest release of this repository; CI: the pushed tag).
+1. **tools/bump_build_number.py** writes `build_number.txt` and `generated/build_version.cpp` (`rebuild.bat`: local counter + 1; CI: pinned `1.0.1`).
 2. **cmake/unified** configures two ExternalProjects (x64 and Win32) of the root `CMakeLists.txt` and stages both exes into `build/Release/`.
 3. Per architecture, custom commands run **gen_spec.py**, **i18n_codegen.py**, **fetch_ventoy_versions.py**, **prepare_md5_bundle.py**, **prepare_aria2_bundle.py**, **prepare_discord_icon.py** and **generate_ingest_token.py**.
 4. **bundle.rc** (from `res/bundle.rc.in`) carries the icons, a VERSIONINFO block with the version from `build_number.txt`, `7za.exe`, gzipped `aria2c.exe` and the gzipped `MedicatFiles.md5`.

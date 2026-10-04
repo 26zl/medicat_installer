@@ -44,7 +44,6 @@ Detection is automatic: the Windows language code is matched against the generat
 - `messages.*` / `titles.*` message boxes and their titles
 - `errors.*` error texts shared by GUI and CLI
 - `log.*` lines written to `medicat_installer.log`
-- `update.*` self-update dialogs
 - `ventoy_warning.*`, `ventoy_not_detected.*`, `wipe_confirm.*`, `drive_letter_changed.*` the confirmation dialogs
 
 Placeholders: `{0}`, `{1}`, …

@@ -1,7 +1,7 @@
 # Medicat Installer
 ![Logo](res/icon.png)
 
-Fork of [mon5termatt/medicat_installer](https://github.com/mon5termatt/medicat_installer) with a shared spec for both installers, a Linux installer with the same command-line interface as Windows, an extras catalog of boot images, telemetry consent and checksum-verified self-updates.
+Fork of [mon5termatt/medicat_installer](https://github.com/mon5termatt/medicat_installer) with a shared spec for both installers, a Linux installer with the same command-line interface as Windows, an extras catalog of boot images and telemetry consent.
 
 Copyright (C) 2021-2026 the MediCat Installer [contributors](#credits). The installer is free software under the GNU AGPL-3.0 ([`LICENCE`](LICENCE)) and the Linux script under the GNU GPL-3.0 ([`linux/LICENSE`](linux/LICENSE)), both without any warranty. This fork has been modified from the upstream project since August 2026; every change is in the git history. Third-party components and their license texts: [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and [`THIRD_PARTY_LICENSES/`](THIRD_PARTY_LICENSES/README.md).
 
@@ -32,19 +32,17 @@ OR:
 * Terminal
 * Like 75% of a brain
 * General Linux knowledge
-* Script lives in [`linux/`](linux/) and is attached to each release
+* Script lives in [`linux/`](linux/); the one-liner above fetches it from `main`
 
-# Grab a build
+# Grab it
 
-[GitHub Releases](https://github.com/26zl/medicat_installer/releases)
+Linux, one line: downloads the self-contained script from this repository into the current directory and starts it interactively. Drop `MediCat.USB.v21.12.7z` in the same directory first if you already have it.
 
-| File | Platform |
-|------|----------|
-| `MedicatInstaller.exe` | Windows x64 |
-| `MedicatInstaller-x86.exe` | Windows 32-bit |
-| `Medicat_Installer.sh` | Linux |
-| `LICENSES.zip` | AGPL-3.0 and GPL-3.0 texts, `THIRD_PARTY_NOTICES.md` and the license texts of the embedded 7-Zip and aria2 |
-| `SHA256SUMS.txt` | Checksums of the files above; the installer's self-update refuses releases without it |
+```bash
+curl -fsSLO https://raw.githubusercontent.com/26zl/medicat_installer/main/linux/Medicat_Installer.sh && chmod +x Medicat_Installer.sh && ./Medicat_Installer.sh
+```
+
+Add flags for headless use (`--help` lists them, see below). Windows: `MedicatInstaller.exe` is the artifact of the latest [CI run](https://github.com/26zl/medicat_installer/actions/workflows/ci.yml) on `main` (needs a GitHub login), or build it yourself (see [Build from source](#build-from-source)).
 
 # What it does (short version)
 
@@ -53,9 +51,9 @@ OR:
 * Extracts **MediCat** with progress
 * **MD5 verify** + selective re-extract if something failed
 * GUI (dark theme) and a proper **CLI** (`/help`, `/install`, `/verify`, ...)
-* **Extras**: optional boot images from a curated, checksummed catalog: rescue and imaging (SystemRescue, GParted Live, Clonezilla, Rescuezilla), diagnostics and wiping (Memtest86+, ShredOS), Windows rescue (Hiren's BootCD PE), live Linux (Ubuntu, Linux Mint, Debian), forensics (CAINE, Tsurugi Acquire, Tsurugi Linux, Parrot Security) and pointers for downloads that need a login (Windows 10/11 ISOs, SANS SIFT, SUMURI PALADIN); the Linux installer downloads them into `Extras/` on the stick
+* **Extras**: optional boot images from a curated, checksummed catalog: rescue and boot repair (SystemRescue, Super Grub2 Disk), partitioning and imaging (GParted Live, Clonezilla, Rescuezilla), diagnostics, firmware and wiping (Memtest86+, FreeDOS, ShredOS), Windows rescue (Hiren's BootCD PE), live Linux (Linux Mint, Debian), forensics (CAINE, Tsurugi Acquire, Tsurugi Linux, Parrot Security) and pointers for downloads that are rolling or need a login (ESET SysRescue Live, Windows 10/11 ISOs, SUMURI PALADIN); the Linux installer downloads them into `Extras/` on the stick. `all` is about 40 GB on top of MediCat's 28 GB, so it needs a 128 GB stick; pick ids on a 64 GB one
 
-More detail: [`docs/FEATURES.md`](docs/FEATURES.md) · [`docs/CLI.md`](docs/CLI.md) · [`docs/UPDATER.md`](docs/UPDATER.md) · [`spec/README.md`](spec/README.md) · [`linux/README.md`](linux/README.md)
+More detail: [`docs/FEATURES.md`](docs/FEATURES.md) · [`docs/CLI.md`](docs/CLI.md) · [`spec/README.md`](spec/README.md) · [`linux/README.md`](linux/README.md)
 
 # Quick start
 
@@ -85,7 +83,7 @@ On Linux the same jobs are flags of the shell script (no flags = interactive):
 
 # Telemetry (Windows installer)
 
-Nothing leaves the machine without a yes. On first start `MedicatInstaller.exe` asks whether it may send an anonymous session report at the end of each install or verify (outcome, installer version, Windows build and edition, CPU/RAM class, UI language, a hash of the machine GUID). After a failure it asks whether to upload the `.log`/`.txt` files from `logs\` beside the exe, which contain file paths and drive details; the logs no longer include the computer or user name. Headless runs send nothing unless `/telemetry` or `/upload-logs` is passed. The saved answer lives in `%AppData%\MedicatInstaller\preferences.json`:
+Nothing leaves the machine without a yes. On first start `MedicatInstaller.exe` asks whether it may send an anonymous session report at the end of each install or verify (outcome, installer version, Windows build and edition, CPU/RAM class, UI language, a hash of the machine GUID). After a failure it asks whether to upload the `.log`/`.txt` files from `logs\` beside the exe, which contain file paths and drive details; the logs no longer include the computer or user name. Headless runs follow the saved answer, `/telemetry` and `/no-telemetry` override it for one run, and the log upload needs `/upload-logs`. The saved answer lives in `%AppData%\MedicatInstaller\preferences.json`:
 
 ```json
 { "session_reports_enabled": false, "failure_log_auto_upload_enabled": false }
@@ -103,11 +101,11 @@ Upstream is a fetch-only source; nothing here can push to it or open pull reques
 
 - `tools/sync_upstream.sh --dry-run` shows what upstream `main` has that we do not; without `--dry-run` it merges, regenerates `spec`/`i18n` outputs, runs the quick checks and tells you to push. `--linux` also merges upstream's `linux` branch into `linux/`, `--push` pushes `main` when everything passed.
 - [`upstream-sync.yml`](.github/workflows/upstream-sync.yml) does the same every Monday (or on demand): a clean merge becomes a pull request against **this** repository on a `sync/upstream-<date>` branch; conflicts become an issue, which needs Issues enabled in the repository settings. GitHub can delay or skip a scheduled run, and a fork sometimes needs the workflow enabled once in the Actions tab; when a Monday run is missing, start it by hand with `gh workflow run upstream-sync.yml`.
-- Guardrails: the release tooling and `tools/bump_build_number.py` target the repository of the checkout, and `tools/sync_upstream.sh` sets the `upstream` push URL to `no_push` on first use. A fresh clone should set the rest up once:
+- Guardrails: `tools/sync_upstream.sh` sets the `upstream` push URL to `no_push` on first use. A fresh clone should set the rest up once:
 
   ```bash
   git remote set-url --push upstream no_push
-  git config remote.upstream.tagOpt --no-tags   # never fetch upstream's 1.0.N tags into this clone
+  git config remote.upstream.tagOpt --no-tags   # never fetch upstream's tags into this clone
   gh repo set-default 26zl/medicat_installer
   ```
 
@@ -121,7 +119,7 @@ Visual Studio 2022 or newer with the C++ build tools (the Build Tools edition is
 rebuild.bat
 ```
 
-Outputs land in `build/Release/`. The version goes to `build_number.txt` (gitignored) and into the exe's version resource and `/version`; `rebuild.bat` picks one above the latest release of this repository, `rebuild.bat as 1.0.N` pins it. Tagged releases (`1.0.N`) are built on GitHub Actions; see [`docs/UPDATER.md`](docs/UPDATER.md). Every push also runs [`ci.yml`](.github/workflows/ci.yml): spec check, shellcheck and smoke tests for the Linux script, and a Windows build. Ask in Discord if you get stuck.
+Outputs land in `build/Release/`. The version goes to `build_number.txt` (gitignored) and into the exe's version resource and `/version`; `rebuild.bat` bumps the local counter, `rebuild.bat as 1.0.N` pins it and CI pins `1.0.1`. Every push runs [`ci.yml`](.github/workflows/ci.yml): spec check, shellcheck and smoke tests for the Linux script, and a Windows build. Ask in Discord if you get stuck.
 
 Mirrors, hashes and the extras catalog live in [`spec/`](spec/README.md); `python3 tools/gen_spec.py` regenerates `src/spec_generated.h` and the spec block in the Linux script (the CMake build does this automatically).
 

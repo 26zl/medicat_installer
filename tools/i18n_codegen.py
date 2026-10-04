@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate cpp/src/i18n_generated.h from i18n/translations.json."""
+"""Generate src/i18n_generated.h from i18n/translations.json."""
 
 from __future__ import annotations
 
@@ -76,7 +76,7 @@ def escape_cpp(value: str) -> str:
 
 def emit_language(lang: str, rows: list[tuple[str, str]]) -> str:
     lines = [f"inline const std::vector<Entry>& Strings_{lang}() {{",
-             f"    static const std::vector<Entry> data = {{"]
+             "    static const std::vector<Entry> data = {"]
     for key, value in rows:
         lines.append(f'        {{L"{escape_cpp(key)}", L"{escape_cpp(value)}"}},')
     lines.append("    };")

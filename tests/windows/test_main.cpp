@@ -3,7 +3,6 @@
 #include "cli.h"
 #include "extras.h"
 #include "spec_generated.h"
-#include "update.h"
 #include "verify.h"
 
 #include <windows.h>
@@ -104,30 +103,6 @@ void TestExtrasCatalog() {
           "the catalog listing names entries and manual downloads");
 }
 
-void TestVersionCompare() {
-    using medicat::CompareInstallerVersionTags;
-    Check(CompareInstallerVersionTags(L"1.0.43", L"1.0.42") == 1, "1.0.43 is newer than 1.0.42");
-    Check(CompareInstallerVersionTags(L"1.0.9", L"1.0.10") == -1, "1.0.9 is older than 1.0.10 (numeric, not lexical)");
-    Check(CompareInstallerVersionTags(L"1.0.5", L"1.0.5") == 0, "equal versions compare equal");
-    Check(CompareInstallerVersionTags(L"3520", L"1.0.1") == -1, "legacy tag 3520 never counts as newer");
-    Check(CompareInstallerVersionTags(L"1.0.1", L"3521-BETA") == 1, "semver beats a legacy tag");
-}
-
-void TestChecksumParsing() {
-    const std::wstring body =
-        L"9c1cccb8d81b41188d4e6da620703b4cde5cce92d9098eb162c21228bf4aa0ad  MedicatInstaller-x86.exe\r\n"
-        L"BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD *MedicatInstaller.exe\n"
-        L"deadbeef  Medicat_Installer.sh\n";
-    Check(medicat::FindSha256ForAsset(body, L"MedicatInstaller.exe") ==
-              "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
-          "SHA256SUMS lookup handles the *name form and lowercases the digest");
-    Check(medicat::FindSha256ForAsset(body, L"MedicatInstaller-x86.exe") ==
-              "9c1cccb8d81b41188d4e6da620703b4cde5cce92d9098eb162c21228bf4aa0ad",
-          "SHA256SUMS lookup handles CRLF lines");
-    Check(medicat::FindSha256ForAsset(body, L"Medicat_Installer.sh").empty(), "short digests are rejected");
-    Check(medicat::FindSha256ForAsset(body, L"missing.exe").empty(), "missing assets yield no digest");
-}
-
 void TestFileHashing() {
     const std::wstring path = WriteTempFile("abc");
     Check(!path.empty(), "temp file for hashing is created");
@@ -158,13 +133,10 @@ void TestPresenceCheck() {
 static_assert(medicat::kMediCatSplitPartCount == 6, "spec: six Google Drive split parts");
 static_assert(medicat::kMediCatMirrorCount >= 2, "spec: two mirrors feed the GUI buttons");
 static_assert(medicat::kMediCatExtraCount >= 1, "spec: extras catalog is not empty");
-static_assert(sizeof(medicat::kUpdateRepository) > sizeof(wchar_t), "spec: update repository is set");
 
 int main() {
     TestCliParsing();
     TestExtrasCatalog();
-    TestVersionCompare();
-    TestChecksumParsing();
     TestFileHashing();
     TestPresenceCheck();
     std::printf("%d checks, %d failures\n", g_checks, g_failures);

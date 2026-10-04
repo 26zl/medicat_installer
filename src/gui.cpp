@@ -247,9 +247,6 @@ constexpr int kMsgDialogNoBtnId = 1146;
 constexpr UINT_PTR kUiRefreshTimerId = 1;
 constexpr UINT_PTR kArchiveCheckTimerId = 2;
 constexpr UINT_PTR kDriveRefreshTimerId = 3;
-constexpr UINT_PTR kUpdateCheckTimerId = 4;
-constexpr UINT kUpdateCheckDelayMs = 500;
-constexpr UINT kUpdateCheckIntervalMs = 5 * 60 * 1000;  // 5 minutes
 constexpr UINT kUiRefreshIntervalMs = 250;
 constexpr UINT kArchiveCheckIntervalMs = 3000;
 constexpr UINT kDriveDebounceMs = 500;
@@ -1246,72 +1243,7 @@ void Gui::SetVerifyHandler(InstallHandler handler) { onVerify_ = std::move(handl
 
 void Gui::SetLogHandler(std::function<void(const std::wstring&)> handler) { onLog_ = std::move(handler); }
 
-void Gui::SetUpdateCheckHandler(std::function<void()> handler) { onUpdateCheck_ = std::move(handler); }
-
 void Gui::SetFailureLogUploadHandler(std::function<void()> handler) { onFailureLogUpload_ = std::move(handler); }
-
-void Gui::SetApplyInstallerUpdateHandler(std::function<void(const InstallerUpdateInfo&)> handler) {
-    onApplyInstallerUpdate_ = std::move(handler);
-}
-
-void Gui::ScheduleUpdateCheck() {
-    if (!hwnd_ || !IsWindow(hwnd_)) {
-        return;
-    }
-    SetTimer(hwnd_, kUpdateCheckTimerId, kUpdateCheckDelayMs, nullptr);
-}
-
-void Gui::ShowUpdatePrompt(const InstallerUpdateInfo& info) {
-    if (!hwnd_ || !IsWindow(hwnd_)) {
-        return;
-    }
-    const std::wstring releaseTag = info.releaseTag.empty() ? info.version : info.releaseTag;
-    if (!releaseTag.empty() && releaseTag == lastUpdatePromptReleaseTag_) {
-        return;
-    }
-    if (!releaseTag.empty()) {
-        lastUpdatePromptReleaseTag_ = releaseTag;
-    }
-
-    const std::wstring localVersion = InstallerVersionLabel();
-    const std::wstring localTag = InstallerVersionWide();
-    const std::wstring remoteVersion = [&]() {
-        if (!info.version.empty()) {
-            return info.version.rfind(L'v', 0) == 0 ? info.version : (L"v" + info.version);
-        }
-        if (!info.releaseTag.empty()) {
-            return info.releaseTag.rfind(L'v', 0) == 0 ? info.releaseTag : (L"v" + info.releaseTag);
-        }
-        return std::wstring(L"unknown");
-    }();
-    const std::wstring remoteTag = info.releaseTag.empty() ? remoteVersion : info.releaseTag;
-
-    // When version and tag are the same scheme (1.0.N), only show the version once.
-    const std::wstring localPrimary = localVersion;
-    const std::wstring localSecondary =
-        !localTag.empty() && localTag != InstallerVersionWide() ? localTag : localVersion;
-    const std::wstring remotePrimary = remoteVersion;
-    const std::wstring remoteSecondary =
-        !remoteTag.empty() && remoteTag != info.version &&
-                (info.version.empty() || remoteTag != (info.version.rfind(L'v', 0) == 0
-                                                           ? info.version.substr(1)
-                                                           : info.version))
-            ? remoteTag
-            : remoteVersion;
-
-    const std::wstring message =
-        i18n::Tr(L"update.available_message", localPrimary, localSecondary, remotePrimary, remoteSecondary);
-    const std::wstring title = i18n::Tr(L"update.available_title");
-    if (ShowConfirmDialog(message, title, MessageDialogKind::Info)) {
-        if (info.downloadUrl.empty()) {
-            ShowMessageDialog(i18n::Tr(L"update.download_unavailable"), title, MessageDialogKind::Warning);
-            return;
-        }
-        if (onApplyInstallerUpdate_) {
-            onApplyInstallerUpdate_(info);
-        }
-    }
-}
 
 void Gui::LogVentoyDetection(const std::wstring& drive, const VentoyDetectionResult& detection) {
     if (!onLog_ || drive.empty()) {
@@ -2695,8 +2627,7 @@ LRESULT CALLBACK Gui::CreditsWndProc(const HWND hwnd, const UINT msg, const WPAR
                 return 0;
             }
             if (id == kCreditsSourceBtnId) {
-                const std::wstring url = std::wstring(L"https://github.com/") + kUpdateRepository;
-                OpenBrowserUrl(url.c_str());
+                OpenBrowserUrl(kProjectRepositoryUrl);
                 return 0;
             }
             if (id == kCreditsCloseBtnId) {
@@ -4183,11 +4114,6 @@ LRESULT CALLBACK Gui::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
             } else if (wp == kDriveRefreshTimerId) {
                 KillTimer(hwnd, kDriveRefreshTimerId);
                 self->OnDebouncedDriveChange();
-            } else if (wp == kUpdateCheckTimerId) {
-                if (self->onUpdateCheck_) {
-                    self->onUpdateCheck_();
-                }
-                SetTimer(hwnd, kUpdateCheckTimerId, kUpdateCheckIntervalMs, nullptr);
             }
             return 0;
         case WM_SIZE:
@@ -4304,16 +4230,6 @@ LRESULT CALLBACK Gui::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
             }
             return 0;
         }
-        case WM_MEDICAT_UPDATE_RESULT: {
-            auto* payload = reinterpret_cast<UpdateResultPayload*>(lp);
-            if (payload) {
-                if (payload->info.updateAvailable) {
-                    self->ShowUpdatePrompt(payload->info);
-                }
-                delete payload;
-            }
-            return 0;
-        }
         case WM_MEDICAT_FAILURE_DIAG: {
             auto* payload = reinterpret_cast<FailureDiagPayload*>(lp);
             if (payload) {
@@ -4325,7 +4241,6 @@ LRESULT CALLBACK Gui::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         case WM_DESTROY:
             KillTimer(hwnd, kArchiveCheckTimerId);
             KillTimer(hwnd, kDriveRefreshTimerId);
-            KillTimer(hwnd, kUpdateCheckTimerId);
             if (self->fileLogWindow_ && IsWindow(self->fileLogWindow_)) {
                 DestroyWindow(self->fileLogWindow_);
             }

@@ -6,8 +6,8 @@ these JSON files at runtime; `tools/gen_spec.py` bakes them in.
 
 | File | Contents |
 |------|----------|
-| `medicat.json` | MediCat version, archive name/size/MD5/SHA-256, Google Drive split parts, download mirrors, torrent/magnet, MD5 manifest URLs, USB size limits, free-space gates, Ventoy defaults, the GitHub repository the Windows installer updates from (`updates.github_repository`) and the checksum asset it requires (`SHA256SUMS.txt`), support links |
-| `extras.json` | Catalog of optional boot images with the upstream projects' checksums: rescue and imaging, diagnostics and disk wiping, Windows rescue, live Linux, forensics, plus `manual` entries for downloads that need a login (Windows ISOs, SANS SIFT, PALADIN). `--list-extras` / `/list-extras` print the current entries |
+| `medicat.json` | MediCat version, archive name/size/MD5/SHA-256, Google Drive split parts, download mirrors, torrent/magnet, MD5 manifest URLs, USB size limits, free-space gates, Ventoy defaults, support links (the repository URL feeds the Credits window) |
+| `extras.json` | Catalog of optional boot images with the upstream projects' checksums: rescue and boot repair, partitioning and imaging, diagnostics, firmware and disk wiping, Windows rescue, live Linux, forensics, plus `manual` entries for downloads that are rolling or need a login (ESET SysRescue Live, Windows ISOs, PALADIN). Every entry must be something Ventoy boots from the stick. `all` is about 40 GB, so it needs a 128 GB stick next to MediCat; `--list-extras` / `/list-extras` print the entries and sizes |
 | `MediCat_USB_v21.12.torrent` | The official torrent for the archive, kept here so the fork stays self-sufficient; the installers fetch it from `medicat.torrent.url` |
 
 ## Generated outputs

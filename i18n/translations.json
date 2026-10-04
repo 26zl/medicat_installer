@@ -274,17 +274,6 @@
       "extraction_exception": "Exception during extraction: {0}",
       "module_check_failed": "Extraction library check failed: {0}",
       "internet_check_failed": "Error checking internet connection: {0}"
-    },
-    "update": {
-      "available_title": "Update Available",
-      "available_message": "A newer MediCat Installer is available.\n\nYou have: {0} ({1})\nLatest: {2} ({3})\n\nDownload the update and restart now?",
-      "checking": "Checking for installer updates...",
-      "up_to_date": "Installer is up to date.",
-      "downloading": "Downloading installer update...",
-      "download_failed_title": "Update Failed",
-      "download_failed": "Could not download the installer update:\n\n{0}",
-      "download_unavailable": "No direct download link was found for this update. Visit the release page on GitHub to download it manually.",
-      "restarting": "Update downloaded — restarting with the new version..."
     }
   },
   "es": {
@@ -560,17 +549,6 @@
       "extraction_exception": "Excepción durante la extracción: {0}",
       "module_check_failed": "Error al verificar bibliotecas de extracción: {0}",
       "internet_check_failed": "Error al verificar conexión a internet: {0}"
-    },
-    "update": {
-      "available_title": "Actualización disponible",
-      "available_message": "Hay una versión más reciente del instalador MediCat.\n\nTiene: {0} ({1})\nÚltima: {2} ({3})\n\n¿Descargar la actualización y reiniciar ahora?",
-      "checking": "Buscando actualizaciones del instalador...",
-      "up_to_date": "El instalador está actualizado.",
-      "downloading": "Descargando actualización del instalador...",
-      "download_failed_title": "Actualización fallida",
-      "download_failed": "No se pudo descargar la actualización del instalador:\n\n{0}",
-      "download_unavailable": "No se encontró un enlace de descarga directa para esta actualización. Visite la página de la versión en GitHub para descargarla manualmente.",
-      "restarting": "Actualización descargada — reiniciando con la nueva versión..."
     }
   },
   "fr": {
@@ -847,17 +825,6 @@
       "extraction_exception": "Exception pendant l'extraction: {0}",
       "module_check_failed": "Échec de la vérification des bibliothèques d'extraction: {0}",
       "internet_check_failed": "Erreur lors de la vérification de la connexion Internet: {0}"
-    },
-    "update": {
-      "available_title": "Mise à jour disponible",
-      "available_message": "Une version plus récente de l'installateur MediCat est disponible.\n\nVous avez : {0} ({1})\nDernière : {2} ({3})\n\nTélécharger la mise à jour et redémarrer maintenant ?",
-      "checking": "Recherche de mises à jour de l'installateur...",
-      "up_to_date": "L'installateur est à jour.",
-      "downloading": "Téléchargement de la mise à jour de l'installateur...",
-      "download_failed_title": "Échec de la mise à jour",
-      "download_failed": "Impossible de télécharger la mise à jour de l'installateur :\n\n{0}",
-      "download_unavailable": "Aucun lien de téléchargement direct n'a été trouvé pour cette mise à jour. Consultez la page de version sur GitHub pour la télécharger manuellement.",
-      "restarting": "Mise à jour téléchargée — redémarrage avec la nouvelle version..."
     }
   },
   "pl": {
@@ -1134,17 +1101,6 @@
       "extraction_exception": "Wyjątek podczas rozpakowywania: {0}",
       "module_check_failed": "Sprawdzanie bibliotek rozpakowywania nie powiodło się: {0}",
       "internet_check_failed": "Błąd podczas sprawdzania połączenia internetowego: {0}"
-    },
-    "update": {
-      "available_title": "Dostępna aktualizacja",
-      "available_message": "Dostępna jest nowsza wersja instalatora MediCat.\n\nMasz: {0} ({1})\nNajnowsza: {2} ({3})\n\nPobrać aktualizację i uruchomić ponownie teraz?",
-      "checking": "Sprawdzanie aktualizacji instalatora...",
-      "up_to_date": "Instalator jest aktualny.",
-      "downloading": "Pobieranie aktualizacji instalatora...",
-      "download_failed_title": "Aktualizacja nie powiodła się",
-      "download_failed": "Nie udało się pobrać aktualizacji instalatora:\n\n{0}",
-      "download_unavailable": "Nie znaleziono bezpośredniego linku do pobrania tej aktualizacji. Odwiedź stronę wydania na GitHubie, aby pobrać ją ręcznie.",
-      "restarting": "Aktualizacja pobrana — ponowne uruchamianie z nową wersją..."
     }
   },
   "tr": {
@@ -1423,17 +1379,6 @@
       "extraction_exception": "Çıkarma sırasında istisna oluştu: {0}",
       "module_check_failed": "Çıkarma kitaplığı kontrolü başarısız oldu: {0}",
       "internet_check_failed": "İnternet bağlantısı kontrol edilirken hata oluştu: {0}"
-    },
-    "update": {
-      "available_title": "Güncelleme Mevcut",
-      "available_message": "Daha yeni bir MediCat Kurulumcu sürümü mevcut.\n\nSizde: {0} ({1})\nEn son: {2} ({3})\n\nGüncellemeyi indirip şimdi yeniden başlatmak ister misiniz?",
-      "checking": "Kurulumcu güncellemeleri kontrol ediliyor...",
-      "up_to_date": "Kurulumcu güncel.",
-      "downloading": "Kurulumcu güncellemesi indiriliyor...",
-      "download_failed_title": "Güncelleme Başarısız",
-      "download_failed": "Kurulumcu güncellemesi indirilemedi:\n\n{0}",
-      "download_unavailable": "Bu güncelleme için doğrudan indirme bağlantısı bulunamadı. Manuel indirmek için GitHub'daki sürüm sayfasını ziyaret edin.",
-      "restarting": "Güncelleme indirildi — yeni sürümle yeniden başlatılıyor..."
     }
   }
 }

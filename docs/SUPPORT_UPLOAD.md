@@ -1,388 +1,79 @@
-# Support telemetry & log upload — design
+# Support telemetry and log upload
 
-Two-tier reporting from the C++ installer:
+Two kinds of data can leave the Windows installer, both only after an explicit yes and only in builds that carry an ingest token. CI builds of this repository have no token, so they never prompt and never send anything. The Linux script sends nothing.
 
-1. **Session report (automatic)** — small JSON at end of every install/verify: success/failure, installer version, OS summary. **No prompt.** No log files.
-2. **Failure bundle (on error only)** — zip of `.log` / `.txt` beside the exe when something fails; user consent before files leave the machine; returns a **support keyword** for Discord.
+| Tier | When | Consent | Payload |
+|------|------|---------|---------|
+| **A: session report** | At start (`launch` / `opened`) and at the end of every install or verify | Asked once on first GUI start and saved; headless runs follow the saved answer or `/telemetry` | About 1 KB of JSON, no log files |
+| **B: failure log bundle** | Only after a failed install or verify | Yes/No dialog for each failure; headless runs need `/upload-logs` | Zip of allowlisted log files plus a manifest |
 
-**Status:** Both tiers are implemented in `src/support.cpp`, and both need consent. Tier A is asked once on first GUI start (`messages.telemetry_consent`) and stored in `%AppData%\MedicatInstaller\preferences.json` (`session_reports_enabled`); headless runs send it only with `/telemetry` or a saved yes. Tier B is a Yes/No prompt after each failure in the GUI (`messages.upload_logs_prompt`) and needs `/upload-logs` headless; `"failure_log_auto_upload_enabled": false` disables the offer entirely. The debug log no longer records the computer or user name. Builds without an ingest token send nothing.  
-**Related:** [`TODO.md`](TODO.md) · [`SUPPORT_SERVER.md`](SUPPORT_SERVER.md) · [`debug.cpp`](../src/debug.cpp)
+Code: `src/support.cpp` (payloads, preferences, HTTP), `src/app.cpp` (`EnsureTelemetryConsent`, `SubmitSessionReport`, `QueueFailureLogUpload`), `src/debug.cpp` (system snapshot). What the server stores: [`SUPPORT_SERVER.md`](SUPPORT_SERVER.md); its API: [`api.md`](api.md).
 
----
+## Consent and preferences
 
-## Goals
+On the first GUI start of a build with an ingest token, `EnsureTelemetryConsent` shows `messages.telemetry_consent` as a Yes/No box and writes `%AppData%\MedicatInstaller\preferences.json`:
 
-1. Aggregate install/verify **success vs failure rates** and environment mix (OS build, arch) without bothering users.
-2. On **failure only**, make it easy to send full diagnostics for debugging (logs + keyword).
-3. Keep tiers separate: anonymous-ish session pings vs PII-heavy log bundles.
-4. Reuse `DiagnosticContext` / `debug.cpp` for field population.
-
----
-
-## Non-goals
-
-- Uploading log files on **successful** sessions.
-- Uploading MediCat `.7z`, USB contents, or executables.
-- Real-time log streaming during install.
-- User accounts or installer login.
-
----
-
-## Two-tier model
-
-| Tier | When | Prompt? | Payload | Purpose |
-|------|------|---------|---------|---------|
-| **A — Session report** | Every install/verify exit (success or fail) | **No** | ~1 KB JSON | Stats, trends, failure rate by OS/build |
-| **B — Failure bundle** | Only when operation fails | **Yes** (log files contain PII) | Zip of allowlisted logs + manifest | Deep debug, Discord keyword |
-
-```mermaid
-flowchart TD
-    Start[Install or verify runs] --> End[Session ends]
-    End --> A[POST session report - async, no UI]
-    End --> Fail{Failure?}
-    Fail -->|No| Done[Done]
-    Fail -->|Yes| Offer[Offer upload logs UI]
-    Offer --> User{User consents?}
-    User -->|Yes| B[POST failure bundle + keyword]
-    User -->|No| Done
-    B --> Done
+```json
+{
+  "session_reports_enabled": false,
+  "failure_log_auto_upload_enabled": true
+}
 ```
 
-Tier A runs even if the user declines Tier B. Tier B is never offered on success.
+- `session_reports_enabled` turns Tier A on or off. A missing or unreadable file counts as **off**; consent is never assumed.
+- `failure_log_auto_upload_enabled` only controls whether the Tier B offer appears after a failure. `false` hides the dialog. Despite the name, nothing is uploaded automatically.
+- `/telemetry` and `/no-telemetry` override the saved answer for one run. A headless run without either flag and without a saved yes sends nothing.
+- There is no settings UI yet ([`TODO.md`](TODO.md)); edit the file, or delete it to be asked again.
 
----
+## Tier A: session report
 
-## Privacy & consent
+`SubmitLaunchSessionReport` runs right after start, `SubmitSessionReport` when an install or verify ends. The GUI posts from a background thread; headless runs post before exiting. Target: `MEDICAT_SESSIONS_URL`, default `https://telemetry.medicatusb.com/v1/sessions`, with `Authorization: Bearer <ingest token>`. Failures (401, 503, network) go to `medicat_installer.log` only; nothing is retried or shown.
 
-### Tier A — Session report (default on)
+`BuildSessionReportJson` sends:
 
-Sent automatically at session end via background thread (same pattern as other network work — must not block `PostDone` or process exit for more than a few ms enqueue).
-
-**Included (no PII by design):**
-
-| Field | Example |
+| Field | Content |
 |-------|---------|
-| `outcome` | `success`, `install_failed`, `verify_failed`, `cancelled`, `error` |
-| `operation` | `install`, `verify` |
-| `exit_code` | CLI/GUI mapped code (0–6) |
-| `installer_version`, `installer_build`, `installer_arch` | `1.0.6`, `6`, `x64` |
-| `medicat_usb_version`, `release_tag` | `21.12`, `3521-BETA` |
-| `windows_build`, `windows_edition` | `26100`, `IoT Enterprise LTSC` |
-| `processor_arch`, `logical_processors` | `x64`, `16` |
-| `locale` | `en-US` |
-| `format_requested`, `ventoy_requested` | booleans (options only, no drive letter) |
-| `session_id` | Random UUID per run (links Tier B if uploaded later) |
-| `duration_ms` | Wall time for the operation |
+| `schema_version`, `session_id`, `client` | `1`, a random UUID per run, `MedicatInstaller` |
+| `operation`, `outcome`, `exit_code`, `duration_ms` | `launch`, `install` or `verify`; outcome below; the exit code and wall time |
+| `installer_version`, `installer_build`, `installer_arch`, `release_tag`, `medicat_usb_version` | Build identity, e.g. `1.0.49`, `49`, `x64`, `1.0.49`, `21.12` |
+| `ui_language`, `locale`, `elevated` | UI language code, Windows user locale, whether the process is elevated |
+| `options` | `format`, `ventoy`, `ventoy_gpt`, `ventoy_secure_boot`, `headless` as booleans |
+| `system` | `windows_build`, `windows_ubr`, `windows_major_minor`, `edition_id`, `installation_type`, `processor_arch`, `logical_processors`, `ram_gb_bucket` (`4`, `8`, `16`, `32`, `64+`), `machine_id_hash` (SHA-256 of the machine GUID) |
+| `error` | Only on failure: `title` (max 128 chars) and `detail` (max 512), translated to English, with drive letters replaced by `<drive>:`, profile paths by `\Users\<user>\` and `\\?\` prefixes by `<path>\` |
 
-**Excluded from Tier A:** username, computer name, drive letters, paths, IP (client-side), failure message text, file names from USB.
+Outcomes (`DeriveSessionOutcome`): `opened`, `success`, `cancelled`, `install_failed`, `reextract_failed`, `verify_failed`, `verify_failed_after_reextract`, `verify_error`, `verify_wrong_drive`.
 
-**Opt-out:** Settings → **Send anonymous usage reports** (default **on**). When off, skip Tier A entirely. First-run or About screen: one-line disclosure + link to docs. No modal on every launch.
+Not sent: user or computer name, drive letters or paths other than the redacted error text, file names from the stick, log contents. The client sends no IP address; the server sees the connection and keeps a salted hash for rate limiting.
 
-Store in `%AppData%\MedicatInstaller\preferences.json`:
+## Tier B: failure log bundle
 
-```json
-{
-  "session_reports_enabled": true,
-  "failure_log_upload_consent": "ask_on_failure"
-}
-```
+Offered only when an install or verify failed with a message (not on cancel), the build has a token and `failure_log_auto_upload_enabled` is not `false`. The GUI asks with `messages.upload_logs_prompt` before the failure dialog opens; headless runs upload only with `/upload-logs`.
 
-### Tier B — Failure bundle (failure only)
+`CollectSupportLogFiles` takes these files from `logs\` beside the exe (falling back to the exe directory), skipping missing or empty ones:
 
-| State | Behavior |
-|-------|----------|
-| **On failure** | Show **Upload logs for support** on error / re-extract-still-failed dialogs. |
-| **Consent** | Dialog lists log file names; warns about username/paths inside logs. User confirms or skips. |
-| **Opt-out (remembered)** | “Don’t offer log upload again” → hide Tier B buttons; Tier A still follows `session_reports_enabled`. |
-| **Opt-in shortcut** | “Upload automatically when install fails” → Tier B runs without dialog on failure only (aggressive; Advanced setting). |
+| File | Source |
+|------|--------|
+| `medicat_installer.log` | Every session, including the diagnostics sections |
+| `ventoy.log`, `cli_log.txt` | Ventoy2Disk output (`cli_log.txt` also from `Ventoy2Disk\` on older layouts) |
+| `extract.log`, `reextract.log` | Full and selective 7-Zip extraction |
+| `check.log`, `failed_files.txt` | MD5 verification |
+| `aria.log` | aria2c HTTP or torrent download |
+| `support_manifest.json` | Generated at upload time: `session_id`, `client`, `operation`, `installer_version`, `installer_build`, `ui_language`, `error_title`, `error_detail`, `files_included` |
 
-**CLI:** On non-zero exit, print local log paths. Optional `/upload-logs` requires explicit flag + network; never auto-upload files without flag or `failure_log_upload_consent: auto_on_failure`.
+The files are zipped with the bundled `7za.exe` under `%TEMP%\MedicatInstaller\<pid>\` and posted as multipart form data (`bundle`, `session_id`, `manifest`) to `MEDICAT_UPLOADS_URL`, default `https://telemetry.medicatusb.com/v1/support/uploads`, with the same bearer token. The server answers with a keyword such as `MEDICAT-A7X9K2`; the failure dialog shows it as the **Diag code** with a copy button for Discord. The zip and the staging folder are deleted afterwards.
 
----
+The log files contain file paths, drive letters and tool output. The debug log no longer records the computer or user name. Executables, archives, the Ventoy package and the contents of the stick are never included. Retention and rate limits are the server's: 30 days, 5 uploads per hour per IP ([`SUPPORT_SERVER.md`](SUPPORT_SERVER.md)).
 
-## Tier A — Session report API
+## Build configuration
 
-### Endpoint
+- `MEDICAT_SESSIONS_URL` and `MEDICAT_UPLOADS_URL` are compile definitions set in `CMakeLists.txt`; `cmake/local.cmake` (gitignored, see `cmake/local.cmake.example`) overrides them for a local server.
+- The ingest token comes from the `MEDICAT_INGEST_TOKEN` CMake variable or environment variable, or from `cmake/ingest.token` (gitignored). `tools/generate_ingest_token.py` writes it obfuscated into `generated/ingest_token.cpp`; without a token `HasIngestToken()` is false and every path above is skipped. `ci.yml` builds without one; a build that reports needs the token set locally.
 
-```
-POST https://support.example.com/v1/sessions
-Content-Type: application/json
-```
+## Command line
 
-Fire-and-forget from worker thread after `PostDone`. Ignore response body on success; log debug line on failure. Timeout 5 s max.
+| Flag | Effect |
+|------|--------|
+| `/telemetry`, `/no-telemetry` | Send or skip the session reports for this run, overriding the saved preference |
+| `/upload-logs` | Allow the failure bundle after a failed headless run |
 
-### Request body
-
-```json
-{
-  "schema_version": 1,
-  "session_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "client": "MedicatInstaller",
-  "installer_version": "1.0.6",
-  "installer_build": 6,
-  "installer_arch": "x64",
-  "medicat_usb_version": "21.12",
-  "release_tag": "3521-BETA",
-  "operation": "install",
-  "outcome": "verify_failed_after_reextract",
-  "exit_code": 6,
-  "duration_ms": 1840320,
-  "locale": "en-US",
-  "elevated": true,
-  "options": {
-    "format": true,
-    "ventoy": true,
-    "ventoy_gpt": false,
-    "ventoy_secure_boot": true,
-    "headless": false
-  },
-  "system": {
-    "windows_build": 26100,
-    "windows_major_minor": "10.0",
-    "edition_id": "IoTEnterpriseS",
-    "installation_type": "Client",
-    "processor_arch": "x64",
-    "logical_processors": 16,
-    "ram_gb_bucket": "32"
-  }
-}
-```
-
-`ram_gb_bucket`: rounded bucket (`8`, `16`, `32`, `64+`) — not exact bytes.
-
-### Response
-
-```
-204 No Content
-```
-
-Or `200` with empty body. No keyword. Idempotent on `session_id` (server dedupes retries).
-
-### Server use
-
-- Dashboards: success rate by `installer_build`, `windows_build`, `outcome`.
-- Alert on spike in `ventoy_install_failed` for a new build.
-- Join to Tier B via `session_id` when user uploads logs.
-
-**What the server stores:** [`SUPPORT_SERVER.md`](SUPPORT_SERVER.md)
-
----
-
-## Tier B — Failure log bundle
-
-### When to offer / run
-
-Trigger Tier B UI only from failure paths:
-
-| Trigger | Offer upload? |
-|---------|----------------|
-| `PostDone(false, …)` after install | Yes |
-| Verify failed (with or without re-extract) | Yes |
-| Re-extract still failed | Yes (primary) |
-| User cancelled | No |
-| Success | **No** |
-| `/help`, `/version` | No |
-
-Optional Advanced: manual **Send logs** (any time) for power users — still requires consent.
-
-### Log files (beside exe)
-
-| File | When present |
-|------|----------------|
-| `medicat_installer.log` | Every session |
-| `extract.log` | After extract |
-| `reextract.log` | After selective re-extract |
-| `aria.log` | After aria2 HTTP or torrent download |
-| `check.log` | After verify |
-| `failed_files.txt` | Verify failures |
-
-**Deny:** `*.exe`, `*.7z`, archives, binaries, `Ventoy2Disk\`, USB paths.
-
-Generated at upload time: `support_manifest.json` (full context for staff — may include drive letter and paths; **only inside Tier B zip**, not in Tier A).
-
-### Client flow (failure only)
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant UI as Installer
-    participant Collect as CollectSupportLogs
-    participant API as Support API
-
-    Note over UI: Session already sent Tier A with session_id
-    UI->>User: Failure dialog + Upload logs?
-    User->>UI: Confirm
-    Collect->>Collect: Zip allowlisted logs + manifest
-    UI->>API: POST /v1/support/uploads
-    API-->>UI: keyword MEDICAT-A7X9K2
-    UI->>User: Copy keyword for Discord
-```
-
-### Endpoint
-
-```
-POST https://support.example.com/v1/support/uploads
-Content-Type: multipart/form-data
-```
-
-| Part | Required | Description |
-|------|----------|-------------|
-| `bundle` | yes | `support_upload.zip` |
-| `session_id` | yes | Links to Tier A row |
-| `manifest` | no | JSON copy for indexing |
-
-### Response (201)
-
-```json
-{
-  "upload_id": "550e8400-e29b-41d4-a716-446655440000",
-  "keyword": "MEDICAT-A7X9K2",
-  "expires_at": "2026-07-18T04:12:00Z"
-}
-```
-
----
-
-## Client modules (planned)
-
-| Module | Responsibility |
-|--------|----------------|
-| `support.cpp` | `SendSessionReport()`, `CollectSupportLogs()`, `UploadFailureBundle()`, preferences |
-| `debug.cpp` | `BuildSessionReportJson()`, `BuildSupportManifest()` — shared field sources |
-| `download.cpp` | WinHTTP POST JSON + multipart |
-| `app.cpp` | Hook `PostDone` → Tier A always (if enabled); Tier B offer on `success == false` |
-
-### Session report timing
-
-```cpp
-// Pseudocode — end of PostDone or RunParsed return
-if (SessionReportsEnabled()) {
-    std::thread([] { SendSessionReport(BuildSessionPayload()); }).detach();
-}
-```
-
-Include `session_id` generated at app start (UUID v4), stored on `App` for Tier B linkage.
-
----
-
-## Server & storage
-
-### Sessions table (Tier A)
-
-| Column | Notes |
-|--------|-------|
-| `session_id` | PK, UUID |
-| `created_at` | UTC |
-| `outcome`, `exit_code`, `operation` | Indexed |
-| `installer_build`, `windows_build` | Indexed |
-| `payload_json` | Full Tier A body |
-
-Retention: **90 days** (aggregates kept longer; raw rows rolled up).
-
-### Uploads table (Tier B)
-
-| Column | Notes |
-|--------|-------|
-| `upload_id`, `keyword` | Staff lookup |
-| `session_id` | FK → sessions |
-| `object_key` | S3/R2 path to zip |
-| `expires_at` | e.g. 30 days |
-
-Staff: lookup by keyword or `session_id`; Discord bot `/medicat-logs MEDICAT-A7X9K2`.
-
----
-
-## Security & rate limits
-
-| Limit | Tier A | Tier B |
-|-------|--------|--------|
-| Per IP / hour | 60 sessions | 10 uploads |
-| Max body | 4 KB JSON | 10 MB zip |
-| Auth | Public ingest key | Same key |
-| HTTPS | Required | Required |
-
-Tier A: no PII → lower privacy risk; still allow opt-out.  
-Tier B: consent required (except optional `auto_on_failure` Advanced); logs may contain username and paths.
-
----
-
-## Configuration
-
-```json
-{
-  "sessions_url": "https://support.example.com/v1/sessions",
-  "uploads_url": "https://support.example.com/v1/support/uploads",
-  "session_reports_default": true,
-  "failure_upload_enabled": true
-}
-```
-
-`session_reports_default: false` for enterprise/offline builds.
-
----
-
-## Implementation phases
-
-### Phase 1 — Session reports
-
-- [ ] `session_id` at app start
-- [ ] `BuildSessionReportJson()` from `DiagnosticContext` (PII-free subset)
-- [ ] `SendSessionReport()` async POST
-- [ ] Preference `session_reports_enabled` + Settings checkbox
-- [ ] Server `POST /v1/sessions` + storage
-
-### Phase 2 — Failure collection (local)
-
-- [ ] `CollectSupportLogs()` allowlist + zip
-- [ ] `BuildSupportManifest()` with drive/options (Tier B only)
-- [ ] Wire failure dialogs to offer upload (no auto files yet)
-
-### Phase 3 — Failure upload + keyword
-
-- [ ] `UploadFailureBundle()` multipart
-- [ ] Consent dialog + keyword UI
-- [ ] Server uploads + keyword generation + staff lookup
-
-### Phase 4 — Polish
-
-- [ ] i18n for consent / keyword / settings disclosure
-- [ ] CLI `/upload-logs`
-- [ ] Dashboards from Tier A data
-
----
-
-## i18n keys (planned)
-
-**Settings / disclosure**
-
-| Key | Purpose |
-|-----|---------|
-| `support.session_reports_label` | Send anonymous usage reports (installer version, OS, success/failure) |
-| `support.session_reports_hint` | No log files or personal files are sent |
-
-**Failure upload (Tier B only)**
-
-| Key | Purpose |
-|-----|---------|
-| `support.upload_button` | Upload logs for support |
-| `support.consent_title` | Send diagnostic log files? |
-| `support.consent_body` | File list + PII note |
-| `support.success` | Share this keyword in Discord: {0} |
-| `support.failed` | Upload failed: {0} |
-
----
-
-## Open questions
-
-1. Is Tier A acceptable with **opt-out only** (no opt-in), given no PII? Legal/privacy review for EU users.
-2. **`auto_on_failure`** for Tier B — ship in v1 or wait?
-3. Include coarse **failure_class** in Tier A (`ventoy`, `extract`, `verify`, `format`) without message text?
-4. Hosting: **`telemetry.medicatusb.com`** — see [`SUPPORT_SERVER.md`](SUPPORT_SERVER.md) for uploaded data; server repo is private.
-
----
-
-## References
-
-- Diagnostics already logged locally: [`src/debug.cpp`](../src/debug.cpp)
-- Task checklist: [`TODO.md`](TODO.md)
-- WinHTTP: [`src/download.cpp`](../src/download.cpp)
+Details in [`CLI.md`](CLI.md). The user-facing summary lives in the README's telemetry section.

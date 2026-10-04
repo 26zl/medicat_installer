@@ -102,11 +102,8 @@
     "linux_tarball_url_template": "https://github.com/ventoy/Ventoy/releases/download/v{version}/ventoy-{version}-linux.tar.gz",
     "windows_zip_url_template": "https://github.com/ventoy/Ventoy/releases/download/v{version}/ventoy-{version}-windows.zip"
   },
-  "updates": {
-    "github_repository": "26zl/medicat_installer",
-    "checksums_asset": "SHA256SUMS.txt"
-  },
   "links": {
+    "repository": "https://github.com/26zl/medicat_installer",
     "manual_install_doc": "https://medicatusb.com/docs/medicat/installation/manual-install/",
     "issues": "https://github.com/26zl/medicat_installer/issues",
     "discord": "https://url.medicatusb.com/discord",

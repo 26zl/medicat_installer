@@ -2,8 +2,8 @@
 #
 # lint:          spec JSON + generated outputs in sync, shellcheck + smoke tests for the
 #                Linux installer (tests/linux/smoke_test.sh).
-# build-windows: configure + build x64 and Win32 installers exactly like the release
-#                workflow, minus the release upload. Artifacts are attached to the run.
+# build-windows: configure + build x64 and Win32 installers, run MedicatTests and the VHD smoke
+#                test. The exes are attached to the run as artifacts; nothing is published.
 
 name: CI
 

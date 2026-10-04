@@ -4,7 +4,6 @@
 #include "debug.h"
 #include "gui.h"
 #include "log.h"
-#include "update.h"
 #include "ventoy.h"
 
 #include <atomic>
@@ -56,8 +55,6 @@ private:
     void SubmitSessionReport(bool success, const std::wstring& message, const std::wstring& title, int exitCode);
     void QueueFailureLogUpload(const std::string& sessionId, const std::wstring& message, const std::wstring& title);
     void EnsureTelemetryConsent();
-    void StartUpdateCheck();
-    void ApplyInstallerUpdate(const InstallerUpdateInfo& info);
     void LogOperationFailure(const std::wstring& message, const std::wstring& title);
     DiagnosticContext BuildDiagnosticContext() const;
     VerificationOutcome VerifyDriveFiles(const std::wstring& drive, bool showFileProgress = true);
@@ -108,7 +105,6 @@ private:
     HeadlessResult headlessResult_;
     std::string sessionId_;
     std::chrono::steady_clock::time_point sessionStart_{};
-    std::atomic<bool> updateCheckInProgress_{false};
     bool uploadLogsRequested_ = false;  // /upload-logs
     struct PendingFailure {
         std::string sessionId;

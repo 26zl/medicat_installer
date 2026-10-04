@@ -2,8 +2,6 @@
 setlocal
 cd /d "%~dp0"
 
-set "UPLOAD_RELEASE=0"
-set "RELEASE_TAG="
 set "PIN_BUILD=0"
 
 :parse_args
@@ -14,28 +12,10 @@ if /i "%~1"=="as" (
     shift
     goto parse_args
 )
-if /i "%~1"=="release" (
-    set "UPLOAD_RELEASE=1"
-    set "RELEASE_TAG=%~2"
-    shift
-    shift
-    goto parse_args
-)
-if /i "%~1"=="--release" (
-    set "UPLOAD_RELEASE=1"
-    shift
-    goto parse_args
-)
-if /i "%~1"=="/release" (
-    set "UPLOAD_RELEASE=1"
-    shift
-    goto parse_args
-)
 echo Unknown option: %~1
-echo Usage: rebuild.bat [as BUILD] [release [TAG]]
+echo Usage: rebuild.bat [as BUILD]
 echo   BUILD is a full version 1.0.N or a patch number N
-echo   Default bump = one above the latest GitHub release tag
-echo   TAG defaults to the version in build_number.txt when omitted
+echo   Default = local build number + 1
 exit /b 1
 
 :args_done
@@ -52,13 +32,13 @@ python "tools\i18n_codegen.py"
 if errorlevel 1 goto fail
 
 if not "%PIN_BUILD%"=="0" (
-    echo Pinning build number to %PIN_BUILD% ^(updater test build^)...
+    echo Pinning build number to %PIN_BUILD%...
     set "MEDICAT_PIN_BUILD=%PIN_BUILD%"
     python "tools\bump_build_number.py" "build_number.txt" "generated\build_version.cpp" --major 1 --minor 0 --set "%PIN_BUILD%"
     if errorlevel 1 goto fail
 ) else (
-    echo Syncing build number from the latest GitHub release of this repository...
-    python "tools\bump_build_number.py" "build_number.txt" "generated\build_version.cpp" --major 1 --minor 0 --next-after-github
+    echo Bumping the local build number...
+    python "tools\bump_build_number.py" "build_number.txt" "generated\build_version.cpp" --major 1 --minor 0 --bump
     if errorlevel 1 goto fail
 )
 set MEDICAT_BUILD_NUMBER_BUMPED=1
@@ -84,11 +64,6 @@ echo   %~dp0build\Release\MedicatInstaller-x86.exe
 echo   %~dp0build\x64\Release\MedicatInstaller.exe
 echo   %~dp0build\x86\Release\MedicatInstaller-x86.exe
 
-if not "%UPLOAD_RELEASE%"=="1" goto after_upload
-if "%RELEASE_TAG%"=="" if exist "build_number.txt" set /p RELEASE_TAG=<"%~dp0build_number.txt"
-call "tools\upload_release.bat" "%RELEASE_TAG%"
-if errorlevel 1 goto fail
-:after_upload
 if not "%PIN_BUILD%"=="0" set "MEDICAT_PIN_BUILD="
 exit /b 0
 

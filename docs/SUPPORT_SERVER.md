@@ -10,7 +10,7 @@ This doc describes **what data leaves the installer** and **what the server stor
 
 | Tier | When | User prompt? | Payload |
 |------|------|--------------|---------|
-| **A — Session report** | End of every install/verify (if enabled) | No | Small JSON (~1 KB) |
+| **A — Session report** | Start and end of every install/verify (if enabled) | Once, on first GUI start; saved in `preferences.json` | Small JSON (~1 KB) |
 | **B — Failure bundle** | Install/verify failure only | Yes | Zip of allowlisted log files |
 
 Tier A has **no log files**. Tier B may contain **paths and usernames inside log text** — only sent with explicit consent.

@@ -39,8 +39,6 @@ void PostToGui(HWND hwnd, UINT msg, LPARAM payload) {
             delete reinterpret_cast<DonePayload*>(payload);
         } else if (msg == WM_MEDICAT_REEXTRACT_PROMPT) {
             delete reinterpret_cast<ReExtractPromptPayload*>(payload);
-        } else if (msg == WM_MEDICAT_UPDATE_RESULT) {
-            delete reinterpret_cast<UpdateResultPayload*>(payload);
         } else if (msg == WM_MEDICAT_FAILURE_DIAG) {
             delete reinterpret_cast<FailureDiagPayload*>(payload);
         } else if (msg == WM_MEDICAT_CONFIRM_PROMPT) {
@@ -326,14 +324,11 @@ int App::RunGui() {
 
     gui_.SetInstallHandler([this] { OnInstall(); });
     gui_.SetVerifyHandler([this] { OnVerify(); });
-    gui_.SetUpdateCheckHandler([this] { StartUpdateCheck(); });
     gui_.SetFailureLogUploadHandler([this] {
         if (!pendingFailure_.sessionId.empty()) {
             QueueFailureLogUpload(pendingFailure_.sessionId, pendingFailure_.message, pendingFailure_.title);
         }
     });
-    gui_.SetApplyInstallerUpdateHandler([this](const InstallerUpdateInfo& info) { ApplyInstallerUpdate(info); });
-    gui_.ScheduleUpdateCheck();
     LogInstallerDiagnostics(BuildDiagnosticContext(),
                             [this](const std::wstring& line) { log_->Info(line); });
     return gui_.Run();
@@ -723,108 +718,6 @@ void App::QueueFailureLogUpload(const std::string& sessionId, const std::wstring
     SendFailureLogUpload(
         request, TelemetryFileLogger(log_.get()),
         [this](const bool success, const std::wstring& keyword) { PostFailureDiagCode(success, keyword); });
-}
-
-void App::StartUpdateCheck() {
-    if (installing_.load()) {
-        return;
-    }
-
-    bool expected = false;
-    if (!updateCheckInProgress_.compare_exchange_strong(expected, true)) {
-        return;
-    }
-
-    HWND hwnd = gui_.Hwnd();
-    std::thread([this, hwnd]() {
-        const auto finish = [this] { updateCheckInProgress_ = false; };
-        if (installing_.load()) {
-            finish();
-            return;
-        }
-
-        std::wstring connectionError;
-        if (!TestInternetConnection(connectionError)) {
-            log_->Debug(L"[Update] Skipped — offline");
-            finish();
-            return;
-        }
-
-        log_->Info(i18n::Tr(L"update.checking"));
-        const UpdateCheckResult result = CheckForInstallerUpdate();
-        if (!result.success) {
-            log_->Debug(L"[Update] Check failed — " + result.error);
-            finish();
-            return;
-        }
-        if (!result.info.updateAvailable) {
-            log_->Debug(L"[Update] Installer is up to date (local " + InstallerVersionWide() + L", remote " +
-                        result.info.releaseTag + L", remoteBuild " + std::to_wstring(result.info.remoteBuild) + L")");
-            finish();
-            return;
-        }
-
-        log_->Info(L"[Update] Newer installer available — v" + result.info.version + L" (" + result.info.releaseTag +
-                   L", remoteBuild " + std::to_wstring(result.info.remoteBuild) + L", localBuild " +
-                   std::to_wstring(kInstallerBuildNumber) + L")");
-        auto* payload = new UpdateResultPayload{result.info};
-        PostToGui(hwnd, WM_MEDICAT_UPDATE_RESULT, reinterpret_cast<LPARAM>(payload));
-        finish();
-    }).detach();
-}
-
-void App::ApplyInstallerUpdate(const InstallerUpdateInfo& info) {
-    if (installing_.load()) {
-        return;
-    }
-    installing_ = true;
-    gui_.SetBusy(true, BusyProgressMode::Download);
-    gui_.SetDownloadProgress(0, FormatProgressBytes(0), i18n::Tr(L"update.downloading"));
-
-    HWND hwnd = gui_.Hwnd();
-    std::thread([this, hwnd, info]() {
-        uint64_t lastUiTick = 0;
-        std::wstring error;
-        const bool ok = DownloadAndRelaunchInstallerUpdate(
-            info,
-            [&](const uint64_t downloaded, const uint64_t total) {
-                const uint64_t now = GetTickCount64();
-                if (lastUiTick != 0 && now - lastUiTick < 200) {
-                    return;
-                }
-                lastUiTick = now;
-
-                int percent = 0;
-                if (total > 0) {
-                    percent = static_cast<int>((downloaded * 100) / total);
-                }
-                std::wstring sizeText = FormatProgressBytes(downloaded);
-                if (total > 0) {
-                    sizeText += L" / " + FormatProgressBytes(total);
-                }
-
-                auto* progress = new ProgressPayload{};
-                progress->downloadUpdate = true;
-                progress->percent = percent;
-                progress->statusText = sizeText;
-                progress->file = i18n::Tr(L"update.downloading");
-                PostToGui(hwnd, WM_MEDICAT_PROGRESS, reinterpret_cast<LPARAM>(progress));
-            },
-            [this](const std::wstring& line) { log_->Info(line); }, error);
-
-        if (!ok) {
-            installing_ = false;
-            auto* payload = new DonePayload{};
-            payload->success = false;
-            payload->message = i18n::Tr(L"update.download_failed", error);
-            payload->title = i18n::Tr(L"update.download_failed_title");
-            PostToGui(hwnd, WM_MEDICAT_DONE, reinterpret_cast<LPARAM>(payload));
-            return;
-        }
-
-        log_->Info(i18n::Tr(L"update.restarting"));
-        ExitProcess(0);
-    }).detach();
 }
 
 void App::PostDone(const bool success, const std::wstring& message, const std::wstring& title) {

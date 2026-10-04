@@ -1,28 +1,20 @@
 #!/usr/bin/env python3
 """Write build_number.txt and generated/build_version.cpp.
 
-rebuild.bat uses `--next-after-github` (latest published installer tag + 1).
-`--keep` reuses the local counter (CMake PRE_BUILD after a bump).
-`--set` / MEDICAT_PIN_BUILD pin a version (CI tags and updater tests).
+`--keep` (the default) reuses the local counter; CMake runs it before every build.
+`--bump` adds one to the counter (rebuild.bat). `--set` and MEDICAT_PIN_BUILD pin a
+version 1.0.N (CI pins 1.0.1). The version goes into the exe's VERSIONINFO and /version.
 """
 
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import re
-import subprocess
 import sys
-import urllib.error
-import urllib.request
 from pathlib import Path
 
 _VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
-# Used only when neither MEDICAT_GITHUB_REPO, `gh repo view` nor the origin remote names the repository.
-_FALLBACK_REPO = "26zl/medicat_installer"
-_GITHUB_REMOTE_RE = re.compile(r"github\.com[:/]([^/\s]+)/([^/\s]+?)(?:\.git)?/?$")
-_INSTALLER_ASSETS = ("MedicatInstaller.exe", "MedicatInstaller-x86.exe")
 
 
 def write_build_version(output: Path, major: int, minor: int, build: int) -> str:
@@ -48,60 +40,17 @@ def write_counter(counter_path: Path, major: int, minor: int, build: int) -> str
     return version
 
 
-def detect_checkout_repo(repo_root: Path) -> str:
-    """owner/name of the repository this checkout belongs to, resolved like tools/upload_release.bat.
-
-    Order: MEDICAT_GITHUB_REPO, `gh repo view` (honours `gh repo set-default`), the origin remote URL,
-    then the fallback constant. A fork therefore numbers its builds after its own releases.
-    """
-    from_env = os.environ.get("MEDICAT_GITHUB_REPO", "").strip()
-    if from_env:
-        return from_env
-    try:
-        completed = subprocess.run(
-            ["gh", "repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner"],
-            check=False,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            cwd=repo_root,
-        )
-        if completed.returncode == 0 and completed.stdout.strip():
-            return completed.stdout.strip()
-    except (FileNotFoundError, OSError):
-        pass
-    try:
-        completed = subprocess.run(
-            ["git", "remote", "get-url", "origin"],
-            check=False,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            cwd=repo_root,
-        )
-        match = _GITHUB_REMOTE_RE.search(completed.stdout.strip()) if completed.returncode == 0 else None
-        if match:
-            return f"{match.group(1)}/{match.group(2)}"
-    except (FileNotFoundError, OSError):
-        pass
-    return _FALLBACK_REPO
-
-
 def parse_version_text(text: str, default_major: int, default_minor: int) -> tuple[int, int, int] | None:
     cleaned = text.strip()
     if not cleaned:
         return None
-
     if cleaned[:1] in ("v", "V"):
         cleaned = cleaned[1:]
-
     match = _VERSION_RE.match(cleaned)
     if match:
         return int(match.group(1)), int(match.group(2)), int(match.group(3))
-
     if cleaned.isdigit():
         return default_major, default_minor, int(cleaned)
-
     return None
 
 
@@ -113,112 +62,15 @@ def read_counter(counter_path: Path, default_major: int, default_minor: int) -> 
 
 def parse_set_value(value: str, default_major: int, default_minor: int) -> tuple[int, int, int] | None:
     parsed = parse_version_text(value, default_major, default_minor)
-    if parsed is None:
-        return None
-    _major, _minor, build = parsed
-    if build <= 0:
+    if parsed is None or parsed[2] <= 0:
         return None
     return parsed
 
 
-def _release_has_installer_asset(release: dict) -> bool:
-    names = {asset.get("name", "") for asset in release.get("assets") or []}
-    return any(name in names for name in _INSTALLER_ASSETS)
-
-
-def _pick_latest_semver_release(releases: list[dict]) -> tuple[tuple[int, int, int], str] | None:
-    """Newest-first list: prefer stable semver with installer assets, then any semver."""
-    first_any: tuple[tuple[int, int, int], str] | None = None
-    for release in releases:
-        if release.get("draft"):
-            continue
-        tag = str(release.get("tag_name") or "")
-        parsed = parse_version_text(tag, 1, 0)
-        if parsed is None:
-            continue
-        entry = (parsed, tag)
-        if first_any is None:
-            first_any = entry
-        if release.get("prerelease"):
-            continue
-        if _release_has_installer_asset(release):
-            return entry
-    return first_any
-
-
-def fetch_releases_via_gh(repo: str) -> list[dict] | None:
-    try:
-        completed = subprocess.run(
-            [
-                "gh",
-                "api",
-                f"repos/{repo}/releases?per_page=20",
-            ],
-            check=False,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-        )
-    except FileNotFoundError:
-        return None
-    if completed.returncode != 0:
-        return None
-    try:
-        data = json.loads(completed.stdout)
-    except json.JSONDecodeError:
-        return None
-    return data if isinstance(data, list) else None
-
-
-def fetch_releases_via_http(repo: str) -> list[dict] | None:
-    url = f"https://api.github.com/repos/{repo}/releases?per_page=20"
-    req = urllib.request.Request(
-        url,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "User-Agent": "MedicatInstaller-BuildBump",
-        },
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            payload = resp.read().decode("utf-8")
-    except (urllib.error.URLError, TimeoutError, OSError) as exc:
-        print(f"GitHub HTTP fetch failed: {exc}", file=sys.stderr)
-        return None
-    try:
-        data = json.loads(payload)
-    except json.JSONDecodeError:
-        return None
-    return data if isinstance(data, list) else None
-
-
-def fetch_latest_published_semver(repo: str) -> tuple[tuple[int, int, int], str] | None:
-    releases = fetch_releases_via_gh(repo)
-    source = "gh"
-    if releases is None:
-        releases = fetch_releases_via_http(repo)
-        source = "http"
-    if not releases:
-        return None
-    picked = _pick_latest_semver_release(releases)
-    if picked is None:
-        return None
-    version, tag = picked
-    print(f"Latest GitHub installer release ({source}): {tag}")
-    return version, tag
-
-
-def next_version_after_github(
-    repo: str,
-    default_major: int,
-    default_minor: int,
-    counter_path: Path,
-) -> tuple[int, int, int] | None:
-    fetched = fetch_latest_published_semver(repo)
-    if fetched is None:
-        return None
-    (major, minor, patch), _tag = fetched
-    return major, minor, patch + 1
+def write_both(counter: Path, output: Path, major: int, minor: int, build: int) -> str:
+    version = write_counter(counter, major, minor, build)
+    write_build_version(output, major, minor, build)
+    return version
 
 
 def main() -> int:
@@ -227,32 +79,10 @@ def main() -> int:
     parser.add_argument("output", type=Path, help="Path to generated build_version.cpp")
     parser.add_argument("--major", default="1")
     parser.add_argument("--minor", default="0")
-    parser.add_argument(
-        "--repo",
-        default="",
-        help="GitHub repo (owner/name) for latest-release sync. Default: MEDICAT_GITHUB_REPO, else the "
-        f"repository of this checkout (gh repo view, then the origin remote), else {_FALLBACK_REPO}",
-    )
-    parser.add_argument(
-        "--keep",
-        action="store_true",
-        help="Reuse build_number.txt (no increment, no GitHub). This is the default.",
-    )
-    parser.add_argument(
-        "--next-after-github",
-        action="store_true",
-        help="Set version to one patch above the latest GitHub release with installer assets",
-    )
-    parser.add_argument(
-        "--skip-if-env",
-        default="",
-        help="Skip bump when this environment variable is set (regenerate output only)",
-    )
-    parser.add_argument(
-        "--set",
-        default="",
-        help="Force version 1.0.N (or patch N) into build_number.txt and build_version.cpp",
-    )
+    parser.add_argument("--keep", action="store_true", help="Reuse build_number.txt unchanged (default)")
+    parser.add_argument("--bump", action="store_true", help="Add one to the local build number")
+    parser.add_argument("--skip-if-env", default="", help="Only regenerate the output when this variable is set")
+    parser.add_argument("--set", default="", help="Force version 1.0.N (or patch N)")
     args = parser.parse_args()
 
     try:
@@ -262,94 +92,34 @@ def main() -> int:
         print(f"Invalid --major/--minor: {args.major}.{args.minor}", file=sys.stderr)
         return 1
 
-    def in_github_actions() -> bool:
-        return os.environ.get("GITHUB_ACTIONS", "").lower() == "true"
-
-    pin_from_env = os.environ.get("MEDICAT_PIN_BUILD", "").strip()
-    if pin_from_env:
-        pinned = parse_set_value(pin_from_env, default_major, default_minor)
+    pin = os.environ.get("MEDICAT_PIN_BUILD", "").strip() or args.set.strip()
+    if pin:
+        pinned = parse_set_value(pin, default_major, default_minor)
         if pinned is None:
-            print(f"Invalid MEDICAT_PIN_BUILD: {pin_from_env}", file=sys.stderr)
+            print(f"Invalid pinned version: {pin}", file=sys.stderr)
             return 1
-        major, minor, build = pinned
-        version = write_counter(args.counter, major, minor, build)
-        write_build_version(args.output, major, minor, build)
-        print(f"Build number pinned (env): {version}")
-        return 0
-
-    if args.set.strip():
-        pinned = parse_set_value(args.set.strip(), default_major, default_minor)
-        if pinned is None:
-            print(f"Invalid --set value: {args.set}", file=sys.stderr)
-            return 1
-        major, minor, build = pinned
-        version = write_counter(args.counter, major, minor, build)
-        write_build_version(args.output, major, minor, build)
-        print(f"Build number pinned: {version}")
-        return 0
-
-    if args.skip_if_env and os.environ.get(args.skip_if_env):
-        parsed = read_counter(args.counter, default_major, default_minor)
-        if parsed is not None:
-            major, minor, build = parsed
-            version = write_build_version(args.output, major, minor, build)
-            print(f"Build number bump skipped ({args.skip_if_env}); using {version}")
-        return 0
-
-    if args.next_after_github:
-        if in_github_actions():
-            print(
-                "Refusing to bump the build number on GitHub Actions. "
-                "Pin the tag with --set or MEDICAT_PIN_BUILD.",
-                file=sys.stderr,
-            )
-            return 1
-        repo = args.repo.strip() or detect_checkout_repo(args.counter.resolve().parent)
-        print(f"Release repository: {repo}")
-        next_ver = next_version_after_github(
-            repo, default_major, default_minor, args.counter
-        )
-        if next_ver is None:
-            print(
-                "Could not read latest GitHub release; falling back to local +1",
-                file=sys.stderr,
-            )
-            parsed = read_counter(args.counter, default_major, default_minor)
-            if parsed is None:
-                major, minor, build = default_major, default_minor, 0
-            else:
-                major, minor, build = parsed
-            build += 1
-            version = write_counter(args.counter, major, minor, build)
-            write_build_version(args.output, major, minor, build)
-            print(f"Build number: {version}")
-            return 0
-        major, minor, build = next_ver
-        local = read_counter(args.counter, default_major, default_minor)
-        version = write_counter(args.counter, major, minor, build)
-        write_build_version(args.output, major, minor, build)
-        if local is not None:
-            local_s = f"{local[0]}.{local[1]}.{local[2]}"
-            if local != (major, minor, build):
-                print(f"Build number synced from GitHub: {local_s} -> {version}")
-            else:
-                print(f"Build number: {version} (matches next after GitHub latest)")
-        else:
-            print(f"Build number: {version} (from GitHub latest + 1)")
+        print(f"Build number pinned: {write_both(args.counter, args.output, *pinned)}")
         return 0
 
     parsed = read_counter(args.counter, default_major, default_minor)
-    if parsed is None:
-        major, minor, build = 0, 0, 0
-        version = write_counter(args.counter, major, minor, build)
-        write_build_version(args.output, major, minor, build)
-        print(f"No local build_number.txt; using {version} (rebuild.bat as 1.0.N to pin)")
+
+    if args.skip_if_env and os.environ.get(args.skip_if_env):
+        if parsed is not None:
+            major, minor, build = parsed
+            print(f"Build number bump skipped ({args.skip_if_env}); using "
+                  f"{write_build_version(args.output, major, minor, build)}")
         return 0
 
-    major, minor, build = parsed
-    version = write_counter(args.counter, major, minor, build)
-    write_build_version(args.output, major, minor, build)
-    print(f"Build number: {version} (local, unchanged)")
+    if args.bump:
+        major, minor, build = parsed if parsed is not None else (default_major, default_minor, 0)
+        print(f"Build number: {write_both(args.counter, args.output, major, minor, build + 1)}")
+        return 0
+
+    if parsed is None:
+        print(f"No local build_number.txt; using {write_both(args.counter, args.output, 0, 0, 0)} "
+              "(rebuild.bat as 1.0.N to pin)")
+        return 0
+    print(f"Build number: {write_both(args.counter, args.output, *parsed)} (local, unchanged)")
     return 0
 
 

@@ -83,7 +83,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Auto-detect OS language | ✅ | `en` / `es` / `fr` / `pl` / `tr` |
 | In-app language selector | ✅ | Header combo; live UI refresh |
 | All UI strings via i18n | 🟡 | Main window + Ventoy + re-extract wired |
-| Language override setting | ⬜ | Future: CLI flag or ini |
+| Language override setting | ✅ | `/lang:xx` on the command line ([`CLI.md`](CLI.md)) |
 
 ---
 
@@ -93,9 +93,8 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 |---------|--------|-------|
 | Bundle `7za.exe` in exe | ✅ | `bundle.cpp` |
 | Bundle `aria2c.exe` in exe | ✅ | Gzipped official binary; 16 connections for file downloads |
-| Bundle `7z.exe` in exe | ✅ | For Ventoy zip |
+| Ventoy zip extraction | ✅ | Same bundled `7za.exe`; no second 7-Zip binary |
 | SevenZipSharp / `lib/` | ⬜ | **Not needed** — 7za subprocess only |
-| Self-update / version check | ✅ | GitHub Releases of `spec.updates.github_repository`; download verified against `SHA256SUMS.txt` |
 | Extras catalog (`spec/extras.json`) | 🟡 | CLI only: `/extras:LIST` alone or with `/install` / `/verify`, `/list-extras`; downloads via bundled aria2c, checksum-verified, zip images unpacked with 7za; no GUI picker yet |
 
 ---
