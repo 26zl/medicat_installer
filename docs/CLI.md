@@ -39,7 +39,7 @@ MedicatInstaller 1.0.49 x64
 MediCat USB: v21.12
 ```
 
-The version comes from `build_number.txt` at build time (`rebuild.bat` bumps it, CI pins `1.0.1`).
+The version comes from `build_number.txt` at build time (`rebuild.bat` bumps it, CI uses `1.0.<run number>`).
 
 ### Language
 

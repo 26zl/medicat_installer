@@ -3,7 +3,8 @@
 # lint:          spec JSON + generated outputs in sync, shellcheck + smoke tests for the
 #                Linux installer (tests/linux/smoke_test.sh).
 # build-windows: configure + build x64 and Win32 installers, run MedicatTests and the VHD smoke
-#                test. The exes are attached to the run as artifacts; nothing is published.
+#                test. The exes are attached to the run as artifacts, and a push to main also
+#                refreshes the rolling `latest` release that the README links to.
 
 name: CI
 
@@ -61,8 +62,10 @@ jobs:
     name: Build Windows installers
     runs-on: windows-2022
     timeout-minutes: 60
+    permissions:
+      contents: write  # the latest-release step below; read is enough for everything else
     env:
-      MEDICAT_PIN_BUILD: "1.0.1"
+      MEDICAT_PIN_BUILD: "1.0.${{ github.run_number }}"
       MEDICAT_BUILD_NUMBER_BUMPED: "1"
       GH_TOKEN: ${{ github.token }}  # lets tools/fetch_ventoy_versions.py use the authenticated API rate limit
     steps:
@@ -111,3 +114,26 @@ jobs:
             build/Release/MedicatInstaller.exe
             build/Release/MedicatInstaller-x86.exe
           if-no-files-found: error
+
+      # Rolling download without a GitHub login: one release named latest, its tag re-pointed at
+      # HEAD and the assets replaced in place. Not a versioned release.
+      - name: Refresh the latest release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          notes="Rolling build of \`main\` at ${GITHUB_SHA} (installer version 1.0.${GITHUB_RUN_NUMBER}). CI refreshes it on every push; it is not a versioned release.
+
+          - \`MedicatInstaller.exe\`: Windows x64. \`MedicatInstaller-x86.exe\`: Windows 32-bit.
+          - Linux: the one-liner in the README fetches \`Medicat_Installer.sh\` from \`main\`.
+          - The exe embeds 7-Zip and aria2; their licenses: https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_SHA}/THIRD_PARTY_NOTICES.md"
+          git push origin ":refs/tags/latest" || true
+          git push origin "HEAD:refs/tags/latest"
+          if gh release view latest >/dev/null 2>&1; then
+            gh release edit latest --title "Latest build" --notes "$notes"
+          else
+            gh release create latest --title "Latest build" --notes "$notes"
+          fi
+          gh release upload latest build/Release/MedicatInstaller.exe build/Release/MedicatInstaller-x86.exe --clobber

@@ -3,7 +3,7 @@
 
 `--keep` (the default) reuses the local counter; CMake runs it before every build.
 `--bump` adds one to the counter (rebuild.bat). `--set` and MEDICAT_PIN_BUILD pin a
-version 1.0.N (CI pins 1.0.1). The version goes into the exe's VERSIONINFO and /version.
+version 1.0.N (CI pins 1.0.<run number>). The version goes into the exe's VERSIONINFO and /version.
 """
 
 from __future__ import annotations

@@ -175,7 +175,7 @@ Detection: `{drive}\ventoy` folder **or** physical-disk layout matching Ventoy2D
 
 ## Build pipeline
 
-1. **tools/bump_build_number.py** writes `build_number.txt` and `generated/build_version.cpp` (`rebuild.bat`: local counter + 1; CI: pinned `1.0.1`).
+1. **tools/bump_build_number.py** writes `build_number.txt` and `generated/build_version.cpp` (`rebuild.bat`: local counter + 1; CI: `1.0.<run number>`).
 2. **cmake/unified** configures two ExternalProjects (x64 and Win32) of the root `CMakeLists.txt` and stages both exes into `build/Release/`.
 3. Per architecture, custom commands run **gen_spec.py**, **i18n_codegen.py**, **fetch_ventoy_versions.py**, **prepare_md5_bundle.py**, **prepare_aria2_bundle.py**, **prepare_discord_icon.py** and **generate_ingest_token.py**.
 4. **bundle.rc** (from `res/bundle.rc.in`) carries the icons, a VERSIONINFO block with the version from `build_number.txt`, `7za.exe`, gzipped `aria2c.exe` and the gzipped `MedicatFiles.md5`.
