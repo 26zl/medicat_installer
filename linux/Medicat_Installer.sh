@@ -1633,10 +1633,26 @@ function verifyTree() {
 	colEcho $cyanB "\nVerifying $total files on$whiteB $dir$cyanB (this reads about $(humanBytes "$MedicatExtractedBytes"))..."
 
 	(cd "$dir" && md5sum -c --quiet "$listFile") > "$rawFile" 2>&1
+	local md5Status=$?
+	if ! : > "$FailedListFile"; then
+		VerifyResult="skipped"
+		colEcho $redB "ERROR: Cannot write $FailedListFile; is $dir mounted read-only? Verification aborted."
+		return 1
+	fi
 	grep -E ': FAILED( open or read)?$' "$rawFile" | sed -E 's/: FAILED( open or read)?$//' > "$FailedListFile"
 	VerifyFailedCount=$(wc -l < "$FailedListFile" | tr -d ' ')
 	local missing
 	missing=$(grep -c ': FAILED open or read$' "$rawFile" || true)
+
+	# md5sum exits non-zero for every mismatch, so a failure without one FAILED line means it never
+	# checked the files (no usable manifest lines, unreadable list, cd failed): that is not a pass.
+	if (( md5Status != 0 && VerifyFailedCount == 0 )); then
+		rm -f "$FailedListFile"
+		VerifyResult="skipped"
+		colEcho $redB "ERROR: md5sum could not verify $dir (exit $md5Status):"
+		tail -n 5 "$rawFile" | sed 's/^/  /'
+		return 1
+	fi
 
 	if (( VerifyFailedCount == 0 )); then
 		rm -f "$FailedListFile"
@@ -1673,8 +1689,17 @@ function reextractFailed() {
 	awk 'NR==FNR { want[$0] = 1; next } { path = $0; sub(/^[0-9a-fA-F]+  /, "", path); if (path in want) print }' \
 		"$listFile" "$WorkDir/medicat_verify_list.txt" > "$checkFile"
 	(cd "$dir" && md5sum -c --quiet "$checkFile") > "$WorkDir/medicat_verify_output.txt" 2>&1
+	local md5Status=$?
 	grep -E ': FAILED( open or read)?$' "$WorkDir/medicat_verify_output.txt" | sed -E 's/: FAILED( open or read)?$//' > "$FailedListFile"
 	VerifyFailedCount=$(wc -l < "$FailedListFile" | tr -d ' ')
+	if (( md5Status != 0 && VerifyFailedCount == 0 )); then
+		# The re-check did not run (see verifyTree); keep the original list rather than claim a pass.
+		cp "$listFile" "$FailedListFile"
+		VerifyFailedCount=$(wc -l < "$FailedListFile" | tr -d ' ')
+		VerifyResult="failed"
+		colEcho $redB "ERROR: md5sum could not re-check the re-extracted files (exit $md5Status); see $FailedListFile."
+		return 1
+	fi
 	if (( VerifyFailedCount == 0 )); then
 		rm -f "$FailedListFile"
 		VerifyResult="ok"
@@ -2017,9 +2042,10 @@ function runInstall() {
 	fi
 
 	colEcho $cyanB "Extracting Medicat to the $FsType volume..."
-	logLine "extract: 7z x -o./MedicatUSB $location"
+	logLine "extract: 7z x -y -o./MedicatUSB $location"
 	# For split Drive/Mega volumes, $location is the .001 file; 7z opens the rest automatically.
-	if ! 7z x -o./MedicatUSB "$location"; then
+	# -y: an overwrite question would hang an unattended run (stdin is not a terminal under --yes).
+	if ! 7z x -y -o./MedicatUSB "$location"; then
 		colEcho $redB "ERROR: 7z extract failed for$whiteB $location"
 		exit $ExitError
 	fi
@@ -2030,6 +2056,9 @@ function runInstall() {
 	if ! verifyAndRepair "./MedicatUSB" "$location"; then
 		if [[ "$VerifyResult" == "failed" ]]; then
 			exitCode=$ExitVerifyFailed
+		else
+			# No manifest or md5sum could not run: the stick was not verified, same exit as --verify.
+			exitCode=$ExitError
 		fi
 	fi
 

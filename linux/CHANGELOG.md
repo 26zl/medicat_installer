@@ -22,6 +22,8 @@ All notable changes to `Medicat_Installer.sh` (now `linux/` on `main`).
 - Remove the FreeBSD branch; the script needs `lsblk`, `findmnt` and GNU `stat` and never ran there.
 - Credit everyone who worked on the script on one banner line, and carry the copyright and GPL-3.0 notice at the top so a stand-alone copy keeps it.
 - Catalog 2026-10-04: Clonezilla 3.3.3-37, Parrot 7.4, Super Grub2 Disk and FreeDOS 1.4 added, ESET SysRescue Live as a manual entry; SANS SIFT (not bootable) and Ubuntu Desktop (covered by Linux Mint) removed. `--list-extras` prints the total size of `all`.
+- Verification no longer reports "All files verified OK" when `md5sum` never checked the tree (a manifest without checksum lines, an unreadable list, a read-only mount); `--verify` exits 1 in that case and `--install` exits 1 instead of 0 when the manifest could not be resolved or checked.
+- `--install` runs the full 7z extract with `-y`, so an unattended run cannot block on an overwrite prompt.
 
 ## 0025
 
