@@ -950,8 +950,14 @@ uint64_t GetArchiveUncompressedSize(const std::wstring& sevenZipExe, const std::
     const std::wstring listOut = JoinPath(GetExeDirectory(), L"_7za_list_tmp.txt");
     DeleteFileW(listOut.c_str());
 
-    std::wstring cmd =
-        L"cmd /c \"\"" + sevenZipExe + L"\"\" l -slt \"\"" + archivePath + L"\"\" > \"\"" + listOut + L"\"\" 2>&1\"";
+    // Full path: without it CreateProcess looks for cmd.exe beside the (elevated) installer first.
+    wchar_t systemDir[MAX_PATH]{};
+    const UINT systemDirLen = GetSystemDirectoryW(systemDir, MAX_PATH);
+    if (systemDirLen == 0 || systemDirLen >= MAX_PATH) {
+        return 0;
+    }
+    std::wstring cmd = L"\"" + std::wstring(systemDir) + L"\\cmd.exe\" /c \"\"" + sevenZipExe + L"\"\" l -slt \"\"" +
+                       archivePath + L"\"\" > \"\"" + listOut + L"\"\" 2>&1\"";
     std::vector<wchar_t> cmdLine(cmd.begin(), cmd.end());
     cmdLine.push_back(L'\0');
 

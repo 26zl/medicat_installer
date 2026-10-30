@@ -8,6 +8,7 @@
 #include "resource.h"
 #include "sim_fail.h"
 #include "util.h"
+#include "verify.h"
 
 #include <windows.h>
 
@@ -19,6 +20,7 @@
 #include <vector>
 
 #include <cstring>
+#include <cwctype>
 
 namespace medicat {
 
@@ -624,6 +626,93 @@ bool FinalizeVentoyExtract(const VentoyEnsureOptions& options, VentoyFileLog* fi
     return false;
 }
 
+// Case-insensitive comparison for release asset names.
+bool EqualsIgnoreCaseW(const std::wstring& a, const std::wstring& b) {
+    if (a.size() != b.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < a.size(); ++i) {
+        if (towlower(a[i]) != towlower(b[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Lowercase SHA-256 of `fileName` from a sha256sum-style list ("<hex>  <name>" or "<hex> *<name>"),
+// the format of the sha256.txt Ventoy publishes with every release. Empty when the file is not listed.
+std::wstring FindSha256ForFile(const std::wstring& sums, const std::wstring& fileName) {
+    size_t start = 0;
+    while (start < sums.size()) {
+        size_t end = sums.find(L'\n', start);
+        if (end == std::wstring::npos) {
+            end = sums.size();
+        }
+        std::wstring line = sums.substr(start, end - start);
+        start = end + 1;
+        while (!line.empty() && (line.back() == L'\r' || line.back() == L' ' || line.back() == L'\t')) {
+            line.pop_back();
+        }
+        const size_t separator = line.find_first_of(L" \t");
+        if (separator != 64) {
+            continue;
+        }
+        const size_t nameStart = line.find_first_not_of(L" \t*", separator);
+        if (nameStart == std::wstring::npos) {
+            continue;
+        }
+        std::wstring name = line.substr(nameStart);
+        const size_t slash = name.find_last_of(L"/\\");
+        if (slash != std::wstring::npos) {
+            name = name.substr(slash + 1);
+        }
+        if (!EqualsIgnoreCaseW(name, fileName)) {
+            continue;
+        }
+        std::wstring digest = line.substr(0, 64);
+        for (wchar_t& ch : digest) {
+            if (!iswxdigit(ch)) {
+                return L"";
+            }
+            ch = static_cast<wchar_t>(towlower(ch));
+        }
+        return digest;
+    }
+    return L"";
+}
+
+// Check a downloaded Ventoy zip against the sha256.txt of the same release, as the Linux installer
+// does for the tarball. A zip from the offline cache is used as-is: there is no network to ask.
+bool VerifyVentoyZipChecksum(const VentoyEnsureOptions& options, VentoyFileLog* fileLog, const std::wstring& version,
+                             const std::wstring& zipPath, std::wstring& error) {
+    const std::wstring zipName = L"ventoy-" + version + L"-windows.zip";
+    const std::wstring sumsUrl = L"https://github.com/ventoy/Ventoy/releases/download/v" + version + L"/sha256.txt";
+    std::wstring sums;
+    std::wstring fetchError;
+    if (!HttpGet(sumsUrl, sums, fetchError)) {
+        error = L"Could not fetch the Ventoy checksum list: " + fetchError;
+        return false;
+    }
+    const std::wstring expected = FindSha256ForFile(sums, zipName);
+    if (expected.empty()) {
+        error = zipName + L" is not listed in " + sumsUrl;
+        return false;
+    }
+    std::string actualUtf8;
+    std::wstring hashError;
+    if (!ComputeFileSha256(zipPath, actualUtf8, hashError)) {
+        error = L"Could not hash " + zipName + L": " + hashError;
+        return false;
+    }
+    const std::wstring actual = Utf8ToWide(actualUtf8);
+    if (actual != expected) {
+        error = L"SHA-256 mismatch for " + zipName + L"\nExpected: " + expected + L"\nGot:      " + actual;
+        return false;
+    }
+    LogLine(options, fileLog, L"Ventoy v" + version + L" package verified against the release sha256.txt");
+    return true;
+}
+
 bool DownloadAndInstallVentoy(const VentoyEnsureOptions& options, VentoyFileLog* fileLog,
                                 const std::wstring& targetVersion, const std::wstring& ventoyDir,
                                 VentoyResult& result) {
@@ -666,6 +755,15 @@ bool DownloadAndInstallVentoy(const VentoyEnsureOptions& options, VentoyFileLog*
         if (!downloaded) {
             result.failureKind = VentoyResult::FailureKind::Download;
             result.error = downloadError;
+            return false;
+        }
+
+        std::wstring checksumError;
+        if (!VerifyVentoyZipChecksum(options, fileLog, targetVersion, zipPath, checksumError)) {
+            DeleteFileW(zipPath.c_str());
+            LogLine(options, fileLog, L"Ventoy package rejected: " + checksumError);
+            result.failureKind = VentoyResult::FailureKind::Download;
+            result.error = checksumError;
             return false;
         }
 
@@ -1325,7 +1423,14 @@ bool FormatDriveNtfs(const std::wstring& driveLetter, const std::wstring& label)
         return false;
     }
     const std::wstring drive = std::wstring(1, letter) + L":";
-    const std::wstring cmd = L"format.com " + drive + L" /FS:NTFS /X /Q /V:" + label + L" /Y";
+    // Full path: without it CreateProcess looks for format.com beside the (elevated) installer first.
+    wchar_t systemDir[MAX_PATH]{};
+    const UINT systemDirLen = GetSystemDirectoryW(systemDir, MAX_PATH);
+    if (systemDirLen == 0 || systemDirLen >= MAX_PATH) {
+        return false;
+    }
+    const std::wstring cmd = L"\"" + std::wstring(systemDir) + L"\\format.com\" " + drive + L" /FS:NTFS /X /Q /V:" +
+                             label + L" /Y";
     return RunHiddenProcess(cmd) == 0;
 }
 
