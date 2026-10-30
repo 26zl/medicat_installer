@@ -146,7 +146,7 @@ flowchart TD
 | Yes | User choice | Checked | `/U` (if format off) |
 | Yes | Checked | Either | `/I` |
 
-Detection: `{drive}\ventoy` folder **or** physical-disk layout matching Ventoy2Disk (`VTOYEFI` 32 MiB EFI partition at sector 2048 layout) via `TestVentoyInstalled`.
+Detection: physical-disk layout matching Ventoy2Disk (`VTOYEFI` 32 MiB EFI partition at sector 2048 layout) via `TestVentoyInstalled`; a `ventoy` folder on the data partition is not consulted.
 
 **UI vs logic:** When Ventoy is missing, checkboxes show checked state but stay **enabled**; `FormatChecked()` / `RunVentoyChecked()` enforce `true` via `RequiresForcedVentoyInstall()`. Drive-letter changes refresh labels/checks; toggling **Show all drives** does not.
 

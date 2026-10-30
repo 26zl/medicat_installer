@@ -107,6 +107,8 @@ Contributing: pull requests against `main` are welcome. Run `bash tests/linux/sm
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Code layout, threading model, build pipeline |
 | [`docs/SUPPORT_UPLOAD.md`](docs/SUPPORT_UPLOAD.md) | What the telemetry and the log upload send, and when |
 | [`SECURITY.md`](SECURITY.md) | Supported builds and how to report a vulnerability |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Build and test steps for both installers, conventions, how releases work |
+| [`CHANGELOG.md`](CHANGELOG.md) | Notable changes on `main`; the Linux script also keeps [`linux/CHANGELOG.md`](linux/CHANGELOG.md) |
 
 ## Credits
 
