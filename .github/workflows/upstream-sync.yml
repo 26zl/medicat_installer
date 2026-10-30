@@ -18,9 +18,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+  contents: read
 
 concurrency:
   group: upstream-sync
@@ -33,6 +31,10 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write  # pushes the sync/upstream-<date> branch
+      pull-requests: write  # gh pr create
+      issues: write  # gh issue create when the merge conflicts
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -129,6 +131,7 @@ jobs:
             echo
             cat /tmp/upstream_commits.md
             echo
+            # shellcheck disable=SC2016  # the backticks are Markdown, not a command substitution
             echo 'Resolve locally with `tools/sync_upstream.sh`, then push main.'
           } > /tmp/issue.md
           if [ "$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"Upstream sync needs a manual merge\" in:title" --json number --jq 'length')" = "0" ]; then
