@@ -189,8 +189,10 @@ bool App::ValidateHeadlessDrive(const CliOptions& cli, std::wstring& errorMessag
         return false;
     }
 
-    if (cli.drive.size() >= 1 && towupper(cli.drive[0]) == L'C') {
-        errorMessage = L"The system drive C: cannot be used";
+    if (IsProtectedDrive(cli.drive)) {
+        errorMessage = L"Drive " + cli.drive +
+                       L" cannot be used: C:, the drive Windows runs from and the drive the installer was started "
+                       L"from are never targets";
         return false;
     }
 

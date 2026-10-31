@@ -13,7 +13,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Admin elevation (UAC manifest) | ✅ | `requireAdministrator` |
 | USB drive detection | ✅ | Removable drives; hides drives under 28 GiB (30 GB) |
 | VHD/VHDX drive detection | ✅ | `BusTypeFileBackedVirtual` |
-| Skip `C:` drive | ✅ | |
+| Skip `C:`, the Windows drive and the installer's own drive | ✅ | `GetProtectedDriveLetters` in `src/drives.cpp`; also enforced for `/drive:` in headless runs |
 | Format checkbox (NTFS) | 🟡 | `format.com` only; forced on when Ventoy not on drive |
 | Ventoy action checkbox | ✅ | **Install Ventoy** (forced) vs **Update Ventoy** (optional) based on detection |
 | MediCat `.7z` extraction | ✅ | Bundled `7za.exe`, byte-based progress |
@@ -65,7 +65,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Feature | Status | Notes |
 |---------|--------|-------|
 | **Refresh drives** button | ⬜ | PS: `refresh_button` (list refreshes on show-all toggle / language change) |
-| **Show all drives** checkbox | ✅ | Fixed disks (HDD/SSD) ≥ 28 GiB; `C:` still hidden |
+| **Show all drives** checkbox | ✅ | Fixed disks (HDD/SSD) ≥ 28 GiB; the protected drives stay hidden |
 | Default select first VHD | ✅ | |
 | Drive size / free display | ✅ | `ui.drive_format`; volume label when set |
 | Cancel button | ⬜ | PS had cancel |

@@ -55,7 +55,7 @@ The version comes from `build_number.txt` at build time (`rebuild.bat` bumps it,
 |------|-------|--------|--------------|
 | `/drive:` | `--drive=` | `E`, `E:`, `E:\` | `/install`, `/verify`, `/extras` |
 
-Rules, same as the GUI: not `C:`, at least 28 GiB (30 GB), and listed as a removable or VHD drive unless `/allow-fixed` is given. Anything else exits **2** with `Drive not eligible`.
+Rules, same as the GUI: not `C:`, not the drive Windows runs from or the drive the installer was started from, at least 28 GiB (30 GB), and listed as a removable or VHD drive unless `/allow-fixed` is given. Anything else exits **2** with `Drive not eligible` (or `cannot be used` for the protected drives).
 
 ### Actions
 

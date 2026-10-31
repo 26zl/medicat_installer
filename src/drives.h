@@ -42,7 +42,16 @@ struct DiskDeviceInfo {
 // Minimum total drive capacity (28 GiB — nominal "32 GB" sticks report ~29.8 GiB).
 constexpr uint64_t kMinDriveCapacityBytes = 28ULL * 1024ULL * 1024ULL * 1024ULL;
 
-// USB + mounted VHD/VHDX drives (excludes C:). Set includeAllDrives for fixed disks too.
+// Drive letters that are never offered or accepted as a target: C:, the drive Windows runs from
+// (GetWindowsDirectoryW) and the drive the installer was started from. Upper-case letters, no colons.
+std::wstring GetProtectedDriveLetters();
+// The same rule for given paths (always C, plus the drive letter of each path that has one), so it
+// can be unit-tested without touching the machine.
+std::wstring ProtectedDriveLettersForPaths(const std::wstring& windowsDirectory, const std::wstring& installerPath);
+// True when driveLetter ("e", "E:" or "E:\") is one of the protected drives.
+bool IsProtectedDrive(const std::wstring& driveLetter);
+
+// USB + mounted VHD/VHDX drives, never a protected drive. Set includeAllDrives for fixed disks too.
 std::vector<DriveInfo> ListTargetDrives(bool includeAllDrives = false);
 int DefaultDriveIndex(const std::vector<DriveInfo>& drives);
 DriveIdentity GetDriveIdentity(const std::wstring& driveLetter);
