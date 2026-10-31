@@ -1,6 +1,6 @@
 # Contributing
 
-`main` is the only branch; open pull requests against it. CI ([`ci.yml`](.github/workflows/ci.yml)) runs on every push and pull request: the spec check, shellcheck and the smoke test for the Linux script, then a Windows build with the unit tests and the VHD smoke test. Commits of the upstream project arrive through the weekly `upstream-sync` workflow (or `tools/sync_upstream.sh`), so there is no need to port them by hand.
+`main` is the only branch; open pull requests against it. CI ([`ci.yml`](.github/workflows/ci.yml)) runs on every push and pull request: the spec check, the unit tests of the Python tools, shellcheck and the smoke test for the Linux script, then a Windows build with the unit tests and the VHD smoke test. Commits of the upstream project arrive through the weekly `upstream-sync` workflow (or `tools/sync_upstream.sh`), so there is no need to port them by hand.
 
 Discuss larger changes in an [issue](https://github.com/26zl/medicat_installer/issues) or in the [MediCat Discord](https://url.medicatusb.com/discord) first. Security problems go through [`SECURITY.md`](SECURITY.md), not a public issue.
 
@@ -14,6 +14,14 @@ python3 tools/gen_spec.py --check  # what CI runs: fails when either output is s
 ```
 
 Adding an extras entry is described in [`spec/README.md`](spec/README.md).
+
+## Python tools (`tools/`)
+
+Plain Python 3, standard library only (Pillow is optional, see below). Their unit tests live in `tests/python/` and use `unittest`, no extra packages:
+
+```bash
+python3 -m unittest discover -s tests/python -v   # what CI runs
+```
 
 ## Linux installer (`linux/Medicat_Installer.sh`)
 
@@ -52,4 +60,18 @@ Conventions: `/W4 /permissive-`, wide strings for paths and UI, no Win32 GUI cal
 
 ## Releases
 
-There are no versioned releases yet. Every push to `main` rebuilds both exes and refreshes the rolling [`latest`](https://github.com/26zl/medicat_installer/releases/tag/latest) release (the tag is moved to the new commit and the assets replaced); the installer version is `1.0.<CI run number>`. The Linux script is used straight from `main`.
+Every push to `main` rebuilds both exes and refreshes the rolling [`latest`](https://github.com/26zl/medicat_installer/releases/tag/latest) release (the tag is moved to the new commit and the assets replaced); those builds are numbered `1.0.<CI run number>`. The Linux script is used straight from `main`.
+
+A versioned release is a tag `vX.Y.Z` on a commit of `main`; the tag's version becomes the installer version (`/version` prints `X.Y.Z`). To cut `v1.0.0`:
+
+1. In [`CHANGELOG.md`](CHANGELOG.md) rename the `Unreleased` section to `## [1.0.0] - <date>`, put a fresh empty `## [Unreleased]` above it and update the links at the bottom (`[Unreleased]: https://github.com/26zl/medicat_installer/compare/v1.0.0...HEAD`, `[1.0.0]: https://github.com/26zl/medicat_installer/releases/tag/v1.0.0`). Merge that on `main` and wait for CI to pass. The release job refuses a tag whose version has no `## [X.Y.Z]` heading.
+2. Tag the merged commit and push the tag:
+
+   ```bash
+   git tag -a v1.0.0 -m "MediCat Installer 1.0.0"
+   git push origin v1.0.0
+   ```
+
+3. CI runs on the tag: `lint`, then `build-windows` with the unit tests and the VHD smoke test, then `release`, which publishes the GitHub release `v1.0.0` with `MedicatInstaller.exe`, `MedicatInstaller-x86.exe`, `Medicat_Installer.sh` and `SHA256SUMS.txt`. Nothing is published when a check fails: fix it on `main` and tag the next patch version rather than moving the tag. An existing release is not overwritten either; delete it first to republish from the same tag.
+
+Afterwards `latest` keeps following `main` as before. Mind the numbering: the rolling builds are `1.0.<run number>`, so a `1.0.x` release reports a lower version than the `latest` build before it. That is cosmetic, but if it matters, start at a higher minor such as `v1.1.0`.
