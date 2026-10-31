@@ -54,7 +54,8 @@ medicat_installer/
 │   └── ventoy_versions.txt # Fallback version list
 ├── tests/
 │   ├── windows/            # test_main.cpp (MedicatTests.exe), smoke_cli.ps1 (VHD smoke test)
-│   └── linux/              # smoke_test.sh
+│   ├── linux/              # smoke_test.sh
+│   └── python/             # unittest modules for tools/ (python -m unittest discover -s tests/python)
 ├── cmake/unified/          # Superbuild: one configure builds x64 and Win32
 ├── .github/workflows/      # ci.yml, upstream-sync.yml
 ├── docs/                   # This file, FEATURES.md, TODO.md, CLI.md, ...

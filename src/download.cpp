@@ -53,6 +53,18 @@ std::wstring FormatWinHttpFailure(const wchar_t* what) {
     return std::wstring(what) + L" (WinHTTP " + std::to_wstring(err) + L")";
 }
 
+// Metadata the later checks depend on (the MD5 manifest, the Ventoy release list and its
+// sha256.txt) is fetched over HTTPS and may not be redirected to plain HTTP, where an on-path
+// attacker could hand out a list that matches tampered files. Payload downloads are verified
+// against a checksum afterwards and follow every redirect: some mirrors redirect to HTTP.
+enum class RedirectPolicy { KeepHttps, FollowAll };
+
+void SetRedirectPolicy(HINTERNET request, const RedirectPolicy policy) {
+    DWORD redirect = policy == RedirectPolicy::FollowAll ? WINHTTP_OPTION_REDIRECT_POLICY_ALWAYS
+                                                         : WINHTTP_OPTION_REDIRECT_POLICY_DISALLOW_HTTPS_TO_HTTP;
+    WinHttpSetOption(request, WINHTTP_OPTION_REDIRECT_POLICY, &redirect, sizeof(redirect));
+}
+
 bool ParseUrl(const std::wstring& url, UrlParts& parts, std::wstring& error) {
     URL_COMPONENTS uc{};
     uc.dwStructSize = sizeof(uc);
@@ -150,6 +162,11 @@ bool OpenHttpGetRequest(const std::wstring& url, HINTERNET& outRequest, HINTERNE
         AppendFailedUrl(error, url);
         return false;
     }
+    if (!parts.https) {
+        error = L"Refusing to fetch over plain HTTP";
+        AppendFailedUrl(error, url);
+        return false;
+    }
 
     outSession = OpenWinHttpSession();
     if (!outSession) {
@@ -168,17 +185,15 @@ bool OpenHttpGetRequest(const std::wstring& url, HINTERNET& outRequest, HINTERNE
         return false;
     }
 
-    const DWORD flags = parts.https ? WINHTTP_FLAG_SECURE : 0;
     outRequest = WinHttpOpenRequest(outConnect, L"GET", parts.path.c_str(), nullptr, WINHTTP_NO_REFERER,
-                                    WINHTTP_DEFAULT_ACCEPT_TYPES, flags);
+                                    WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
     if (!outRequest) {
         error = L"WinHttpOpenRequest failed";
         AppendFailedUrl(error, url);
         return false;
     }
 
-    DWORD redirect = WINHTTP_OPTION_REDIRECT_POLICY_ALWAYS;
-    WinHttpSetOption(outRequest, WINHTTP_OPTION_REDIRECT_POLICY, &redirect, sizeof(redirect));
+    SetRedirectPolicy(outRequest, RedirectPolicy::KeepHttps);
 
     const wchar_t* headers = L"User-Agent: MedicatInstaller/1.0\r\nAccept: */*";
     if (!WinHttpSendRequest(outRequest, headers, static_cast<DWORD>(-1), WINHTTP_NO_REQUEST_DATA, 0, 0, 0) ||
@@ -202,9 +217,9 @@ bool OpenHttpGetRequest(const std::wstring& url, HINTERNET& outRequest, HINTERNE
     return true;
 }
 
-bool OpenHttpDownloadRequest(const std::wstring& url, const uint64_t resumeFrom, HINTERNET& outRequest,
-                             HINTERNET& outConnect, HINTERNET& outSession, DWORD& statusCode, uint64_t& totalFileSize,
-                             uint64_t& rangeStart, std::wstring& error) {
+bool OpenHttpDownloadRequest(const std::wstring& url, const uint64_t resumeFrom, const RedirectPolicy redirectPolicy,
+                             HINTERNET& outRequest, HINTERNET& outConnect, HINTERNET& outSession, DWORD& statusCode,
+                             uint64_t& totalFileSize, uint64_t& rangeStart, std::wstring& error) {
     statusCode = 0;
     totalFileSize = 0;
     rangeStart = resumeFrom;
@@ -214,6 +229,11 @@ bool OpenHttpDownloadRequest(const std::wstring& url, const uint64_t resumeFrom,
 
     UrlParts parts;
     if (!ParseUrl(url, parts, error)) {
+        AppendFailedUrl(error, url);
+        return false;
+    }
+    if (redirectPolicy == RedirectPolicy::KeepHttps && !parts.https) {
+        error = L"Refusing to fetch over plain HTTP";
         AppendFailedUrl(error, url);
         return false;
     }
@@ -244,8 +264,7 @@ bool OpenHttpDownloadRequest(const std::wstring& url, const uint64_t resumeFrom,
         return false;
     }
 
-    DWORD redirect = WINHTTP_OPTION_REDIRECT_POLICY_ALWAYS;
-    WinHttpSetOption(outRequest, WINHTTP_OPTION_REDIRECT_POLICY, &redirect, sizeof(redirect));
+    SetRedirectPolicy(outRequest, redirectPolicy);
 
     std::wstring headers = L"User-Agent: MedicatInstaller/1.0\r\nAccept: */*";
     if (resumeFrom > 0) {
@@ -812,7 +831,7 @@ Aria2DownloadResult DownloadFileWithAria2(const std::wstring& aria2c, const std:
 
 bool DownloadFileWithWinHttp(const std::wstring& url, const std::wstring& outputPath,
                              const std::function<void(uint64_t downloaded, uint64_t total)>& onProgress,
-                             std::wstring& error) {
+                             std::wstring& error, const RedirectPolicy redirectPolicy) {
     const uint64_t resumeFrom = GetFileSizeBytes(outputPath);
 
     HINTERNET session = nullptr;
@@ -821,8 +840,8 @@ bool DownloadFileWithWinHttp(const std::wstring& url, const std::wstring& output
     DWORD statusCode = 0;
     uint64_t totalFileSize = 0;
     uint64_t rangeStart = resumeFrom;
-    if (!OpenHttpDownloadRequest(url, resumeFrom, request, connect, session, statusCode, totalFileSize, rangeStart,
-                                 error)) {
+    if (!OpenHttpDownloadRequest(url, resumeFrom, redirectPolicy, request, connect, session, statusCode, totalFileSize,
+                                 rangeStart, error)) {
         CloseHttpHandles(request, connect, session);
         return false;
     }
@@ -1118,7 +1137,11 @@ bool HttpDownloadFileWithProgress(const std::wstring& url, const std::wstring& o
         }
         error.clear();
     }
-    return DownloadFileWithWinHttp(url, outputPath, onProgress, error);
+    return DownloadFileWithWinHttp(url, outputPath, onProgress, error, RedirectPolicy::FollowAll);
+}
+
+bool HttpDownloadMetadataFile(const std::wstring& url, const std::wstring& outputPath, std::wstring& error) {
+    return DownloadFileWithWinHttp(url, outputPath, nullptr, error, RedirectPolicy::KeepHttps);
 }
 
 bool TorrentDownloadFileWithProgress(const std::wstring& url, const std::wstring& outputPath,
@@ -1137,7 +1160,7 @@ bool TorrentDownloadFileWithProgress(const std::wstring& url, const std::wstring
     }
 
     const std::wstring torrentPath = JoinPath(GetMedicatTempDir(), L"MediCat_USB_v21.12.torrent");
-    if (!DownloadFileWithWinHttp(url, torrentPath, nullptr, error)) {
+    if (!DownloadFileWithWinHttp(url, torrentPath, nullptr, error, RedirectPolicy::FollowAll)) {
         return false;
     }
     if (GetFileSizeBytes(torrentPath) < 32) {

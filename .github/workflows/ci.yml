@@ -1,17 +1,19 @@
-# Build and lint on every push and pull request (no publishing).
+# Build and lint on every push and pull request; publish a versioned release for a v* tag.
 #
-# lint:          spec JSON + generated outputs in sync, shellcheck + smoke tests for the
-#                Linux installer (tests/linux/smoke_test.sh).
+# lint:          spec JSON + generated outputs in sync, unit tests of the Python tools, shellcheck +
+#                smoke tests for the Linux installer (tests/linux/smoke_test.sh).
 # build-windows: configure + build x64 and Win32 installers, run MedicatTests and the VHD smoke
 #                test. The exes are attached to the run as artifacts, and a push to main also
 #                refreshes the rolling `latest` release that the README links to.
+# release:       for a tag v<major>.<minor>.<patch> only (CONTRIBUTING.md, Releases): the GitHub
+#                release with both exes, the Linux script and SHA256SUMS.txt.
 
 name: CI
 
 on:
   push:
     branches: ["**"]
-    tags-ignore: ["**"]
+    tags: ["v*"]
   pull_request:
   workflow_dispatch:
 
@@ -42,6 +44,9 @@ jobs:
           python -m json.tool spec/extras.json > /dev/null
           python tools/gen_spec.py --check
 
+      - name: Test the Python tools
+        run: python -m unittest discover -s tests/python -v
+
       - name: Install lint tools
         run: |
           sudo apt-get update -qq
@@ -65,12 +70,28 @@ jobs:
     permissions:
       contents: write  # the latest-release step below; read is enough for everything else
     env:
-      MEDICAT_PIN_BUILD: "1.0.${{ github.run_number }}"
       MEDICAT_BUILD_NUMBER_BUMPED: "1"
       GH_TOKEN: ${{ github.token }}  # lets tools/fetch_ventoy_versions.py use the authenticated API rate limit
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      # The installer version (/version, VERSIONINFO): the tag's for a release build, v1.2.3 -> 1.2.3,
+      # and 1.0.<run number> for every other build.
+      - name: Pick the installer version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            version="${GITHUB_REF_NAME#v}"
+            if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::Release tags are v<major>.<minor>.<patch>, got $GITHUB_REF_NAME"
+              exit 1
+            fi
+          else
+            version="1.0.${GITHUB_RUN_NUMBER}"
+          fi
+          echo "MEDICAT_PIN_BUILD=$version" >> "$GITHUB_ENV"
+          echo "Installer version: $version"
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
@@ -162,3 +183,58 @@ jobs:
           for name in $(grep -E '^(7z[0-9]+-src\.7z|aria2-.*\.tar\.xz)$' <<<"$have"); do
             case " $wanted " in *" $name "*) ;; *) gh release delete-asset latest "$name" --yes ;; esac
           done
+
+  # Versioned release for a tag v<major>.<minor>.<patch>: the exes built above, the Linux script at
+  # the tag and a SHA256SUMS.txt, published only after lint and the Windows build with its tests
+  # passed. The rolling latest release is not touched.
+  release:
+    name: Publish the versioned release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: [lint, build-windows]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write  # gh release create with the assets
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Download the built installers
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        with:
+          name: MedicatInstaller-ci-${{ github.sha }}
+          path: dist
+
+      - name: Check the tag against CHANGELOG.md
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Release tags are v<major>.<minor>.<patch>, got $GITHUB_REF_NAME"
+            exit 1
+          fi
+          if ! grep -q "^## \[$version\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## [$version]' section; add it on main before tagging (CONTRIBUTING.md, Releases)"
+            exit 1
+          fi
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          cp linux/Medicat_Installer.sh dist/
+          (cd dist && sha256sum MedicatInstaller.exe MedicatInstaller-x86.exe Medicat_Installer.sh > SHA256SUMS.txt)
+          cat dist/SHA256SUMS.txt
+          tree="https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}"
+          cat > notes.md <<EOF
+          MediCat Installer ${version}, built by CI from ${GITHUB_SHA}.
+
+          - \`MedicatInstaller.exe\`: Windows x64. \`MedicatInstaller-x86.exe\`: Windows 32-bit. \`/version\` prints ${version}.
+          - \`Medicat_Installer.sh\`: the Linux script at this tag (the README one-liner fetches the newest one from \`main\`).
+          - \`SHA256SUMS.txt\`: check a download with \`sha256sum -c SHA256SUMS.txt\` (Linux) or \`Get-FileHash\` (PowerShell).
+          - Changes: [CHANGELOG.md](${tree}/CHANGELOG.md). The exes embed 7-Zip and aria2; licenses and source: [THIRD_PARTY_NOTICES.md](${tree}/THIRD_PARTY_NOTICES.md).
+          EOF
+          gh release create "$GITHUB_REF_NAME" --verify-tag --title "MediCat Installer ${version}" --notes-file notes.md \
+            dist/MedicatInstaller.exe dist/MedicatInstaller-x86.exe dist/Medicat_Installer.sh dist/SHA256SUMS.txt

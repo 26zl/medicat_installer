@@ -1,6 +1,7 @@
 // Console test runner for installer logic that needs no GUI, USB stick or network.
 // Built as MedicatTests when CMake is configured with -DMEDICAT_BUILD_TESTS=ON.
 #include "cli.h"
+#include "drives.h"
 #include "extras.h"
 #include "spec_generated.h"
 #include "verify.h"
@@ -120,6 +121,37 @@ void TestFileHashing() {
     DeleteFileW(path.c_str());
 }
 
+void TestProtectedDrives() {
+    using medicat::IsProtectedDrive;
+    using medicat::ProtectedDriveLettersForPaths;
+
+    Check(ProtectedDriveLettersForPaths(L"C:\\Windows", L"C:\\Users\\me\\MedicatInstaller.exe") == L"C",
+          "only C: is protected when Windows and the installer are both on it");
+    const std::wstring letters = ProtectedDriveLettersForPaths(L"d:\\WINDOWS", L"E:\\tools\\MedicatInstaller.exe");
+    Check(letters.size() == 3 && letters.find(L'C') != std::wstring::npos && letters.find(L'D') != std::wstring::npos &&
+              letters.find(L'E') != std::wstring::npos,
+          "the Windows drive and the installer's drive are protected, upper-cased, once each");
+    Check(ProtectedDriveLettersForPaths(L"", L"\\\\server\\share\\MedicatInstaller.exe") == L"C",
+          "no Windows directory and a UNC installer path add no letters");
+    Check(IsProtectedDrive(L"c") && IsProtectedDrive(L"C:") && IsProtectedDrive(L"C:\\"),
+          "C: is protected in every spelling");
+    Check(!IsProtectedDrive(L"") && !IsProtectedDrive(L"?"), "an empty or invalid drive is not reported as protected");
+
+    wchar_t windowsDirectory[MAX_PATH]{};
+    GetWindowsDirectoryW(windowsDirectory, MAX_PATH);
+    if (windowsDirectory[1] == L':') {
+        Check(IsProtectedDrive(std::wstring(1, windowsDirectory[0])), "the drive Windows runs from is protected");
+    }
+    wchar_t modulePath[MAX_PATH]{};
+    GetModuleFileNameW(nullptr, modulePath, MAX_PATH);
+    if (modulePath[1] == L':') {
+        Check(IsProtectedDrive(std::wstring(1, modulePath[0])), "the drive the test binary runs from is protected");
+    }
+    for (const medicat::DriveInfo& drive : medicat::ListTargetDrives(true)) {
+        Check(!IsProtectedDrive(drive.letter), "the drive list with fixed disks never offers a protected drive");
+    }
+}
+
 void TestPresenceCheck() {
     wchar_t dir[MAX_PATH]{};
     GetTempPathW(MAX_PATH, dir);
@@ -138,6 +170,7 @@ int main() {
     TestCliParsing();
     TestExtrasCatalog();
     TestFileHashing();
+    TestProtectedDrives();
     TestPresenceCheck();
     std::printf("%d checks, %d failures\n", g_checks, g_failures);
     return g_failures == 0 ? 0 : 1;

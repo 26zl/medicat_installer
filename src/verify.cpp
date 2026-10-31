@@ -922,7 +922,7 @@ bool EnsureMedicatMd5Manifest(const std::wstring& installerRoot, const std::wstr
     for (size_t i = 0; i < kMd5ManifestUrlCount; ++i) {
         std::wstring downloadError;
         DeleteFileW(downloadTargets[i].c_str());
-        if (!HttpDownloadFile(kMd5ManifestUrls[i], downloadTargets[i], downloadError)) {
+        if (!HttpDownloadMetadataFile(kMd5ManifestUrls[i], downloadTargets[i], downloadError)) {
             if (error.empty()) {
                 error = downloadError;
             }

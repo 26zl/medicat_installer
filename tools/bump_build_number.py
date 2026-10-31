@@ -2,8 +2,9 @@
 """Write build_number.txt and generated/build_version.cpp.
 
 `--keep` (the default) reuses the local counter; CMake runs it before every build.
-`--bump` adds one to the counter (rebuild.bat). `--set` and MEDICAT_PIN_BUILD pin a
-version 1.0.N (CI pins 1.0.<run number>). The version goes into the exe's VERSIONINFO and /version.
+`--bump` adds one to the counter (rebuild.bat). `--set` and MEDICAT_PIN_BUILD pin a version:
+a bare build number N means 1.0.N (CI pins 1.0.<run number>), a full X.Y.Z is taken as is (a
+release build pins the tag's version). The version goes into the exe's VERSIONINFO and /version.
 """
 
 from __future__ import annotations
@@ -62,7 +63,10 @@ def read_counter(counter_path: Path, default_major: int, default_minor: int) -> 
 
 def parse_set_value(value: str, default_major: int, default_minor: int) -> tuple[int, int, int] | None:
     parsed = parse_version_text(value, default_major, default_minor)
-    if parsed is None or parsed[2] <= 0:
+    if parsed is None or parsed == (0, 0, 0):
+        return None
+    # A bare counter starts at 1; a full version such as 1.0.0 (a release tag) may end in 0.
+    if value.strip().isdigit() and parsed[2] <= 0:
         return None
     return parsed
 
@@ -82,7 +86,7 @@ def main() -> int:
     parser.add_argument("--keep", action="store_true", help="Reuse build_number.txt unchanged (default)")
     parser.add_argument("--bump", action="store_true", help="Add one to the local build number")
     parser.add_argument("--skip-if-env", default="", help="Only regenerate the output when this variable is set")
-    parser.add_argument("--set", default="", help="Force version 1.0.N (or patch N)")
+    parser.add_argument("--set", default="", help="Force version X.Y.Z, or build number N for 1.0.N")
     args = parser.parse_args()
 
     try:

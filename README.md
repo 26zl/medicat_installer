@@ -26,7 +26,7 @@ Windows: download [`MedicatInstaller.exe`](https://github.com/26zl/medicat_insta
 iwr -OutFile MedicatInstaller.exe https://github.com/26zl/medicat_installer/releases/download/latest/MedicatInstaller.exe; .\MedicatInstaller.exe
 ```
 
-CI rebuilds both exes from every push to `main` and keeps them on the [`latest` release](https://github.com/26zl/medicat_installer/releases/tag/latest), next to the source archives of the embedded 7-Zip and aria2; `/version` prints `1.0.<build>`. The exe is not code-signed, so SmartScreen may ask once. Or build it yourself (see [Build from source](#build-from-source)).
+CI rebuilds both exes from every push to `main` and keeps them on the [`latest` release](https://github.com/26zl/medicat_installer/releases/tag/latest), next to the source archives of the embedded 7-Zip and aria2; `/version` prints `1.0.<build>`. Versioned releases (`vX.Y.Z` tags, with a `SHA256SUMS.txt`) appear on the [Releases page](https://github.com/26zl/medicat_installer/releases) when they are cut ([how](CONTRIBUTING.md#releases)). The exe is not code-signed, so SmartScreen may ask once. Or build it yourself (see [Build from source](#build-from-source)).
 
 ## Requirements
 
@@ -90,7 +90,7 @@ Visual Studio 2022 or newer with the C++ build tools (the Build Tools edition is
 rebuild.bat
 ```
 
-Outputs land in `build/Release/`. The version goes to `build_number.txt` (gitignored) and into the exe's version resource and `/version`; `rebuild.bat` bumps the local counter, `rebuild.bat as 1.0.N` pins it and CI uses `1.0.<run number>`. Every push runs [`ci.yml`](.github/workflows/ci.yml): spec check, shellcheck and smoke tests for the Linux script, and a Windows build. Ask in Discord if you get stuck.
+Outputs land in `build/Release/`. The version goes to `build_number.txt` (gitignored) and into the exe's version resource and `/version`; `rebuild.bat` bumps the local counter, `rebuild.bat as 1.0.N` pins it and CI uses `1.0.<run number>`. Every push runs [`ci.yml`](.github/workflows/ci.yml): spec check, unit tests of the Python tools, shellcheck and smoke tests for the Linux script, and a Windows build; a `vX.Y.Z` tag also publishes a release. Ask in Discord if you get stuck.
 
 Mirrors, hashes and the extras catalog live in [`spec/`](spec/README.md); `python3 tools/gen_spec.py` regenerates `src/spec_generated.h` and the spec block in the Linux script (the CMake build does this automatically).
 

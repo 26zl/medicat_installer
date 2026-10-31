@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cwctype>
 #include <set>
 #include <sstream>
 #include <vector>
@@ -438,10 +439,11 @@ bool IsUsbBusDisk(const DWORD diskNumber) {
 
 std::set<wchar_t> GetVhdDriveLetters() {
     std::set<wchar_t> letters;
+    const std::wstring protectedLetters = GetProtectedDriveLetters();
     const DWORD mask = GetLogicalDrives();
 
     for (wchar_t letter = L'A'; letter <= L'Z'; ++letter) {
-        if (letter == L'C') {
+        if (protectedLetters.find(letter) != std::wstring::npos) {
             continue;
         }
         const int bit = letter - L'A';
@@ -627,13 +629,44 @@ bool IdentityMatches(const DriveIdentity& a, const DriveIdentity& b) {
 
 }  // namespace
 
+std::wstring ProtectedDriveLettersForPaths(const std::wstring& windowsDirectory, const std::wstring& installerPath) {
+    std::wstring letters = L"C";
+    for (const std::wstring* path : {&windowsDirectory, &installerPath}) {
+        if (path->size() < 2 || (*path)[1] != L':') {
+            continue;  // empty, relative or UNC: no drive letter to protect
+        }
+        const wchar_t letter = static_cast<wchar_t>(towupper((*path)[0]));
+        if (letter >= L'A' && letter <= L'Z' && letters.find(letter) == std::wstring::npos) {
+            letters.push_back(letter);
+        }
+    }
+    return letters;
+}
+
+std::wstring GetProtectedDriveLetters() {
+    static const std::wstring letters = [] {
+        wchar_t windowsDirectory[MAX_PATH]{};
+        GetWindowsDirectoryW(windowsDirectory, MAX_PATH);
+        wchar_t installerPath[MAX_PATH]{};
+        GetModuleFileNameW(nullptr, installerPath, MAX_PATH);
+        return ProtectedDriveLettersForPaths(windowsDirectory, installerPath);
+    }();
+    return letters;
+}
+
+bool IsProtectedDrive(const std::wstring& driveLetter) {
+    const wchar_t letter = NormalizeDriveLetter(driveLetter);
+    return letter != L'\0' && GetProtectedDriveLetters().find(letter) != std::wstring::npos;
+}
+
 std::vector<DriveInfo> ListTargetDrives(const bool includeAllDrives) {
     std::vector<DriveInfo> drives;
     const std::set<wchar_t> vhdLetters = GetVhdDriveLetters();
+    const std::wstring protectedLetters = GetProtectedDriveLetters();
     const DWORD mask = GetLogicalDrives();
 
     for (wchar_t letter = L'A'; letter <= L'Z'; ++letter) {
-        if (letter == L'C') {
+        if (protectedLetters.find(letter) != std::wstring::npos) {
             continue;
         }
         const int bit = letter - L'A';
@@ -803,9 +836,10 @@ bool DriveLetterMatchesIdentity(const std::wstring& driveLetter, const DriveIden
 }
 
 std::wstring FindDriveLetterForIdentity(const DriveIdentity& identity) {
+    const std::wstring protectedLetters = GetProtectedDriveLetters();
     const DWORD mask = GetLogicalDrives();
     for (wchar_t letter = L'A'; letter <= L'Z'; ++letter) {
-        if (letter == L'C') {
+        if (protectedLetters.find(letter) != std::wstring::npos) {
             continue;
         }
         const int bit = letter - L'A';
