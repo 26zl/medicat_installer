@@ -11,7 +11,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 |---------|--------|-------|
 | Win32 GUI (drive picker, install button) | ✅ | `src/gui.cpp` |
 | Admin elevation (UAC manifest) | ✅ | `requireAdministrator` |
-| USB drive detection | ✅ | Removable drives; hides drives under 30 GiB |
+| USB drive detection | ✅ | Removable drives; hides drives under 28 GiB (30 GB) |
 | VHD/VHDX drive detection | ✅ | `BusTypeFileBackedVirtual` |
 | Skip `C:` drive | ✅ | |
 | Format checkbox (NTFS) | 🟡 | `format.com` only; forced on when Ventoy not on drive |
@@ -30,7 +30,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Detect existing Ventoy on selected drive | ✅ | `TestVentoyInstalled` — `ventoy` folder or VTOYEFI disk layout (Ventoy2Disk `IsVentoyPhyDrive` parity) |
+| Detect existing Ventoy on selected drive | ✅ | `TestVentoyInstalled` — VTOYEFI disk layout (Ventoy2Disk `IsVentoyPhyDrive` parity) |
 | Download latest Ventoy from GitHub | ✅ | GitHub releases; optional pin in Advanced |
 | Extract Ventoy zip | ✅ | Bundled `7za.exe` |
 | Fresh install `VTOYCLI /I` | ✅ | When format checked or Ventoy not detected |
@@ -65,7 +65,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Feature | Status | Notes |
 |---------|--------|-------|
 | **Refresh drives** button | ⬜ | PS: `refresh_button` (list refreshes on show-all toggle / language change) |
-| **Show all drives** checkbox | ✅ | Fixed disks (HDD/SSD) ≥ 30 GiB; `C:` still hidden |
+| **Show all drives** checkbox | ✅ | Fixed disks (HDD/SSD) ≥ 28 GiB; `C:` still hidden |
 | Default select first VHD | ✅ | |
 | Drive size / free display | ✅ | `ui.drive_format`; volume label when set |
 | Cancel button | ⬜ | PS had cancel |

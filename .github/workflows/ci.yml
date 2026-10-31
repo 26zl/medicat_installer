@@ -158,6 +158,7 @@ jobs:
               gh release upload latest "$name"
             fi
           done
+          # shellcheck disable=SC2013  # asset names never contain whitespace
           for name in $(grep -E '^(7z[0-9]+-src\.7z|aria2-.*\.tar\.xz)$' <<<"$have"); do
             case " $wanted " in *" $name "*) ;; *) gh release delete-asset latest "$name" --yes ;; esac
           done

@@ -272,7 +272,7 @@ Common options:
   /yes                                     Accept destructive prompts (required with /quiet)
   /quiet                                   No dialogs; use exit codes
   /offline                                 Use offline Ventoy/archive cache only
-  /allow-fixed                             Include fixed HDD/SSD drives (>= 30 GiB)
+  /allow-fixed                             Include fixed HDD/SSD drives (>= 28 GiB)
   /reextract /noreextract                  Control selective re-extract on verify failure
   /extras:LIST                             With /install or /verify: add catalog images afterwards
   /telemetry /no-telemetry                 Send or skip the anonymous session report (headless default: skip)

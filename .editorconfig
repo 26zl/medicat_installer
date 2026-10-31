@@ -1,0 +1,46 @@
+# EditorConfig (https://editorconfig.org). Matches the files as they are in the repository:
+# 4-space C++, Python, CMake and PowerShell, 2-space JSON and YAML, tabs in the bash scripts,
+# LF everywhere except the batch file (see .gitattributes).
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cpp,h,hpp}]
+indent_style = space
+indent_size = 4
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+[{CMakeLists.txt,*.cmake}]
+indent_style = space
+indent_size = 4
+
+[*.ps1]
+indent_style = space
+indent_size = 4
+
+[*.sh]
+indent_style = tab
+
+[*.{json,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.bat]
+end_of_line = crlf
+indent_style = space
+indent_size = 4
+
+# Checksum manifest and binary assets: never rewritten by an editor.
+[{MedicatFiles.md5,*.torrent,*.ico,*.png,*.exe}]
+insert_final_newline = false
+trim_trailing_whitespace = false
